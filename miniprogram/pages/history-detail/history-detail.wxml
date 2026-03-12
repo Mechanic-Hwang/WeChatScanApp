@@ -1,0 +1,64 @@
+<!-- pages/history-detail/history-detail.wxml -->
+<view class="container">
+  <!-- 批次头部信息 -->
+  <view class="batch-header-card">
+    <view class="batch-type-tag {{batch.batchType}}">
+      {{batch.batchType === 'book' ? '📚 图书扫描' : '📷 普通扫描'}}
+    </view>
+    <view class="batch-title">{{batch.title}}</view>
+    <view class="batch-meta">
+      <text class="meta-item">{{batch.timeText}}</text>
+      <text class="meta-item">共 {{batch.itemCount}} 条</text>
+    </view>
+  </view>
+
+  <!-- 结果列表 -->
+  <view class="result-list">
+    <view class="result-item" 
+          wx:for="{{batch.items}}" 
+          wx:key="id">
+      
+      <!-- 普通模式 -->
+      <block wx:if="{{item.mode === 'normal'}}">
+        <view class="result-icon">📷</view>
+        <view class="result-content">
+          <view class="result-text">{{item.content}}</view>
+          <view class="result-time">{{item.timeText}}</view>
+        </view>
+      </block>
+      
+      <!-- 图书模式 -->
+      <block wx:if="{{item.mode === 'book'}}">
+        <view class="result-icon">📚</view>
+        <view class="result-content">
+          <view class="book-title">{{item.bookInfo.title || '未知书名'}}</view>
+          <view class="book-author" wx:if="{{item.bookInfo.author}}">
+            作者：{{item.bookInfo.author}}
+          </view>
+          <view class="book-barcode">条码：{{item.content}}</view>
+          <view class="book-call" wx:if="{{item.bookInfo.callNumber}}">
+            索书号：{{item.bookInfo.callNumber}}
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{batch.items.length === 0}}">
+    <text class="empty-icon">📭</text>
+    <text>该批次没有记录</text>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-action-bar">
+    <view class="action-btn copy" bindtap="copyBatch">
+      <text class="btn-icon">📋</text>
+      <text>复制全部</text>
+    </view>
+    <view class="action-btn delete" bindtap="deleteBatch">
+      <text class="btn-icon">🗑️</text>
+      <text>删除批次</text>
+    </view>
+  </view>
+</view>

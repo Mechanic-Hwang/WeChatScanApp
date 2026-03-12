@@ -39,23 +39,28 @@
     <view class="btn btn-primary mt-20" bindtap="onManualInput">确认</view>
   </view>
 
-  <!-- 最近记录 -->
-  <view class="card history-section" wx:if="{{recentRecords.length > 0}}">
+  <!-- 完成扫描按钮 -->
+  <view class="finish-section" wx:if="{{recentBatches.length > 0}}">
+    <view class="btn btn-secondary" bindtap="finishScan">完成本次扫描</view>
+  </view>
+
+  <!-- 最近批次 -->
+  <view class="card history-section" wx:if="{{recentBatches.length > 0}}">
     <view class="section-header">
-      <text class="section-title">最近记录</text>
-      <text class="view-all" bindtap="viewAllRecords">查看全部 ></text>
+      <text class="section-title">最近扫描批次</text>
+      <text class="view-all" bindtap="viewAllHistory">查看全部 ></text>
     </view>
     
     <view class="record-list">
       <view class="record-item" 
-            wx:for="{{recentRecords}}" 
-            wx:key="id"
-            bindtap="viewDetail"
-            data-id="{{item.id}}">
-        <view class="record-icon">{{item.mode === 'book' ? '📚' : '📷'}}</view>
+            wx:for="{{recentBatches}}" 
+            wx:key="batchId"
+            bindtap="viewBatchDetail"
+            data-id="{{item.batchId}}">
+        <view class="record-icon">{{item.batchType === 'book' ? '📚' : '📷'}}</view>
         <view class="record-content">
-          <view class="record-title">{{item.title || item.content}}</view>
-          <view class="record-meta">{{item.time}}</view>
+          <view class="record-title">{{item.title}}</view>
+          <view class="record-meta">{{item.time}} · 共{{item.itemCount}}条</view>
         </view>
         <text class="record-arrow">></text>
       </view>

@@ -1,0 +1,136 @@
+/* pages/history-detail/history-detail.wxss */
+.batch-header-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+}
+
+.batch-type-tag {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  margin-bottom: 16rpx;
+}
+
+.batch-type-tag.book {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.batch-type-tag.normal {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.batch-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.batch-meta {
+  display: flex;
+  gap: 20rpx;
+}
+
+.meta-item {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 结果列表 */
+.result-list {
+  padding-bottom: 140rpx;
+}
+
+.result-item {
+  display: flex;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.result-icon {
+  font-size: 40rpx;
+  margin-right: 20rpx;
+  margin-top: 4rpx;
+}
+
+.result-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-text {
+  font-size: 30rpx;
+  color: #333;
+  word-break: break-all;
+  line-height: 1.5;
+  margin-bottom: 8rpx;
+}
+
+.result-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 图书信息 */
+.book-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.book-author,
+.book-barcode,
+.book-call {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+/* 底部操作栏 */
+.bottom-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+}
+
+.action-btn.copy {
+  background: #667eea;
+  color: #fff;
+}
+
+.action-btn.delete {
+  background: #ff4757;
+  color: #fff;
+}
+
+.btn-icon {
+  margin-right: 12rpx;
+}

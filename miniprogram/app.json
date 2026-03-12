@@ -1,9 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/scan/scan",
-    "pages/result/result",
-    "pages/detail/detail",
+    "pages/history/history",
+    "pages/history-detail/history-detail",
     "pages/settings/settings"
   ],
   "window": {
@@ -15,7 +14,7 @@
   },
   "tabBar": {
     "color": "#999999",
-    "selectedColor": "#2C3E50",
+    "selectedColor": "#667eea",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
@@ -24,6 +23,12 @@
         "text": "首页",
         "iconPath": "images/home.png",
         "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "历史",
+        "iconPath": "images/history.png",
+        "selectedIconPath": "images/history-active.png"
       },
       {
         "pagePath": "pages/settings/settings",

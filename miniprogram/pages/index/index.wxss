@@ -101,6 +101,12 @@
   font-weight: 500;
 }
 
+/* 完成扫描 */
+.finish-section {
+  padding: 0 30rpx;
+  margin-bottom: 20rpx;
+}
+
 /* 最近记录 */
 .history-section {
   padding: 30rpx;
