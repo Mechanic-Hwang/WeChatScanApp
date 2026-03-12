@@ -56,7 +56,10 @@ Page({
   // 切换模式
   switchMode(e) {
     const mode = e.currentTarget.dataset.mode;
-    this.setData({ currentMode: mode });
+    this.setData({ 
+      currentMode: mode,
+      inputValue: ''  // 清空输入框
+    });
     app.saveCurrentMode(mode);
     
     wx.showToast({

@@ -94,7 +94,7 @@ Page({
           url: apiUrl,
           method: 'GET',
           data: {
-            barcode: testBarcode,
+            item_barcode: testBarcode,
             apikey: apiKey
           },
           timeout: 10000,
@@ -129,9 +129,16 @@ Page({
     const lang = e.currentTarget.dataset.lang;
     this.setData({ currentLang: lang });
     app.saveLanguage(lang);
+    this.updateLanguage();
+    
+    const messages = {
+      'zh-CN': '已切换到简体中文',
+      'zh-TW': '已切換到繁體中文',
+      'en': 'Switched to English'
+    };
     
     wx.showToast({
-      title: lang === 'zh-CN' ? '已切换到中文' : 'Switched to English',
+      title: messages[lang],
       icon: 'none'
     });
   },
@@ -143,8 +150,8 @@ Page({
       content: '确定清空所有扫描历史吗？此操作不可恢复。',
       success: (res) => {
         if (res.confirm) {
-          app.globalData.scanHistory = [];
-          wx.setStorageSync('scanHistory', []);
+          app.globalData.scanBatches = [];
+          wx.setStorageSync('scanBatches', []);
           wx.showToast({ title: '已清空', icon: 'success' });
         }
       }
@@ -153,27 +160,33 @@ Page({
 
   // 导出数据
   exportData() {
-    const history = app.globalData.scanHistory;
+    const batches = app.globalData.scanBatches;
     
-    if (history.length === 0) {
+    if (batches.length === 0) {
       wx.showToast({ title: '没有数据可导出', icon: 'none' });
       return;
     }
 
-    const content = history.map(item => {
-      const time = new Date(item.time).toLocaleString();
-      if (item.mode === 'book' && item.bookInfo) {
-        return `[${time}] 图书: ${item.bookInfo.title} - ${item.content}`;
-      }
-      return `[${time}] ${item.content}`;
-    }).join('\n');
+    let content = '';
+    batches.forEach((batch, index) => {
+      if (index > 0) content += '\n\n';
+      content += `【批次 ${index + 1}】${new Date(batch.createdAt).toLocaleString()}\n`;
+      batch.items.forEach(item => {
+        const time = new Date(item.createdAt).toLocaleString();
+        if (item.mode === 'book' && item.bookInfo) {
+          content += `[${time}] 图书: ${item.bookInfo.title} - ${item.content}\n`;
+        } else {
+          content += `[${time}] ${item.content}\n`;
+        }
+      });
+    });
 
     wx.setClipboardData({
       data: content,
       success: () => {
         wx.showModal({
           title: '导出成功',
-          content: `已复制 ${history.length} 条记录到剪贴板`,
+          content: `已复制 ${batches.length} 个批次到剪贴板`,
           showCancel: false
         });
       }

@@ -41,7 +41,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "2.30.0",
-  "appid": "",
+  "appid": "wx YOUR_APPID_HERE",
   "projectname": "WeChatScanApp",
   "condition": {}
 }
