@@ -94,14 +94,38 @@ App({
       return false;
     }
 
-    // 检查是否已存在
-    const exists = batch.items.findIndex(
+    // 检查当前批次是否已存在
+    const existsInBatch = batch.items.findIndex(
       item => item.content === record.content
     );
     
-    if (exists !== -1) {
-      wx.showToast({ title: '记录已存在', icon: 'none' });
+    if (existsInBatch !== -1) {
+      // 已存在，移到顶部并更新时间
+      const existingItem = batch.items.splice(existsInBatch, 1)[0];
+      existingItem.createdAt = new Date().toISOString();
+      batch.items.unshift(existingItem);
+      batch.updatedAt = new Date().toISOString();
+      this.saveBatch(batch);
+      wx.showToast({ title: '记录已存在，已移到顶部', icon: 'none' });
       return false;
+    }
+
+    // 检查其他批次是否已存在
+    for (const existingBatch of this.globalData.scanBatches) {
+      const existsInOtherBatch = existingBatch.items.findIndex(
+        item => item.content === record.content
+      );
+      
+      if (existsInOtherBatch !== -1) {
+        // 在其他批次中找到，提示用户
+        wx.showToast({ 
+          title: '该记录已在历史中存在', 
+          icon: 'none',
+          duration: 2000
+        });
+        // 仍然添加到当前批次，但给用户提示
+        break;
+      }
     }
 
     // 添加记录
@@ -141,8 +165,46 @@ App({
       this.globalData.scanBatches.unshift(batch);
     }
     
+    // 检查存储空间（限制10MB）
+    this.checkStorageLimit();
+    
     // 保存到本地存储
     wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+  },
+
+  // 检查存储空间限制
+  checkStorageLimit() {
+    const MAX_BATCHES = 500; // 最多500个批次
+    const MAX_STORAGE_MB = 10; // 10MB限制
+    
+    // 限制批次数量
+    if (this.globalData.scanBatches.length > MAX_BATCHES) {
+      // 删除最旧的批次
+      const toRemove = this.globalData.scanBatches.length - MAX_BATCHES;
+      this.globalData.scanBatches.splice(-toRemove);
+      console.log(`[Storage] 超出${MAX_BATCHES}批次限制，已清理${toRemove}个旧批次`);
+    }
+    
+    // 估算存储大小（粗略估计）
+    try {
+      const dataStr = JSON.stringify(this.globalData.scanBatches);
+      const sizeInMB = (dataStr.length * 2) / (1024 * 1024); // UTF-16 每个字符2字节
+      
+      if (sizeInMB > MAX_STORAGE_MB) {
+        // 删除最旧的20%批次
+        const toRemove = Math.ceil(this.globalData.scanBatches.length * 0.2);
+        this.globalData.scanBatches.splice(-toRemove);
+        console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${toRemove}个旧批次`);
+        
+        wx.showToast({
+          title: '存储空间不足，已自动清理旧记录',
+          icon: 'none',
+          duration: 3000
+        });
+      }
+    } catch (e) {
+      console.error('[Storage] 检查存储空间失败:', e);
+    }
   },
 
   // 完成当前批次
