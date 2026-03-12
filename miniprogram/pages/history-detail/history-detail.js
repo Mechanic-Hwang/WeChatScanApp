@@ -92,5 +92,33 @@ Page({
         }
       }
     });
+  },
+
+  // 再次扫描（返回首页并创建同类型新批次）
+  scanAgain() {
+    const { batch } = this.data;
+    
+    // 创建同类型新批次
+    app.createNewBatch(batch.batchType);
+    
+    // 返回首页
+    wx.switchTab({
+      url: '/pages/index/index',
+      success: () => {
+        wx.showToast({
+          title: `已创建新${batch.batchType === 'book' ? '图书' : '普通'}扫描批次`,
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 返回历史列表原位
+  navigateBack() {
+    wx.navigateBack({
+      success: () => {
+        // 页面返回后会触发onShow，自动刷新列表
+      }
+    });
   }
 });

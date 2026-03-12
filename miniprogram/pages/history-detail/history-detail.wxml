@@ -52,13 +52,17 @@
 
   <!-- 底部操作栏 -->
   <view class="bottom-action-bar">
+    <view class="action-btn scan" bindtap="scanAgain">
+      <text class="btn-icon">📷</text>
+      <text>再次扫描</text>
+    </view>
     <view class="action-btn copy" bindtap="copyBatch">
       <text class="btn-icon">📋</text>
       <text>复制全部</text>
     </view>
     <view class="action-btn delete" bindtap="deleteBatch">
       <text class="btn-icon">🗑️</text>
-      <text>删除批次</text>
+      <text>删除</text>
     </view>
   </view>
 </view>

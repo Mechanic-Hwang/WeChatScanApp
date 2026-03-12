@@ -8,7 +8,13 @@ Page({
     apiKey: '',
     showKey: false,
     currentLang: 'zh-CN',
-    t: i18n.locales['zh-CN']
+    t: i18n.locales['zh-CN'],
+    inputRules: {
+      trimSpace: true,
+      uppercase: false,
+      isbnRequired: false
+    },
+    copyFormat: 'detail' // simple, detail, json
   },
 
   onLoad() {
@@ -140,6 +146,63 @@ Page({
     wx.showToast({
       title: messages[lang],
       icon: 'none'
+    });
+  },
+
+  // 输入规则配置
+  toggleTrimSpace(e) {
+    const inputRules = { ...this.data.inputRules, trimSpace: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  toggleUppercase(e) {
+    const inputRules = { ...this.data.inputRules, uppercase: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  toggleIsbnRequired(e) {
+    const inputRules = { ...this.data.inputRules, isbnRequired: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  // 复制格式配置
+  setCopyFormat(e) {
+    const format = e.currentTarget.dataset.format;
+    this.setData({ copyFormat: format });
+    wx.setStorageSync('copyFormat', format);
+    wx.showToast({ title: '已设置复制格式', icon: 'success' });
+  },
+
+  // 恢复默认设置
+  resetAllSettings() {
+    wx.showModal({
+      title: '确认恢复',
+      content: '确定恢复所有设置为默认值吗？',
+      success: (res) => {
+        if (res.confirm) {
+          // 清除所有本地存储的设置
+          wx.removeStorageSync('apiConfig');
+          wx.removeStorageSync('inputRules');
+          wx.removeStorageSync('copyFormat');
+          wx.removeStorageSync('language');
+          
+          // 重置全局数据
+          app.globalData.apiConfig = { url: '', key: '' };
+          app.globalData.language = 'zh-CN';
+          
+          // 重新加载页面
+          this.loadSettings();
+          this.setData({
+            inputRules: { trimSpace: true, uppercase: false, isbnRequired: false },
+            copyFormat: 'detail'
+          });
+          
+          wx.showToast({ title: '已恢复默认设置', icon: 'success' });
+        }
+      }
     });
   },
 

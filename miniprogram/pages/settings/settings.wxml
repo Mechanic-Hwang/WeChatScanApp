@@ -58,6 +58,48 @@
     </view>
   </view>
 
+  <!-- 输入规则配置 -->
+  <view class="card">
+    <view class="card-title">⚙️ 输入规则配置</view>
+    <view class="card-desc">配置条码输入的校验规则</view>
+    
+    <view class="switch-item">
+      <text class="switch-label">自动去除空格</text>
+      <switch checked="{{inputRules.trimSpace}}" bindchange="toggleTrimSpace"/>
+    </view>
+    
+    <view class="switch-item">
+      <text class="switch-label">自动转大写</text>
+      <switch checked="{{inputRules.uppercase}}" bindchange="toggleUppercase"/>
+    </view>
+    
+    <view class="switch-item">
+      <text class="switch-label">图书模式必须ISBN格式</text>
+      <switch checked="{{inputRules.isbnRequired}}" bindchange="toggleIsbnRequired"/>
+    </view>
+  </view>
+
+  <!-- 复制规则配置 -->
+  <view class="card">
+    <view class="card-title">📋 复制规则配置</view>
+    <view class="card-desc">配置复制内容的格式</view>
+    
+    <view class="radio-group">
+      <view class="radio-item {{copyFormat === 'simple' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="simple">
+        <text class="radio-name">简单格式</text>
+        <text class="radio-desc">仅复制条码内容</text>
+      </view>
+      <view class="radio-item {{copyFormat === 'detail' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="detail">
+        <text class="radio-name">详细格式</text>
+        <text class="radio-desc">包含书名、作者等信息</text>
+      </view>
+      <view class="radio-item {{copyFormat === 'json' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="json">
+        <text class="radio-name">JSON格式</text>
+        <text class="radio-desc">结构化数据，便于导入</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 数据管理 -->
   <view class="card">
     <view class="card-title">💾 数据管理</view>
@@ -78,6 +120,34 @@
           <text class="action-desc">将扫描记录导出为文本</text>
         </view>
         <text class="action-arrow">></text>
+      </view>
+      
+      <view class="action-item" bindtap="resetAllSettings">
+        <text class="action-icon">🔄</text>
+        <view class="action-content">
+          <text class="action-title">恢复默认设置</text>
+          <text class="action-desc">重置所有配置为默认值</text>
+        </view>
+        <text class="action-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="card">
+    <view class="card-title">📖 使用说明</view>
+    <view class="help-content">
+      <view class="help-item">
+        <text class="help-title">普通扫码模式</text>
+        <text class="help-text">用于扫描普通二维码和条形码，支持网址、文本、商品条码等。</text>
+      </view>
+      <view class="help-item">
+        <text class="help-title">图书扫码模式</text>
+        <text class="help-text">扫描图书ISBN条码，自动查询图书信息。需先配置图书API。</text>
+      </view>
+      <view class="help-item">
+        <text class="help-title">扫描批次</text>
+        <text class="help-text">每次扫描会话形成一个批次，便于管理和查看历史记录。</text>
       </view>
     </view>
   </view>

@@ -121,6 +121,11 @@
   font-size: 30rpx;
 }
 
+.action-btn.scan {
+  background: #07C160;
+  color: #fff;
+}
+
 .action-btn.copy {
   background: #667eea;
   color: #fff;
