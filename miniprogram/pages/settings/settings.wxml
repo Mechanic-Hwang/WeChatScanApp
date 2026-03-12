@@ -35,13 +35,19 @@
 
   <!-- 语言设置 -->
   <view class="card">
-    <view class="card-title">🌐 语言设置</view>
+    <view class="card-title">🌐 {{t.languageSetting}}</view>
     <view class="language-list">
       <view class="language-item {{currentLang === 'zh-CN' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="zh-CN">
         <text class="lang-name">简体中文</text>
         <text class="lang-check" wx:if="{{currentLang === 'zh-CN'}}">✓</text>
+      </view>
+      <view class="language-item {{currentLang === 'zh-TW' ? 'active' : ''}}" 
+            bindtap="switchLanguage" 
+            data-lang="zh-TW">
+        <text class="lang-name">繁體中文</text>
+        <text class="lang-check" wx:if="{{currentLang === 'zh-TW'}}">✓</text>
       </view>
       <view class="language-item {{currentLang === 'en' ? 'active' : ''}}" 
             bindtap="switchLanguage" 

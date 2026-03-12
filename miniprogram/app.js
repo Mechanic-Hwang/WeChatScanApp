@@ -42,6 +42,15 @@ App({
       const language = wx.getStorageSync('language');
       if (language) {
         this.globalData.language = language;
+      } else {
+        // 默认使用系统语言或简体中文
+        const systemInfo = wx.getSystemInfoSync();
+        const systemLang = systemInfo.language;
+        if (systemLang.startsWith('zh')) {
+          this.globalData.language = systemLang.includes('TW') || systemLang.includes('HK') ? 'zh-TW' : 'zh-CN';
+        } else {
+          this.globalData.language = 'en';
+        }
       }
     } catch (e) {
       console.error('加载配置失败:', e);

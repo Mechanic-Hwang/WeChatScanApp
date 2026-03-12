@@ -1,16 +1,28 @@
 // pages/settings/settings.js
 const app = getApp();
+const i18n = require('../../utils/i18n.js');
 
 Page({
   data: {
     apiUrl: '',
     apiKey: '',
     showKey: false,
-    currentLang: 'zh-CN'
+    currentLang: 'zh-CN',
+    t: i18n.locales['zh-CN']
   },
 
   onLoad() {
     this.loadSettings();
+    this.updateLanguage();
+  },
+
+  // 更新语言
+  updateLanguage() {
+    const lang = app.globalData.language;
+    this.setData({
+      currentLang: lang,
+      t: i18n.locales[lang]
+    });
   },
 
   // 加载设置
