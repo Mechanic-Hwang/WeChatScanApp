@@ -68,7 +68,7 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{recentRecords.length === 0}}">
+  <view class="empty-state" wx:if="{{recentBatches.length === 0}}">
     <text class="empty-icon">📭</text>
     <text class="empty-text">暂无扫描记录</text>
     <text class="empty-subtext">点击上方扫码按钮开始扫描</text>
