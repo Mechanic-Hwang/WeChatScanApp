@@ -1,0 +1,71 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <!-- 模式切换 -->
+  <view class="card mode-switch">
+    <view class="mode-label">当前模式</view>
+    <view class="mode-toggle">
+      <view class="mode-option {{currentMode === 'normal' ? 'active' : ''}}" 
+            bindtap="switchMode" data-mode="normal">
+        <text class="mode-icon">📷</text>
+        <text class="mode-text">普通扫码</text>
+      </view>
+      <view class="mode-option {{currentMode === 'book' ? 'active' : ''}}" 
+            bindtap="switchMode" data-mode="book">
+        <text class="mode-icon">📚</text>
+        <text class="mode-text">图书扫码</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫码按钮 -->
+  <view class="scan-section">
+    <view class="scan-btn" bindtap="startScan">
+      <text class="scan-icon">📷</text>
+      <text class="scan-text">点击扫码</text>
+    </view>
+    <text class="scan-tip">支持二维码、条形码{{currentMode === 'book' ? '、图书条码' : ''}}</text>
+  </view>
+
+  <!-- 手动输入 -->
+  <view class="card input-section">
+    <view class="input-label">手动输入</view>
+    <input class="input" 
+           type="text" 
+           placeholder="{{currentMode === 'book' ? '请输入图书条码' : '请输入条码内容'}}"
+           value="{{inputValue}}"
+           bindinput="onInputChange"
+           confirm-type="done"
+           bindconfirm="onManualInput"/>
+    <view class="btn btn-primary mt-20" bindtap="onManualInput">确认</view>
+  </view>
+
+  <!-- 最近记录 -->
+  <view class="card history-section" wx:if="{{recentRecords.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">最近记录</text>
+      <text class="view-all" bindtap="viewAllRecords">查看全部 ></text>
+    </view>
+    
+    <view class="record-list">
+      <view class="record-item" 
+            wx:for="{{recentRecords}}" 
+            wx:key="id"
+            bindtap="viewDetail"
+            data-id="{{item.id}}">
+        <view class="record-icon">{{item.mode === 'book' ? '📚' : '📷'}}</view>
+        <view class="record-content">
+          <view class="record-title">{{item.title || item.content}}</view>
+          <view class="record-meta">{{item.time}}</view>
+        </view>
+        <text class="record-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{recentRecords.length === 0}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">暂无扫描记录</text>
+    <text class="empty-subtext">点击上方扫码按钮开始扫描</text>
+  </view>
+</view>

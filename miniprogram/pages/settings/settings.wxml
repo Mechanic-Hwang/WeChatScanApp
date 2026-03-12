@@ -1,0 +1,88 @@
+<!-- pages/settings/settings.wxml -->
+<view class="container">
+  <!-- API配置 -->
+  <view class="card">
+    <view class="card-title">📚 图书API配置</view>
+    <view class="card-desc">配置图书查询接口，用于图书扫码模式</view>
+    
+    <view class="input-group">
+      <text class="input-label">API地址</text>
+      <input class="input" 
+             type="text" 
+             placeholder="请输入API地址，如：https://api.example.com/book"
+             value="{{apiUrl}}"
+             bindinput="onUrlInput"/>
+    </view>
+    
+    <view class="input-group">
+      <text class="input-label">API Key</text>
+      <view class="password-input">
+        <input class="input" 
+               type="{{showKey ? 'text' : 'password'}}"
+               placeholder="请输入API Key"
+               value="{{apiKey}}"
+               bindinput="onKeyInput"/>
+        <text class="eye-icon" bindtap="toggleShowKey">{{showKey ? '🙈' : '🙉'}}</text>
+      </view>
+    </view>
+    
+    <view class="btn btn-primary mt-30" bindtap="saveApiConfig">保存配置</view>
+    
+    <view class="test-section">
+      <view class="btn btn-secondary" bindtap="testConnection">测试连接</view>
+    </view>
+  </view>
+
+  <!-- 语言设置 -->
+  <view class="card">
+    <view class="card-title">🌐 语言设置</view>
+    <view class="language-list">
+      <view class="language-item {{currentLang === 'zh-CN' ? 'active' : ''}}" 
+            bindtap="switchLanguage" 
+            data-lang="zh-CN">
+        <text class="lang-name">简体中文</text>
+        <text class="lang-check" wx:if="{{currentLang === 'zh-CN'}}">✓</text>
+      </view>
+      <view class="language-item {{currentLang === 'en' ? 'active' : ''}}" 
+            bindtap="switchLanguage" 
+            data-lang="en">
+        <text class="lang-name">English</text>
+        <text class="lang-check" wx:if="{{currentLang === 'en'}}">✓</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据管理 -->
+  <view class="card">
+    <view class="card-title">💾 数据管理</view>
+    <view class="data-actions">
+      <view class="action-item" bindtap="clearHistory">
+        <text class="action-icon">🗑️</text>
+        <view class="action-content">
+          <text class="action-title">清空扫描历史</text>
+          <text class="action-desc">删除所有扫描记录，不可恢复</text>
+        </view>
+        <text class="action-arrow">></text>
+      </view>
+      
+      <view class="action-item" bindtap="exportData">
+        <text class="action-icon">📤</text>
+        <view class="action-content">
+          <text class="action-title">导出数据</text>
+          <text class="action-desc">将扫描记录导出为文本</text>
+        </view>
+        <text class="action-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于 -->
+  <view class="card">
+    <view class="card-title">ℹ️ 关于</view>
+    <view class="about-info">
+      <text class="app-name">扫码助手</text>
+      <text class="app-version">版本 1.0.0</text>
+      <text class="app-desc">一个简单实用的二维码/条形码/图书扫码工具</text>
+    </view>
+  </view>
+</view>

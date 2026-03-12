@@ -1,0 +1,168 @@
+/* pages/result/result.wxss */
+/* 批量操作栏 */
+.batch-bar {
+  background: #fff;
+  padding: 20rpx 30rpx;
+  margin-bottom: 20rpx;
+  border-radius: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.batch-count {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.batch-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.batch-btn {
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  color: #666;
+  background: #f5f5f5;
+}
+
+.batch-btn.primary {
+  background: #667eea;
+  color: #fff;
+}
+
+.batch-btn.danger {
+  background: #ff4757;
+  color: #fff;
+}
+
+/* 记录列表 */
+.record-list {
+  padding-bottom: 120rpx;
+}
+
+.record-item {
+  display: flex;
+  align-items: flex-start;
+  background: #fff;
+  padding: 24rpx 30rpx;
+  margin-bottom: 16rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+}
+
+.record-item.selected {
+  background: #f0f4ff;
+  border: 2rpx solid #667eea;
+}
+
+.record-item:active {
+  transform: scale(0.98);
+}
+
+/* 复选框 */
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  margin-top: 4rpx;
+  transition: all 0.2s;
+}
+
+.checkbox.checked {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+/* 内容区域 */
+.record-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.record-type-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+.record-type-tag.book {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.record-type-tag.normal {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.record-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.record-title {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 8rpx;
+}
+
+.record-book-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.book-author,
+.book-publisher {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.record-arrow {
+  color: #ccc;
+  font-size: 32rpx;
+  margin-left: 16rpx;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 20rpx;
+}
+
+.bottom-bar .btn {
+  flex: 1;
+}
