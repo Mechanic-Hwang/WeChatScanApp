@@ -6,6 +6,26 @@
     <text class="page-subtitle">按扫描批次查看</text>
   </view>
 
+  <!-- 搜索栏 -->
+  <view class="search-bar" wx:if="{{batches.length > 0}}">
+    <input class="search-input" 
+           type="text" 
+           placeholder="搜索历史记录..."
+           value="{{searchKeyword}}"
+           bindinput="onSearchInput"/>
+    <text class="search-icon">🔍</text>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="action-bar" wx:if="{{batches.length > 0}}">
+    <view class="action-item" bindtap="selectAll">
+      <text>{{isAllSelected ? '取消全选' : '全选'}}</text>
+    </view>
+    <view class="action-item danger" bindtap="clearAllHistory">
+      <text>清空全部</text>
+    </view>
+  </view>
+
   <!-- 批次列表 -->
   <view class="batch-list" wx:if="{{batches.length > 0}}">
     <view class="batch-item {{item.selected ? 'selected' : ''}}" 

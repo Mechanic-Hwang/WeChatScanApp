@@ -4,7 +4,10 @@ const app = getApp();
 Page({
   data: {
     batches: [],
-    selectedCount: 0
+    allBatches: [],
+    selectedCount: 0,
+    isAllSelected: false,
+    searchKeyword: ''
   },
 
   onLoad() {
@@ -21,12 +24,73 @@ Page({
       return {
         ...batch,
         timeText: this.formatBatchTime(batch.createdAt),
-        title: this.formatBatchTitle(batch)
+        title: this.formatBatchTitle(batch),
+        selected: false
       };
     });
 
-    this.setData({ batches });
+    this.setData({ 
+      batches: batches,
+      allBatches: batches,
+      isAllSelected: false
+    });
     this.updateSelectedCount();
+  },
+
+  // 搜索输入
+  onSearchInput(e) {
+    const keyword = e.detail.value.toLowerCase();
+    this.setData({ searchKeyword: keyword });
+    this.filterBatches(keyword);
+  },
+
+  // 筛选批次
+  filterBatches(keyword) {
+    if (!keyword) {
+      this.setData({ batches: this.data.allBatches });
+      return;
+    }
+
+    const filtered = this.data.allBatches.filter(batch => {
+      if (batch.title && batch.title.toLowerCase().includes(keyword)) return true;
+      if (batch.previewItems && batch.previewItems.some(item => 
+        item.toLowerCase().includes(keyword))) return true;
+      if (batch.items && batch.items.some(item => 
+        item.content.toLowerCase().includes(keyword) ||
+        (item.bookInfo && item.bookInfo.title && item.bookInfo.title.toLowerCase().includes(keyword))
+      )) return true;
+      return false;
+    });
+
+    this.setData({ batches: filtered });
+  },
+
+  // 全选/取消全选
+  selectAll() {
+    const isAllSelected = !this.data.isAllSelected;
+    const batches = this.data.batches.map(batch => ({
+      ...batch,
+      selected: isAllSelected
+    }));
+    
+    this.setData({ batches, isAllSelected });
+    this.updateSelectedCount();
+  },
+
+  // 清空全部历史
+  clearAllHistory() {
+    wx.showModal({
+      title: '确认清空',
+      content: `确定清空所有历史记录吗？此操作不可恢复，共 ${this.data.allBatches.length} 个批次。`,
+      success: (res) => {
+        if (res.confirm) {
+          app.globalData.scanBatches = [];
+          wx.setStorageSync('scanBatches', []);
+          this.setData({ batches: [], allBatches: [], selectedCount: 0 });
+          wx.showToast({ title: '已清空全部历史', icon: 'success' });
+        }
+      }
+    });
   },
 
   // 格式化批次时间
