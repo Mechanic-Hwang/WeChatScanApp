@@ -1,21 +1,28 @@
 // pages/index/index.js - 支持扫描批次
 const app = getApp();
+const i18n = require('../../utils/i18n.js');
 
 Page({
   data: {
     currentMode: 'normal',
     inputValue: '',
-    recentBatches: []
+    recentBatches: [],
+    t: i18n.locales[app.globalData.language || 'zh-CN']
   },
 
   onLoad() {
     this.setData({
-      currentMode: app.globalData.currentMode
+      currentMode: app.globalData.currentMode,
+      t: i18n.locales[app.globalData.language || 'zh-CN']
     });
   },
 
   onShow() {
     this.loadRecentBatches();
+    // 刷新语言
+    this.setData({
+      t: i18n.locales[app.globalData.language || 'zh-CN']
+    });
   },
 
   // 加载最近批次
