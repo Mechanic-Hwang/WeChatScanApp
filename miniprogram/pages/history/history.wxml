@@ -6,23 +6,24 @@
     <text class="page-subtitle">{{t.historySubtitle}}</text>
   </view>
 
-  <!-- 搜索栏 -->
-  <view class="search-bar" wx:if="{{batches.length > 0}}">
-    <input class="search-input" 
-           type="text" 
-           placeholder="{{t.searchPlaceholder || '搜索历史记录...'}}"
-           value="{{searchKeyword}}"
-           bindinput="onSearchInput"/>
-    <text class="search-icon">🔍</text>
-  </view>
+  <!-- 搜索和操作栏 -->
+  <view class="toolbar" wx:if="{{batches.length > 0}}">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <input class="search-input"
+             type="text"
+             placeholder="{{t.searchPlaceholder || '搜索...'}}"
+             value="{{searchKeyword}}"
+             bindinput="onSearchInput"/>
+      <text class="search-icon">🔍</text>
+    </view>
 
-  <!-- 操作栏 -->
-  <view class="action-bar" wx:if="{{batches.length > 0}}">
+    <!-- 操作按钮 -->
     <view class="action-btn" bindtap="selectAll">
-      <text>{{isAllSelected ? (t.cancelSelectAll || '取消全选') : (t.selectAll || '全选')}}</text>
+      <text>{{isAllSelected ? (t.cancelSelectAll || '取消') : (t.selectAll || '全选')}}</text>
     </view>
     <view class="action-btn danger" bindtap="clearAllHistory">
-      <text>{{t.clearAll || '清空全部'}}</text>
+      <text>{{t.clearAll || '清空'}}</text>
     </view>
   </view>
 
