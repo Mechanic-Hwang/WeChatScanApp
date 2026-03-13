@@ -132,7 +132,6 @@ Page({
 
   // 点击复选框
   onCheckboxTap(e) {
-    e.stopPropagation();
     const batchId = e.currentTarget.dataset.id;
     const batches = this.data.batches.map(batch => {
       if (batch.batchId === batchId) {
