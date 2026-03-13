@@ -1,3 +1,4 @@
+@ -1,225 +1,92 @@
 // pages/history/history.js
 const app = getApp();
 
@@ -223,3 +224,95 @@ Page({
     });
   }
 });
+<!-- pages/history/history.wxml -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar" wx:if="{{batches.length > 0}}">
+    <text class="search-icon">🔍</text>
+    <input class="search-input"
+           type="text"
+           placeholder="{{t.searchPlaceholder || '搜索历史记录...'}}"
+           value="{{searchKeyword}}"
+           bindinput="onSearchInput"/>
+  </view>
+
+  <!-- 操作栏 -->
+  <view class="action-bar" wx:if="{{batches.length > 0}}">
+    <view class="action-btn" bindtap="selectAll">
+      <text>{{isAllSelected ? (t.cancelSelectAll || '取消全选') : (t.selectAll || '全选')}}</text>
+    </view>
+    <view class="action-btn danger" bindtap="clearAllHistory">
+      <text>{{t.clearAll || '清空全部'}}</text>
+    </view>
+  </view>
+
+  <!-- 批次列表 -->
+  <view class="batch-list" wx:if="{{batches.length > 0}}">
+    <view class="batch-item {{item.selected ? 'selected' : ''}}" 
+          wx:for="{{batches}}" 
+          wx:key="batchId"
+          data-id="{{item.batchId}}"
+          bindtap="onBatchTap">
+      
+      <!-- 复选框 -->
+      <view class="checkbox-wrapper" catchtap="onCheckboxTap" data-id="{{item.batchId}}">
+        <view class="checkbox {{item.selected ? 'checked' : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
+        </view>
+      </view>
+      
+      <!-- 批次内容 -->
+      <view class="batch-content">
+        <!-- 头部信息 -->
+        <view class="batch-header">
+          <view class="batch-type-tag {{item.batchType}}">
+            {{item.batchType === 'book' ? '📚 图书' : '📷 普通'}}
+          </view>
+          <text class="batch-time">{{item.timeText}}</text>
+        </view>
+        
+        <!-- 批次标题 -->
+        <view class="batch-title">{{item.title}}</view>
+        
+        <!-- 内容预览 -->
+        <view class="batch-preview" wx:if="{{item.previewItems.length > 0}}">
+          <view class="preview-item" wx:for="{{item.previewItems}}" wx:key="index" wx:for-item="preview">
+            <text class="preview-dot">•</text>
+            <text class="preview-text">{{preview}}</text>
+          </view>
+        </view>
+        
+        <!-- 数量 -->
+        <view class="batch-count">共 {{item.itemCount}} 条</view>
+      </view>
+      
+      <!-- 箭头 -->
+      <text class="batch-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{batches.length === 0}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-title">{{t.noHistory}}</text>
+    <text class="empty-subtitle">{{t.emptyHistoryTip || '去扫描一些内容后，这里会显示你的记录'}}</text>
+    <view class="btn btn-primary mt-30" bindtap="goToScan">{{t.goToScan}}</view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-action-bar" wx:if="{{selectedCount > 0}}">
+    <view class="action-info">
+      <text class="selected-text">{{t.selectedCount ? t.selectedCount.replace('{count}', selectedCount) : '已选择 ' + selectedCount + ' 个批次'}}</text>
+    </view>
+    <view class="action-buttons">
+      <view class="action-btn copy" bindtap="copySelected">
+        <text class="btn-icon">📋</text>
+        <text>{{t.copy || '复制'}}</text>
+      </view>
+      <view class="action-btn delete" bindtap="deleteSelected">
+        <text class="btn-icon">🗑️</text>
+        <text>{{t.delete || '删除'}}</text>
+      </view>
+    </view>
+  </view>
+</view>
