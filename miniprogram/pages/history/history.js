@@ -178,23 +178,41 @@ Page({
 
     if (selectedBatches.length === 0) return;
 
+    const copyFormat = wx.getStorageSync('copyFormat') || 'detail';
+    const t = this.data.t;
     let content = '';
-    selectedBatches.forEach((batch, index) => {
-      if (index > 0) content += '\n\n';
-      content += `【${batch.title}】\n`;
-      batch.items.forEach(item => {
-        if (item.mode === 'book' && item.bookInfo) {
-          content += `- ${item.bookInfo.title} / ${item.bookInfo.author || '未知'} (${item.content})\n`;
-        } else {
-          content += `- ${item.content}\n`;
-        }
+
+    if (copyFormat === 'simple') {
+      // 简单格式：只复制条码内容
+      selectedBatches.forEach((batch, index) => {
+        if (index > 0) content += '\n\n';
+        batch.items.forEach(item => {
+          content += `${item.content}\n`;
+        });
       });
-    });
+    } else if (copyFormat === 'json') {
+      // JSON格式
+      const allItems = selectedBatches.flatMap(batch => batch.items);
+      content = JSON.stringify(allItems, null, 2);
+    } else {
+      // 详细格式（默认）
+      selectedBatches.forEach((batch, index) => {
+        if (index > 0) content += '\n\n';
+        content += `【${batch.title}】\n`;
+        batch.items.forEach(item => {
+          if (item.mode === 'book' && item.bookInfo) {
+            content += `- ${item.bookInfo.title} / ${item.bookInfo.author || t.unknown || '未知'} (${item.content})\n`;
+          } else {
+            content += `- ${item.content}\n`;
+          }
+        });
+      });
+    }
 
     wx.setClipboardData({
       data: content,
       success: () => {
-        wx.showToast({ title: '已复制到剪贴板', icon: 'success' });
+        wx.showToast({ title: t.copySuccess, icon: 'success' });
       }
     });
   },

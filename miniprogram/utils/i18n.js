@@ -133,6 +133,15 @@ const locales = {
     deleteConfirm: '确定删除选中的历史记录吗？',
     clearConfirm: '确定清空所有扫描历史吗？此操作不可恢复。',
     deleteBatchConfirm: '确定删除这个扫描批次吗？此操作不可恢复。',
+    confirmDelete: '确认删除',
+    batchNotFound: '批次不存在',
+    unknown: '未知',
+    scanTime: '扫描时间',
+    totalItems: '共',
+    items: '条记录',
+    unknownBookTitle: '未知书名',
+    emptyBatch: '该批次没有记录',
+    scanAgain: '再次扫描',
     
     // 首页提示
     justNow: '刚刚',
@@ -298,6 +307,15 @@ const locales = {
     deleteConfirm: '確定刪除選取的歷史記錄嗎？',
     clearConfirm: '確定清空所有掃碼歷史嗎？此操作不可恢復。',
     deleteBatchConfirm: '確定刪除這個掃碼批次嗎？此操作不可恢復。',
+    confirmDelete: '確認刪除',
+    batchNotFound: '批次不存在',
+    unknown: '未知',
+    scanTime: '掃碼時間',
+    totalItems: '共',
+    items: '條記錄',
+    unknownBookTitle: '未知書名',
+    emptyBatch: '該批次沒有記錄',
+    scanAgain: '再次掃碼',
     
     // 首页提示
     justNow: '剛剛',
@@ -463,6 +481,15 @@ const locales = {
     deleteConfirm: 'Are you sure you want to delete selected records?',
     clearConfirm: 'Are you sure you want to clear all history? This cannot be undone.',
     deleteBatchConfirm: 'Are you sure you want to delete this batch? This cannot be undone.',
+    confirmDelete: 'Confirm Delete',
+    batchNotFound: 'Batch not found',
+    unknown: 'Unknown',
+    scanTime: 'Scan Time',
+    totalItems: 'Total',
+    items: 'items',
+    unknownBookTitle: 'Unknown Title',
+    emptyBatch: 'No records in this batch',
+    scanAgain: 'Scan Again',
     
     // Home messages
     justNow: 'Just now',

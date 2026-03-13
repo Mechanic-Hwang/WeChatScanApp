@@ -3,12 +3,12 @@
   <!-- 批次头部信息 -->
   <view class="batch-header-card">
     <view class="batch-type-tag {{batch.batchType}}">
-      {{batch.batchType === 'book' ? '📚 图书扫描' : '📷 普通扫描'}}
+      {{batch.batchType === 'book' ? '📚 ' + t.bookScan : '📷 ' + t.normalScan}}
     </view>
     <view class="batch-title">{{batch.title}}</view>
     <view class="batch-meta">
       <text class="meta-item">{{batch.timeText}}</text>
-      <text class="meta-item">共 {{batch.itemCount}} 条</text>
+      <text class="meta-item">{{t.totalItems}} {{batch.itemCount}} {{t.items}}</text>
     </view>
   </view>
 
@@ -31,13 +31,13 @@
       <block wx:if="{{item.mode === 'book'}}">
         <view class="result-icon">📚</view>
         <view class="result-content">
-          <view class="book-title">{{item.bookInfo.title || '未知书名'}}</view>
+          <view class="book-title">{{item.bookInfo.title || t.unknownBookTitle || '未知书名'}}</view>
           <view class="book-author" wx:if="{{item.bookInfo.author}}">
-            作者：{{item.bookInfo.author}}
+            {{t.bookAuthor}}：{{item.bookInfo.author}}
           </view>
-          <view class="book-barcode">条码：{{item.content}}</view>
+          <view class="book-barcode">{{t.bookBarcode}}：{{item.content}}</view>
           <view class="book-call" wx:if="{{item.bookInfo.callNumber}}">
-            索书号：{{item.bookInfo.callNumber}}
+            {{t.bookCallNumber}}：{{item.bookInfo.callNumber}}
           </view>
         </view>
       </block>
@@ -47,22 +47,22 @@
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{batch.items.length === 0}}">
     <text class="empty-icon">📭</text>
-    <text>该批次没有记录</text>
+    <text>{{t.emptyBatch || '该批次没有记录'}}</text>
   </view>
 
   <!-- 底部操作栏 -->
   <view class="bottom-action-bar">
     <view class="action-btn scan" bindtap="scanAgain">
       <text class="btn-icon">📷</text>
-      <text>再次扫描</text>
+      <text>{{t.scanAgain || '再次扫描'}}</text>
     </view>
     <view class="action-btn copy" bindtap="copyBatch">
       <text class="btn-icon">📋</text>
-      <text>复制全部</text>
+      <text>{{t.copyAll}}</text>
     </view>
     <view class="action-btn delete" bindtap="deleteBatch">
       <text class="btn-icon">🗑️</text>
-      <text>删除</text>
+      <text>{{t.delete}}</text>
     </view>
   </view>
 </view>

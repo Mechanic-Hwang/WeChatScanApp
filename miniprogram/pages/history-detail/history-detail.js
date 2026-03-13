@@ -1,9 +1,11 @@
 // pages/history-detail/history-detail.js
 const app = getApp();
+const i18n = require('../../utils/i18n.js');
 
 Page({
   data: {
-    batch: null
+    batch: null,
+    t: i18n.locales[app.globalData.language || 'zh-CN']
   },
 
   onLoad(options) {
@@ -11,12 +13,20 @@ Page({
     this.loadBatchDetail(batchId);
   },
 
+  onShow() {
+    // 刷新语言
+    this.setData({
+      t: i18n.locales[app.globalData.language || 'zh-CN']
+    });
+  },
+
   // 加载批次详情
   loadBatchDetail(batchId) {
     const batch = app.getBatchDetail(batchId);
     
     if (!batch) {
-      wx.showToast({ title: '批次不存在', icon: 'none' });
+      const t = this.data.t;
+      wx.showToast({ title: t.batchNotFound || '批次不存在', icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
       return;
     }
@@ -57,37 +67,51 @@ Page({
   // 复制整个批次
   copyBatch() {
     const { batch } = this.data;
-    
-    let content = `【${batch.title}】\n`;
-    content += `扫描时间：${batch.timeText}\n`;
-    content += `共 ${batch.itemCount} 条记录\n\n`;
-    
-    batch.items.forEach((item, index) => {
-      content += `${index + 1}. `;
-      if (item.mode === 'book' && item.bookInfo) {
-        content += `${item.bookInfo.title} / ${item.bookInfo.author || '未知'} (${item.content})\n`;
-      } else {
-        content += `${item.content}\n`;
-      }
-    });
+    const copyFormat = wx.getStorageSync('copyFormat') || 'detail';
+    const t = this.data.t;
+
+    let content = '';
+
+    if (copyFormat === 'simple') {
+      // 简单格式：只复制条码内容
+      content = batch.items.map(item => item.content).join('\n');
+    } else if (copyFormat === 'json') {
+      // JSON格式
+      content = JSON.stringify(batch.items, null, 2);
+    } else {
+      // 详细格式（默认）
+      content = `【${batch.title}】\n`;
+      content += `${t.scanTime || '扫描时间'}：${batch.timeText}\n`;
+      content += `${t.totalItems || '共'} ${batch.itemCount} ${t.items || '条记录'}\n\n`;
+
+      batch.items.forEach((item, index) => {
+        content += `${index + 1}. `;
+        if (item.mode === 'book' && item.bookInfo) {
+          content += `${item.bookInfo.title} / ${item.bookInfo.author || t.unknown || '未知'} (${item.content})\n`;
+        } else {
+          content += `${item.content}\n`;
+        }
+      });
+    }
 
     wx.setClipboardData({
       data: content,
       success: () => {
-        wx.showToast({ title: '已复制到剪贴板', icon: 'success' });
+        wx.showToast({ title: t.copySuccess, icon: 'success' });
       }
     });
   },
 
   // 删除批次
   deleteBatch() {
+    const t = this.data.t;
     wx.showModal({
-      title: '确认删除',
-      content: '确定删除这个扫描批次吗？此操作不可恢复。',
+      title: t.confirmDelete || '确认删除',
+      content: t.deleteBatchConfirm,
       success: (res) => {
         if (res.confirm) {
           app.deleteBatches([this.data.batch.batchId]);
-          wx.showToast({ title: '删除成功', icon: 'success' });
+          wx.showToast({ title: t.deleteSuccess, icon: 'success' });
           setTimeout(() => wx.navigateBack(), 1500);
         }
       }
