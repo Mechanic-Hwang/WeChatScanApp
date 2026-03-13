@@ -1,6 +1,63 @@
 // miniprogram/utils/api-config.js - API配置管理
 const app = getApp();
 
+// XML解析函数
+function parseXML(xmlString) {
+  const result = {};
+  
+  // 提取标签内容的辅助函数
+  function getValue(xml, tagName) {
+    const regex = new RegExp(`<${tagName}[^>]*>([^<]*)</${tagName}>`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1].trim() : '';
+  }
+  
+  // 尝试提取常见的图书字段
+  result.title = getValue(xmlString, 'title') || 
+                 getValue(xmlString, '书名') || 
+                 getValue(xmlString, '题名') || 
+                 getValue(xmlString, 'Title');
+  
+  result.author = getValue(xmlString, 'author') || 
+                  getValue(xmlString, '作者') || 
+                  getValue(xmlString, '责任者') ||
+                  getValue(xmlString, 'Author');
+  
+  result.isbn = getValue(xmlString, 'isbn') || 
+                getValue(xmlString, 'ISBN') ||
+                getValue(xmlString, 'isbn13');
+  
+  result.publisher = getValue(xmlString, 'publisher') || 
+                     getValue(xmlString, '出版社') ||
+                     getValue(xmlString, '出版者') ||
+                     getValue(xmlString, 'Publisher');
+  
+  result.place = getValue(xmlString, 'place') || 
+                 getValue(xmlString, '出版地') ||
+                 getValue(xmlString, 'Place');
+  
+  result.year = getValue(xmlString, 'year') || 
+                getValue(xmlString, '出版年') ||
+                getValue(xmlString, 'date') ||
+                getValue(xmlString, 'Year');
+  
+  result.callNumber = getValue(xmlString, 'callNumber') || 
+                      getValue(xmlString, '索书号') ||
+                      getValue(xmlString, '分类号') ||
+                      getValue(xmlString, 'CallNumber');
+  
+  result.barcode = getValue(xmlString, 'barcode') || 
+                   getValue(xmlString, '条码号') ||
+                   getValue(xmlString, 'Barcode');
+  
+  result.status = getValue(xmlString, 'status') || 
+                  getValue(xmlString, '馆藏状态') ||
+                  getValue(xmlString, '状态') ||
+                  getValue(xmlString, 'Status');
+  
+  return result;
+}
+
 // 默认API配置
 const DEFAULT_API_CONFIG = {
   enabled: false,
@@ -8,10 +65,11 @@ const DEFAULT_API_CONFIG = {
   url: '',
   method: 'GET',
   requestType: 'query', // query 或 json
+  responseType: 'auto', // json、xml 或 auto（自动检测）
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json, application/xml, text/xml'
   },
   queryParams: [
     { key: 'item_barcode', value: '{{scanValue}}' }
@@ -136,13 +194,38 @@ function parseJsonPath(data, path) {
 
 // 解析返回结果
 function parseResponse(apiConfig, responseData) {
-  const { fieldMappings, emptyValueMode } = apiConfig;
+  const { fieldMappings, emptyValueMode, responseType } = apiConfig;
   const result = {};
+  
+  // 如果是XML格式，先解析XML
+  let data = responseData;
+  if (responseType === 'xml' || typeof responseData === 'string' && responseData.trim().startsWith('<')) {
+    data = parseXML(responseData);
+  }
   
   fieldMappings.forEach(mapping => {
     if (!mapping.visible) return;
     
-    const value = parseJsonPath(responseData, mapping.path);
+    let value;
+    if (responseType === 'xml' || typeof responseData === 'string' && responseData.trim().startsWith('<')) {
+      // XML模式：直接从解析后的对象获取
+      const keyMap = {
+        '书名': 'title',
+        '作者': 'author',
+        'ISBN': 'isbn',
+        '出版社': 'publisher',
+        '出版地': 'place',
+        '出版年': 'year',
+        '索书号': 'callNumber',
+        '条码号': 'barcode',
+        '馆藏状态': 'status'
+      };
+      const xmlKey = keyMap[mapping.label] || mapping.path;
+      value = data[xmlKey];
+    } else {
+      // JSON模式：使用路径解析
+      value = parseJsonPath(data, mapping.path);
+    }
     
     if (value === null || value === undefined || value === '') {
       result[mapping.label] = emptyValueMode === 'placeholder' ? '暂无数据' : null;
@@ -158,11 +241,21 @@ function parseResponse(apiConfig, responseData) {
 async function testApiConfig(apiConfig, testValue) {
   try {
     const response = await executeRequest(apiConfig, testValue);
-    const parsed = parseResponse(apiConfig, response);
+    
+    // 自动检测返回类型
+    let responseType = apiConfig.responseType;
+    if (typeof response === 'string' && response.trim().startsWith('<')) {
+      responseType = 'xml';
+    }
+    
+    const configWithType = { ...apiConfig, responseType };
+    const parsed = parseResponse(configWithType, response);
+    
     return {
       success: true,
       rawResponse: response,
-      parsedResult: parsed
+      parsedResult: parsed,
+      detectedType: responseType
     };
   } catch (error) {
     return {

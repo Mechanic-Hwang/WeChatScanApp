@@ -55,6 +55,15 @@
           <view class="radio-item {{apiConfig.timeout === 10000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="10000">10s</view>
         </view>
       </view>
+
+      <view class="input-group">
+        <text class="input-label">{{t.responseFormat || '返回格式'}}</text>
+        <view class="radio-group inline">
+          <view class="radio-item {{apiConfig.responseType === 'json' ? 'active' : ''}}" bindtap="setResponseType" data-type="json">JSON</view>
+          <view class="radio-item {{apiConfig.responseType === 'xml' ? 'active' : ''}}" bindtap="setResponseType" data-type="xml">XML</view>
+          <view class="radio-item {{apiConfig.responseType === 'auto' ? 'active' : ''}}" bindtap="setResponseType" data-type="auto">{{t.autoDetect || '自动'}}</view>
+        </view>
+      </view>
     </view>
     
     <!-- 字段映射 -->

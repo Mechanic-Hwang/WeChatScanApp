@@ -232,6 +232,12 @@ Page({
     this.setData({ apiConfig });
   },
 
+  setResponseType(e) {
+    const responseType = e.currentTarget.dataset.type;
+    const apiConfig = { ...this.data.apiConfig, responseType };
+    this.setData({ apiConfig });
+  },
+
   // 字段映射
   onFieldChange(e) {
     const { index, field } = e.currentTarget.dataset;
