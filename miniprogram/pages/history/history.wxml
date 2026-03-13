@@ -1,19 +1,13 @@
 <!-- pages/history/history.wxml -->
 <view class="container">
-  <!-- 页面标题 -->
-  <view class="page-header">
-    <text class="page-title">{{t.historyTitle}}</text>
-    <text class="page-subtitle">{{t.historySubtitle}}</text>
-  </view>
-
   <!-- 搜索栏 -->
   <view class="search-bar" wx:if="{{batches.length > 0}}">
-    <input class="search-input" 
-           type="text" 
+    <text class="search-icon">🔍</text>
+    <input class="search-input"
+           type="text"
            placeholder="{{t.searchPlaceholder || '搜索历史记录...'}}"
            value="{{searchKeyword}}"
            bindinput="onSearchInput"/>
-    <text class="search-icon">🔍</text>
   </view>
 
   <!-- 操作栏 -->
