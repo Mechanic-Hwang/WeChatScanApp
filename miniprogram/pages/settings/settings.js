@@ -1,6 +1,7 @@
 // pages/settings/settings.js
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
+const apiConfig = require('../../utils/api-config.js');
 
 Page({
   data: {
@@ -14,7 +15,12 @@ Page({
       uppercase: false,
       isbnRequired: false
     },
-    copyFormat: 'detail' // simple, detail, json
+    copyFormat: 'detail',
+    // 高级API配置
+    apiConfig: apiConfig.DEFAULT_API_CONFIG,
+    testValue: '',
+    testResult: null,
+    showAdvancedConfig: false
   },
 
   onLoad() {
@@ -33,13 +39,17 @@ Page({
 
   // 加载设置
   loadSettings() {
-    const { apiConfig, language } = app.globalData;
+    const { apiConfig: appApiConfig, language } = app.globalData;
     
     this.setData({
-      apiUrl: apiConfig.url || '',
-      apiKey: apiConfig.key || '',
+      apiUrl: appApiConfig.url || '',
+      apiKey: appApiConfig.key || '',
       currentLang: language || 'zh-CN'
     });
+    
+    // 加载高级API配置
+    const advancedConfig = apiConfig.loadApiConfig();
+    this.setData({ apiConfig: advancedConfig });
   },
 
   // URL输入

@@ -1,0 +1,219 @@
+// miniprogram/utils/api-config.js - API配置管理
+const app = getApp();
+
+// 默认API配置
+const DEFAULT_API_CONFIG = {
+  enabled: false,
+  name: '图书查询接口',
+  url: '',
+  method: 'GET',
+  requestType: 'query', // query 或 json
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  queryParams: [
+    { key: 'item_barcode', value: '{{scanValue}}' }
+  ],
+  jsonBodyTemplate: '{\n  "barcode": "{{scanValue}}"\n}',
+  responseType: 'json',
+  showRawResponse: false,
+  emptyValueMode: 'placeholder', // placeholder 或 hide
+  fieldMappings: [
+    { label: '书名', path: 'title', visible: true, order: 1 },
+    { label: '作者', path: 'author', visible: true, order: 2 },
+    { label: 'ISBN', path: 'isbn', visible: true, order: 3 },
+    { label: '出版社', path: 'publisher', visible: true, order: 4 },
+    { label: '索书号', path: 'callNumber', visible: true, order: 5 }
+  ]
+};
+
+// 加载API配置
+function loadApiConfig() {
+  try {
+    const config = wx.getStorageSync('apiConfig_v2');
+    if (config) {
+      return { ...DEFAULT_API_CONFIG, ...config };
+    }
+  } catch (e) {
+    console.error('[ApiConfig] 加载配置失败:', e);
+  }
+  return { ...DEFAULT_API_CONFIG };
+}
+
+// 保存API配置
+function saveApiConfig(config) {
+  try {
+    wx.setStorageSync('apiConfig_v2', config);
+    return true;
+  } catch (e) {
+    console.error('[ApiConfig] 保存配置失败:', e);
+    return false;
+  }
+}
+
+// 模板变量替换
+function replaceVariables(template, scanValue) {
+  if (!template) return template;
+  return template.replace(/\{\{scanValue\}\}/g, scanValue);
+}
+
+// 构建请求配置
+function buildRequest(apiConfig, scanValue) {
+  const { url, method, requestType, timeout, headers, queryParams, jsonBodyTemplate } = apiConfig;
+  
+  // 替换URL中的变量
+  const finalUrl = replaceVariables(url, scanValue);
+  
+  let requestData = {
+    url: finalUrl,
+    method: method,
+    timeout: timeout,
+    header: headers
+  };
+  
+  if (method === 'GET' || requestType === 'query') {
+    // 构建Query参数
+    const params = {};
+    queryParams.forEach(param => {
+      if (param.key) {
+        params[param.key] = replaceVariables(param.value, scanValue);
+      }
+    });
+    requestData.data = params;
+  } else if (method === 'POST' && requestType === 'json') {
+    // 构建JSON Body
+    try {
+      let bodyStr = replaceVariables(jsonBodyTemplate, scanValue);
+      requestData.data = JSON.parse(bodyStr);
+    } catch (e) {
+      console.error('[ApiConfig] JSON模板解析失败:', e);
+      throw new Error('JSON模板格式错误');
+    }
+  }
+  
+  return requestData;
+}
+
+// 执行API请求
+async function executeRequest(apiConfig, scanValue) {
+  const requestData = buildRequest(apiConfig, scanValue);
+  
+  return new Promise((resolve, reject) => {
+    wx.request({
+      ...requestData,
+      success: (res) => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(res.data);
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${res.errMsg || '请求失败'}`));
+        }
+      },
+      fail: (err) => {
+        reject(new Error(err.errMsg || '网络请求失败'));
+      }
+    });
+  });
+}
+
+// JSON路径解析
+function parseJsonPath(data, path) {
+  if (!path) return null;
+  
+  const keys = path.split('.');
+  let current = data;
+  
+  for (const key of keys) {
+    if (current === null || current === undefined) {
+      return null;
+    }
+    current = current[key];
+  }
+  
+  return current;
+}
+
+// 解析返回结果
+function parseResponse(apiConfig, responseData) {
+  const { fieldMappings, emptyValueMode } = apiConfig;
+  const result = {};
+  
+  fieldMappings.forEach(mapping => {
+    if (!mapping.visible) return;
+    
+    const value = parseJsonPath(responseData, mapping.path);
+    
+    if (value === null || value === undefined || value === '') {
+      result[mapping.label] = emptyValueMode === 'placeholder' ? '暂无数据' : null;
+    } else {
+      result[mapping.label] = value;
+    }
+  });
+  
+  return result;
+}
+
+// 测试配置
+async function testApiConfig(apiConfig, testValue) {
+  try {
+    const response = await executeRequest(apiConfig, testValue);
+    const parsed = parseResponse(apiConfig, response);
+    return {
+      success: true,
+      rawResponse: response,
+      parsedResult: parsed
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// 验证配置
+function validateConfig(config) {
+  const errors = [];
+  
+  if (!config.url) {
+    errors.push('API地址不能为空');
+  } else if (!config.url.startsWith('http://') && !config.url.startsWith('https://')) {
+    errors.push('API地址必须以 http:// 或 https:// 开头');
+  }
+  
+  if (config.method === 'POST' && config.requestType === 'json') {
+    try {
+      JSON.parse(config.jsonBodyTemplate || '{}');
+    } catch (e) {
+      errors.push('JSON模板格式错误');
+    }
+  }
+  
+  // 验证字段映射
+  config.fieldMappings.forEach((mapping, index) => {
+    if (!mapping.label) {
+      errors.push(`字段映射第${index + 1}项：显示名称不能为空`);
+    }
+    if (!mapping.path) {
+      errors.push(`字段映射第${index + 1}项：数据路径不能为空`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors: errors
+  };
+}
+
+module.exports = {
+  DEFAULT_API_CONFIG,
+  loadApiConfig,
+  saveApiConfig,
+  buildRequest,
+  executeRequest,
+  parseResponse,
+  testApiConfig,
+  validateConfig,
+  replaceVariables
+};
