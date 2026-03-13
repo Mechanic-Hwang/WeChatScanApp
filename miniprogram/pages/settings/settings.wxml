@@ -176,18 +176,27 @@
     <view class="card-title">📋 复制规则配置</view>
     <view class="card-desc">配置复制内容的格式</view>
     
-    <view class="radio-group">
-      <view class="radio-item {{copyFormat === 'simple' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="simple">
-        <text class="radio-name">简单格式</text>
-        <text class="radio-desc">仅复制条码内容</text>
+    <view class="switch-list">
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-name">简单格式</text>
+          <text class="switch-desc">仅复制条码内容</text>
+        </view>
+        <switch checked="{{copyFormat === 'simple'}}" bindchange="setCopyFormatSwitch" data-format="simple"/>
       </view>
-      <view class="radio-item {{copyFormat === 'detail' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="detail">
-        <text class="radio-name">详细格式</text>
-        <text class="radio-desc">包含书名、作者等信息</text>
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-name">详细格式</text>
+          <text class="switch-desc">包含书名、作者等信息</text>
+        </view>
+        <switch checked="{{copyFormat === 'detail'}}" bindchange="setCopyFormatSwitch" data-format="detail"/>
       </view>
-      <view class="radio-item {{copyFormat === 'json' ? 'active' : ''}}" bindtap="setCopyFormat" data-format="json">
-        <text class="radio-name">JSON格式</text>
-        <text class="radio-desc">结构化数据，便于导入</text>
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-name">JSON格式</text>
+          <text class="switch-desc">结构化数据，便于导入</text>
+        </view>
+        <switch checked="{{copyFormat === 'json'}}" bindchange="setCopyFormatSwitch" data-format="json"/>
       </view>
     </view>
   </view>

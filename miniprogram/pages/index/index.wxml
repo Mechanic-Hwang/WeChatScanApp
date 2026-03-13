@@ -2,17 +2,17 @@
 <view class="container">
   <!-- 模式切换 -->
   <view class="card mode-switch">
-    <view class="mode-label">当前模式</view>
+    <view class="mode-label">{{t.currentMode}}</view>
     <view class="mode-toggle">
       <view class="mode-option {{currentMode === 'normal' ? 'active' : ''}}" 
             bindtap="switchMode" data-mode="normal">
         <text class="mode-icon">📷</text>
-        <text class="mode-text">普通扫码</text>
+        <text class="mode-text">{{t.normalMode}}</text>
       </view>
       <view class="mode-option {{currentMode === 'book' ? 'active' : ''}}" 
             bindtap="switchMode" data-mode="book">
         <text class="mode-icon">📚</text>
-        <text class="mode-text">图书扫码</text>
+        <text class="mode-text">{{t.bookMode}}</text>
       </view>
     </view>
   </view>
@@ -21,34 +21,34 @@
   <view class="scan-section">
     <view class="scan-btn" bindtap="startScan">
       <text class="scan-icon">📷</text>
-      <text class="scan-text">点击扫码</text>
+      <text class="scan-text">{{t.clickToScan}}</text>
     </view>
-    <text class="scan-tip">支持二维码、条形码{{currentMode === 'book' ? '、图书条码' : ''}}</text>
+    <text class="scan-tip">{{currentMode === 'book' ? t.supportBook : t.supportQR}}</text>
   </view>
 
   <!-- 手动输入 -->
   <view class="card input-section">
-    <view class="input-label">手动输入</view>
+    <view class="input-label">{{t.manualInput}}</view>
     <input class="input" 
            type="text" 
-           placeholder="{{currentMode === 'book' ? '请输入图书条码' : '请输入条码内容'}}"
+           placeholder="{{currentMode === 'book' ? t.inputBookPlaceholder : t.inputPlaceholder}}"
            value="{{inputValue}}"
            bindinput="onInputChange"
            confirm-type="done"
            bindconfirm="onManualInput"/>
-    <view class="btn btn-primary mt-20" bindtap="onManualInput">确认</view>
+    <view class="btn btn-primary mt-20" bindtap="onManualInput">{{t.confirmBtn}}</view>
   </view>
 
   <!-- 完成扫描按钮 -->
   <view class="finish-section" wx:if="{{recentBatches.length > 0}}">
-    <view class="btn btn-secondary" bindtap="finishScan">完成本次扫描</view>
+    <view class="btn btn-secondary" bindtap="finishScan">{{t.finishScan}}</view>
   </view>
 
   <!-- 最近批次 -->
   <view class="card history-section" wx:if="{{recentBatches.length > 0}}">
     <view class="section-header">
-      <text class="section-title">最近扫描批次</text>
-      <text class="view-all" bindtap="viewAllHistory">查看全部 ></text>
+      <text class="section-title">{{t.recentBatches}}</text>
+      <text class="view-all" bindtap="viewAllHistory">{{t.viewAll}} ></text>
     </view>
     
     <view class="record-list">
@@ -70,7 +70,7 @@
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{recentBatches.length === 0}}">
     <text class="empty-icon">📭</text>
-    <text class="empty-text">暂无扫描记录</text>
-    <text class="empty-subtext">点击上方扫码按钮开始扫描</text>
+    <text class="empty-text">{{t.noRecords}}</text>
+    <text class="empty-subtext">{{t.startScanTip}}</text>
   </view>
 </view>

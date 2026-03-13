@@ -178,12 +178,24 @@ Page({
     wx.setStorageSync('inputRules', inputRules);
   },
 
-  // 复制格式配置
+  // 复制格式配置（旧版点击方式）
   setCopyFormat(e) {
     const format = e.currentTarget.dataset.format;
     this.setData({ copyFormat: format });
     wx.setStorageSync('copyFormat', format);
     wx.showToast({ title: '已设置复制格式', icon: 'success' });
+  },
+
+  // 复制格式配置（新版开关方式）
+  setCopyFormatSwitch(e) {
+    const format = e.currentTarget.dataset.format;
+    const enabled = e.detail.value;
+    
+    if (enabled) {
+      // 关闭其他选项
+      this.setData({ copyFormat: format });
+      wx.setStorageSync('copyFormat', format);
+    }
   },
 
   // 切换高级配置显示
