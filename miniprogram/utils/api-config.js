@@ -4,57 +4,68 @@ const app = getApp();
 // XML解析函数
 function parseXML(xmlString) {
   const result = {};
-  
+
   // 提取标签内容的辅助函数
   function getValue(xml, tagName) {
     const regex = new RegExp(`<${tagName}[^>]*>([^<]*)</${tagName}>`, 'i');
     const match = xml.match(regex);
     return match ? match[1].trim() : '';
   }
-  
-  // 尝试提取常见的图书字段
-  result.title = getValue(xmlString, 'title') || 
-                 getValue(xmlString, '书名') || 
-                 getValue(xmlString, '题名') || 
+
+  // 尝试提取常见的图书字段（支持多种命名方式）
+  result.title = getValue(xmlString, 'title') ||
+                 getValue(xmlString, '书名') ||
+                 getValue(xmlString, '题名') ||
                  getValue(xmlString, 'Title');
-  
-  result.author = getValue(xmlString, 'author') || 
-                  getValue(xmlString, '作者') || 
+
+  result.author = getValue(xmlString, 'author') ||
+                  getValue(xmlString, '作者') ||
                   getValue(xmlString, '责任者') ||
                   getValue(xmlString, 'Author');
-  
-  result.isbn = getValue(xmlString, 'isbn') || 
+
+  result.isbn = getValue(xmlString, 'isbn') ||
                 getValue(xmlString, 'ISBN') ||
                 getValue(xmlString, 'isbn13');
-  
-  result.publisher = getValue(xmlString, 'publisher') || 
+
+  // 出版社（支持 publisher_const 和 publisher）
+  result.publisher = getValue(xmlString, 'publisher_const') ||
+                     getValue(xmlString, 'publisher') ||
                      getValue(xmlString, '出版社') ||
                      getValue(xmlString, '出版者') ||
                      getValue(xmlString, 'Publisher');
-  
-  result.place = getValue(xmlString, 'place') || 
+
+  // 出版地（支持 place_of_publication 和 place）
+  result.place = getValue(xmlString, 'place_of_publication') ||
+                 getValue(xmlString, 'place') ||
                  getValue(xmlString, '出版地') ||
                  getValue(xmlString, 'Place');
-  
-  result.year = getValue(xmlString, 'year') || 
+
+  // 出版年（支持 date_of_publication 和 year）
+  result.year = getValue(xmlString, 'date_of_publication') ||
+                getValue(xmlString, 'year') ||
                 getValue(xmlString, '出版年') ||
                 getValue(xmlString, 'date') ||
                 getValue(xmlString, 'Year');
-  
-  result.callNumber = getValue(xmlString, 'callNumber') || 
+
+  // 索书号（支持 permanent_call_number 和 call_number）
+  result.callNumber = getValue(xmlString, 'permanent_call_number') ||
+                      getValue(xmlString, 'call_number') ||
+                      getValue(xmlString, 'callNumber') ||
                       getValue(xmlString, '索书号') ||
                       getValue(xmlString, '分类号') ||
                       getValue(xmlString, 'CallNumber');
-  
-  result.barcode = getValue(xmlString, 'barcode') || 
+
+  result.barcode = getValue(xmlString, 'barcode') ||
                    getValue(xmlString, '条码号') ||
                    getValue(xmlString, 'Barcode');
-  
-  result.status = getValue(xmlString, 'status') || 
+
+  // 馆藏状态（支持 base_status 和 status）
+  result.status = getValue(xmlString, 'base_status') ||
+                  getValue(xmlString, 'status') ||
                   getValue(xmlString, '馆藏状态') ||
                   getValue(xmlString, '状态') ||
                   getValue(xmlString, 'Status');
-  
+
   return result;
 }
 
@@ -83,7 +94,11 @@ const DEFAULT_API_CONFIG = {
     { label: '作者', path: 'author', visible: true, order: 2 },
     { label: 'ISBN', path: 'isbn', visible: true, order: 3 },
     { label: '出版社', path: 'publisher', visible: true, order: 4 },
-    { label: '索书号', path: 'callNumber', visible: true, order: 5 }
+    { label: '出版地', path: 'place', visible: false, order: 5 },
+    { label: '出版年', path: 'year', visible: false, order: 6 },
+    { label: '索书号', path: 'callNumber', visible: true, order: 7 },
+    { label: '条码号', path: 'barcode', visible: true, order: 8 },
+    { label: '馆藏状态', path: 'status', visible: true, order: 9 }
   ]
 };
 
