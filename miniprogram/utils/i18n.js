@@ -134,6 +134,22 @@ const locales = {
     clearConfirm: '确定清空所有扫描历史吗？此操作不可恢复。',
     deleteBatchConfirm: '确定删除这个扫描批次吗？此操作不可恢复。',
     
+    // 首页提示
+    justNow: '刚刚',
+    minutesAgo: '{count}分钟前',
+    hoursAgo: '{count}小时前',
+    switchToBookMode: '已切换到图书模式',
+    switchToNormalMode: '已切换到普通模式',
+    scanFailed: '扫码失败',
+    querying: '查询中...',
+    addSuccess: '添加成功',
+    queryFailed: '查询失败',
+    cannotGetBookInfo: '无法获取图书信息',
+    pleaseInputBookBarcode: '请输入图书条码',
+    pleaseInputContent: '请输入内容',
+    scanRecordSaved: '已保存扫描记录',
+    batchTitle: '{month}月{day}日 {hour}:{minute} 扫描',
+    
     // 图书信息
     bookTitle: '书名',
     bookAuthor: '作者',
@@ -283,6 +299,22 @@ const locales = {
     clearConfirm: '確定清空所有掃碼歷史嗎？此操作不可恢復。',
     deleteBatchConfirm: '確定刪除這個掃碼批次嗎？此操作不可恢復。',
     
+    // 首页提示
+    justNow: '剛剛',
+    minutesAgo: '{count}分鐘前',
+    hoursAgo: '{count}小時前',
+    switchToBookMode: '已切換到圖書模式',
+    switchToNormalMode: '已切換到普通模式',
+    scanFailed: '掃碼失敗',
+    querying: '查詢中...',
+    addSuccess: '添加成功',
+    queryFailed: '查詢失敗',
+    cannotGetBookInfo: '無法獲取圖書資訊',
+    pleaseInputBookBarcode: '請輸入圖書條碼',
+    pleaseInputContent: '請輸入內容',
+    scanRecordSaved: '已儲存掃碼記錄',
+    batchTitle: '{month}月{day}日 {hour}:{minute} 掃碼',
+    
     // 图书信息
     bookTitle: '書名',
     bookAuthor: '作者',
@@ -431,6 +463,22 @@ const locales = {
     deleteConfirm: 'Are you sure you want to delete selected records?',
     clearConfirm: 'Are you sure you want to clear all history? This cannot be undone.',
     deleteBatchConfirm: 'Are you sure you want to delete this batch? This cannot be undone.',
+    
+    // Home messages
+    justNow: 'Just now',
+    minutesAgo: '{count} min ago',
+    hoursAgo: '{count} hr ago',
+    switchToBookMode: 'Switched to Book Mode',
+    switchToNormalMode: 'Switched to Normal Mode',
+    scanFailed: 'Scan failed',
+    querying: 'Querying...',
+    addSuccess: 'Added successfully',
+    queryFailed: 'Query failed',
+    cannotGetBookInfo: 'Cannot get book information',
+    pleaseInputBookBarcode: 'Please enter book barcode',
+    pleaseInputContent: 'Please enter content',
+    scanRecordSaved: 'Scan record saved',
+    batchTitle: '{month}/{day} {hour}:{minute} Scan',
     
     // Book Info
     bookTitle: 'Title',

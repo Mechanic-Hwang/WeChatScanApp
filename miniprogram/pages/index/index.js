@@ -40,24 +40,30 @@ Page({
 
   // 格式化时间
   formatTime(isoString) {
+    const t = this.data.t;
     const date = new Date(isoString);
     const now = new Date();
     const diff = now - date;
-    
+
     if (diff < 3600000) {
       const minutes = Math.floor(diff / 60000);
-      return minutes < 1 ? '刚刚' : `${minutes}分钟前`;
+      return minutes < 1 ? t.justNow : t.minutesAgo.replace('{count}', minutes);
     }
     if (diff < 86400000) {
-      return `${Math.floor(diff / 3600000)}小时前`;
+      return t.hoursAgo.replace('{count}', Math.floor(diff / 3600000));
     }
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   },
 
   // 格式化批次标题
   formatBatchTitle(batch) {
+    const t = this.data.t;
     const date = new Date(batch.createdAt);
-    return `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')} 扫描`;
+    return t.batchTitle
+      .replace('{month}', date.getMonth() + 1)
+      .replace('{day}', date.getDate())
+      .replace('{hour}', String(date.getHours()).padStart(2, '0'))
+      .replace('{minute}', String(date.getMinutes()).padStart(2, '0'));
   },
 
   // 切换模式
@@ -69,8 +75,9 @@ Page({
     });
     app.saveCurrentMode(mode);
     
+    const t = this.data.t;
     wx.showToast({
-      title: mode === 'book' ? '已切换到图书模式' : '已切换到普通模式',
+      title: mode === 'book' ? t.switchToBookMode : t.switchToNormalMode,
       icon: 'none'
     });
   },
@@ -87,7 +94,7 @@ Page({
       },
       fail: (err) => {
         if (err.errMsg !== 'scanCode:fail cancel') {
-          wx.showToast({ title: '扫码失败', icon: 'none' });
+          wx.showToast({ title: this.data.t.scanFailed, icon: 'none' });
         }
       }
     });
@@ -100,13 +107,14 @@ Page({
     // 确保有活跃批次
     const batch = app.getOrCreateBatch(currentMode);
     
+    const t = this.data.t;
     if (currentMode === 'book') {
-      wx.showLoading({ title: '查询中...' });
-      
+      wx.showLoading({ title: t.querying });
+
       try {
         const bookInfo = await app.queryBookInfo(content);
         wx.hideLoading();
-        
+
         // 添加到当前批次
         app.addScanRecordToBatch({
           mode: 'book',
@@ -114,14 +122,14 @@ Page({
           title: bookInfo.title || content,
           bookInfo: bookInfo
         });
-        
-        wx.showToast({ title: '添加成功', icon: 'success' });
+
+        wx.showToast({ title: t.addSuccess, icon: 'success' });
         this.loadRecentBatches();
       } catch (error) {
         wx.hideLoading();
         wx.showModal({
-          title: '查询失败',
-          content: error.message || '无法获取图书信息',
+          title: t.queryFailed,
+          content: error.message || t.cannotGetBookInfo,
           showCancel: false
         });
       }
@@ -133,8 +141,8 @@ Page({
         title: content.length > 20 ? content.substring(0, 20) + '...' : content,
         type: this.detectCodeType(content)
       });
-      
-      wx.showToast({ title: '添加成功', icon: 'success' });
+
+      wx.showToast({ title: t.addSuccess, icon: 'success' });
       this.loadRecentBatches();
     }
   },
@@ -160,24 +168,25 @@ Page({
 
   // 手动输入确认
   onManualInput() {
-    const { inputValue, currentMode } = this.data;
-    
+    const { inputValue, currentMode, t } = this.data;
+
     if (!inputValue.trim()) {
       wx.showToast({
-        title: currentMode === 'book' ? '请输入图书条码' : '请输入内容',
+        title: currentMode === 'book' ? t.pleaseInputBookBarcode : t.pleaseInputContent,
         icon: 'none'
       });
       return;
     }
-    
+
     this.handleScanResult(inputValue.trim());
     this.setData({ inputValue: '' });
   },
 
   // 完成本次扫描
   finishScan() {
+    const t = this.data.t;
     app.finishCurrentBatch();
-    wx.showToast({ title: '已保存扫描记录', icon: 'success' });
+    wx.showToast({ title: t.scanRecordSaved, icon: 'success' });
     this.loadRecentBatches();
   },
 
