@@ -2,15 +2,15 @@
 <view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
-    <text class="page-title">历史记录</text>
-    <text class="page-subtitle">按扫描批次查看</text>
+    <text class="page-title">{{t.historyTitle}}</text>
+    <text class="page-subtitle">{{t.historySubtitle}}</text>
   </view>
 
   <!-- 搜索栏 -->
   <view class="search-bar" wx:if="{{batches.length > 0}}">
     <input class="search-input" 
            type="text" 
-           placeholder="搜索历史记录..."
+           placeholder="{{t.searchPlaceholder || '搜索历史记录...'}}"
            value="{{searchKeyword}}"
            bindinput="onSearchInput"/>
     <text class="search-icon">🔍</text>
@@ -19,10 +19,10 @@
   <!-- 操作栏 -->
   <view class="action-bar" wx:if="{{batches.length > 0}}">
     <view class="action-item" bindtap="selectAll">
-      <text>{{isAllSelected ? '取消全选' : '全选'}}</text>
+      <text>{{isAllSelected ? (t.cancelSelectAll || '取消全选') : (t.selectAll || '全选')}}</text>
     </view>
     <view class="action-item danger" bindtap="clearAllHistory">
-      <text>清空全部</text>
+      <text>{{t.clearAll || '清空全部'}}</text>
     </view>
   </view>
 
@@ -74,24 +74,24 @@
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{batches.length === 0}}">
     <text class="empty-icon">📭</text>
-    <text class="empty-title">暂无历史记录</text>
-    <text class="empty-subtitle">去扫描一些内容后，这里会显示你的记录</text>
-    <view class="btn btn-primary mt-30" bindtap="goToScan">去扫描</view>
+    <text class="empty-title">{{t.noHistory}}</text>
+    <text class="empty-subtitle">{{t.emptyHistoryTip || '去扫描一些内容后，这里会显示你的记录'}}</text>
+    <view class="btn btn-primary mt-30" bindtap="goToScan">{{t.goToScan}}</view>
   </view>
 
   <!-- 底部操作栏 -->
   <view class="bottom-action-bar" wx:if="{{selectedCount > 0}}">
     <view class="action-info">
-      <text class="selected-text">已选择 {{selectedCount}} 个批次</text>
+      <text class="selected-text">{{t.selectedCount ? t.selectedCount.replace('{count}', selectedCount) : '已选择 ' + selectedCount + ' 个批次'}}</text>
     </view>
     <view class="action-buttons">
       <view class="action-btn copy" bindtap="copySelected">
         <text class="btn-icon">📋</text>
-        <text>复制</text>
+        <text>{{t.copy || '复制'}}</text>
       </view>
       <view class="action-btn delete" bindtap="deleteSelected">
         <text class="btn-icon">🗑️</text>
-        <text>删除</text>
+        <text>{{t.delete || '删除'}}</text>
       </view>
     </view>
   </view>
