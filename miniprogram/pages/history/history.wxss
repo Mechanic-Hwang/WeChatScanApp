@@ -1,79 +1,32 @@
 /* pages/history/history.wxss */
-.page-header {
-  padding: 30rpx;
-  background: #fff;
-  margin-bottom: 20rpx;
-}
-
-/* 工具栏 */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 0 20rpx 20rpx;
-}
-
 /* 搜索栏 */
 .search-bar {
-  flex: 1;
   display: flex;
   align-items: center;
-  background: #f5f5f5;
-  border-radius: 12rpx;
-  padding: 16rpx 24rpx;
-  position: relative;
+  background: #fff;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.search-icon {
+  font-size: 32rpx;
+  color: #999;
+  margin-right: 16rpx;
 }
 
 .search-input {
   flex: 1;
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #333;
   background: transparent;
   border: none;
-  padding-right: 50rpx;
 }
 
 .search-input::placeholder {
-  color: #999;
-}
-
-.search-icon {
-  position: absolute;
-  right: 20rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 28rpx;
-  color: #999;
-}
-
-/* 操作按钮 */
-.toolbar .action-btn {
-  padding: 16rpx 20rpx;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  background: #f0f4ff;
-  color: #667eea;
-  border: 1rpx solid #667eea;
-  white-space: nowrap;
-}
-
-.toolbar .action-btn.danger {
-  background: #fff0f0;
-  color: #ff6b6b;
-  border-color: #ff6b6b;
-}
-
-.page-title {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8rpx;
-}
-
-.page-subtitle {
-  font-size: 26rpx;
-  color: #999;
+  color: #bbb;
 }
 
 /* 批次列表 */
@@ -216,7 +169,28 @@
   align-self: center;
 }
 
+/* 顶部操作栏 */
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  padding: 0 20rpx 20rpx;
+}
 
+.action-bar .action-btn {
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  background: #f0f4ff;
+  color: #667eea;
+  border: 1rpx solid #667eea;
+}
+
+.action-bar .action-btn.danger {
+  background: #fff0f0;
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
 
 /* 底部操作栏 */
 .bottom-action-bar {
