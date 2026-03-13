@@ -1,7 +1,7 @@
 // pages/settings/settings.js
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
-const apiConfig = require('../../utils/api-config.js');
+const apiConfigUtil = require('../../utils/api-config.js');
 
 Page({
   data: {
@@ -17,7 +17,7 @@ Page({
     },
     copyFormat: 'detail',
     // 高级API配置
-    apiConfig: apiConfig.DEFAULT_API_CONFIG,
+    apiConfig: apiConfigUtil.DEFAULT_API_CONFIG,
     testValue: '',
     testResult: null,
     showAdvancedConfig: false
@@ -48,7 +48,7 @@ Page({
     });
     
     // 加载高级API配置
-    const advancedConfig = apiConfig.loadApiConfig();
+    const advancedConfig = apiConfigUtil.loadApiConfig();
     this.setData({ apiConfig: advancedConfig });
   },
 
@@ -184,6 +184,114 @@ Page({
     this.setData({ copyFormat: format });
     wx.setStorageSync('copyFormat', format);
     wx.showToast({ title: '已设置复制格式', icon: 'success' });
+  },
+
+  // 切换高级配置显示
+  toggleAdvancedConfig() {
+    this.setData({ showAdvancedConfig: !this.data.showAdvancedConfig });
+  },
+
+  // API配置输入
+  onApiNameInput(e) {
+    const apiConfig = { ...this.data.apiConfig, name: e.detail.value };
+    this.setData({ apiConfig });
+  },
+
+  onApiUrlInput(e) {
+    const apiConfig = { ...this.data.apiConfig, url: e.detail.value };
+    this.setData({ apiConfig });
+  },
+
+  setApiMethod(e) {
+    const method = e.currentTarget.dataset.method;
+    const apiConfig = { ...this.data.apiConfig, method };
+    this.setData({ apiConfig });
+  },
+
+  setRequestType(e) {
+    const requestType = e.currentTarget.dataset.type;
+    const apiConfig = { ...this.data.apiConfig, requestType };
+    this.setData({ apiConfig });
+  },
+
+  setTimeout(e) {
+    const timeout = parseInt(e.currentTarget.dataset.timeout);
+    const apiConfig = { ...this.data.apiConfig, timeout };
+    this.setData({ apiConfig });
+  },
+
+  // 字段映射
+  onFieldChange(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const value = e.detail.value;
+    const fieldMappings = [...this.data.apiConfig.fieldMappings];
+    fieldMappings[index][field] = value;
+    this.setData({ 
+      apiConfig: { ...this.data.apiConfig, fieldMappings }
+    });
+  },
+
+  onFieldVisibleChange(e) {
+    const { index } = e.currentTarget.dataset;
+    const visible = e.detail.value;
+    const fieldMappings = [...this.data.apiConfig.fieldMappings];
+    fieldMappings[index].visible = visible;
+    this.setData({ 
+      apiConfig: { ...this.data.apiConfig, fieldMappings }
+    });
+  },
+
+  addFieldMapping() {
+    const fieldMappings = [...this.data.apiConfig.fieldMappings];
+    fieldMappings.push({ label: '', path: '', visible: true, order: fieldMappings.length + 1 });
+    this.setData({ 
+      apiConfig: { ...this.data.apiConfig, fieldMappings }
+    });
+  },
+
+  // 测试配置
+  onTestValueInput(e) {
+    this.setData({ testValue: e.detail.value });
+  },
+
+  async testApiConfig() {
+    const { apiConfig, testValue } = this.data;
+    
+    if (!testValue) {
+      wx.showToast({ title: '请输入测试值', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '测试中...' });
+    
+    const result = await apiConfigUtil.testApiConfig(apiConfig, testValue);
+    
+    wx.hideLoading();
+    this.setData({ testResult: result });
+  },
+
+  // 保存高级API配置
+  saveAdvancedApiConfig() {
+    const { apiConfig } = this.data;
+    
+    // 验证配置
+    const validation = apiConfigUtil.validateConfig(apiConfig);
+    if (!validation.valid) {
+      wx.showModal({
+        title: '配置错误',
+        content: validation.errors.join('\n'),
+        showCancel: false
+      });
+      return;
+    }
+
+    // 保存配置
+    apiConfigUtil.saveApiConfig(apiConfig);
+    
+    wx.showToast({
+      title: '高级配置已保存',
+      icon: 'success'
+    });
   },
 
   // 恢复默认设置

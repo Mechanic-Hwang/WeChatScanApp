@@ -1,36 +1,128 @@
 <!-- pages/settings/settings.wxml -->
 <view class="container">
-  <!-- API配置 -->
+  <!-- 高级API配置 -->
   <view class="card">
-    <view class="card-title">📚 图书API配置</view>
-    <view class="card-desc">配置图书查询接口，用于图书扫码模式</view>
-    
-    <view class="input-group">
-      <text class="input-label">API地址</text>
-      <input class="input" 
-             type="text" 
-             placeholder="请输入API地址，如：https://api.example.com/book"
-             value="{{apiUrl}}"
-             bindinput="onUrlInput"/>
+    <view class="card-header" bindtap="toggleAdvancedConfig">
+      <view class="card-title">🔧 高级接口配置</view>
+      <text class="toggle-icon">{{showAdvancedConfig ? '▼' : '▶'}}</text>
     </view>
+    <view class="card-desc">自定义扫码后的接口请求和结果解析</view>
     
-    <view class="input-group">
-      <text class="input-label">API Key</text>
-      <view class="password-input">
+    <!-- 基础配置 -->
+    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+      <view class="section-title">基础请求配置</view>
+      
+      <view class="input-group">
+        <text class="input-label">接口名称</text>
         <input class="input" 
-               type="{{showKey ? 'text' : 'password'}}"
-               placeholder="请输入API Key"
-               value="{{apiKey}}"
-               bindinput="onKeyInput"/>
-        <text class="eye-icon" bindtap="toggleShowKey">{{showKey ? '🙈' : '🙉'}}</text>
+               type="text" 
+               placeholder="如：图书查询接口"
+               value="{{apiConfig.name}}"
+               bindinput="onApiNameInput"/>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">请求URL</text>
+        <input class="input" 
+               type="text" 
+               placeholder="https://example.com/api/book"
+               value="{{apiConfig.url}}"
+               bindinput="onApiUrlInput"/>
+        <text class="input-tip">可使用 {{scanValue}} 作为扫码内容变量</text>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">请求方法</text>
+        <view class="radio-group inline">
+          <view class="radio-item {{apiConfig.method === 'GET' ? 'active' : ''}}" bindtap="setApiMethod" data-method="GET">GET</view>
+          <view class="radio-item {{apiConfig.method === 'POST' ? 'active' : ''}}" bindtap="setApiMethod" data-method="POST">POST</view>
+        </view>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">请求格式</text>
+        <view class="radio-group inline">
+          <view class="radio-item {{apiConfig.requestType === 'query' ? 'active' : ''}}" bindtap="setRequestType" data-type="query">Query参数</view>
+          <view class="radio-item {{apiConfig.requestType === 'json' ? 'active' : ''}}" bindtap="setRequestType" data-type="json">JSON Body</view>
+        </view>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">超时时间</text>
+        <view class="radio-group inline">
+          <view class="radio-item {{apiConfig.timeout === 3000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="3000">3s</view>
+          <view class="radio-item {{apiConfig.timeout === 5000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="5000">5s</view>
+          <view class="radio-item {{apiConfig.timeout === 10000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="10000">10s</view>
+        </view>
       </view>
     </view>
     
-    <view class="btn btn-primary mt-30" bindtap="saveApiConfig">保存配置</view>
-    
-    <view class="test-section">
-      <view class="btn btn-secondary" bindtap="testConnection">测试连接</view>
+    <!-- 字段映射 -->
+    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+      <view class="section-title">字段映射配置</view>
+      <view class="field-list">
+        <view class="field-item header">
+          <text class="field-label">显示名称</text>
+          <text class="field-path">数据路径</text>
+          <text class="field-visible">显示</text>
+        </view>
+        <view class="field-item" wx:for="{{apiConfig.fieldMappings}}" wx:key="index">
+          <input class="field-input" 
+                 placeholder="如：书名" 
+                 value="{{item.label}}"
+                 data-index="{{index}}"
+                 data-field="label"
+                 bindinput="onFieldChange"/>
+          <input class="field-input" 
+                 placeholder="如：data.title" 
+                 value="{{item.path}}"
+                 data-index="{{index}}"
+                 data-field="path"
+                 bindinput="onFieldChange"/>
+          <switch class="field-switch" 
+                  checked="{{item.visible}}"
+                  data-index="{{index}}"
+                  bindchange="onFieldVisibleChange"/>
+        </view>
+      </view>
+      <view class="btn btn-secondary mt-20" bindtap="addFieldMapping">添加字段</view>
     </view>
+    
+    <!-- 测试区域 -->
+    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+      <view class="section-title">测试与预览</view>
+      <view class="input-group">
+        <text class="input-label">测试扫码值</text>
+        <input class="input" 
+               type="text" 
+               placeholder="输入条码进行测试"
+               value="{{testValue}}"
+               bindinput="onTestValueInput"/>
+      </view>
+      <view class="btn btn-primary mt-20" bindtap="testApiConfig">测试连接</view>
+      
+      <!-- 测试结果 -->
+      <view class="test-result" wx:if="{{testResult}}">
+        <view wx:if="{{testResult.success}}">
+          <view class="result-title">✅ 测试成功</view>
+          <view class="result-section">
+            <text class="result-label">解析结果：</text>
+            <view class="result-fields">
+              <view class="result-field" wx:for="{{testResult.parsedResult}}" wx:key="label" wx:for-item="value">
+                <text class="field-name">{{item.label}}：</text>
+                <text class="field-value">{{value || '暂无数据'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view wx:else>
+          <view class="result-title">❌ 测试失败</view>
+          <text class="error-message">{{testResult.error}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="btn btn-primary mt-30" bindtap="saveAdvancedApiConfig" wx:if="{{showAdvancedConfig}}">保存高级配置</view>
   </view>
 
   <!-- 语言设置 -->
