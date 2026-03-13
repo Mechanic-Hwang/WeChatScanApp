@@ -17,23 +17,22 @@
     "selectedColor": "#667eea",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
-    "custom": true,
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "tabHome",
+        "text": "首页",
         "iconPath": "images/home.png",
         "selectedIconPath": "images/home-active.png"
       },
       {
         "pagePath": "pages/history/history",
-        "text": "tabHistory",
+        "text": "历史",
         "iconPath": "images/history.png",
         "selectedIconPath": "images/history-active.png"
       },
       {
         "pagePath": "pages/settings/settings",
-        "text": "tabSettings",
+        "text": "设置",
         "iconPath": "images/settings.png",
         "selectedIconPath": "images/settings-active.png"
       }
