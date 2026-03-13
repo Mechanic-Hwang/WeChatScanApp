@@ -3,36 +3,36 @@
   <!-- 高级API配置 -->
   <view class="card">
     <view class="card-header" bindtap="toggleAdvancedConfig">
-      <view class="card-title">🔧 高级接口配置</view>
+      <view class="card-title">🔧 {{t.advancedApiConfig}}</view>
       <text class="toggle-icon">{{showAdvancedConfig ? '▼' : '▶'}}</text>
     </view>
-    <view class="card-desc">自定义扫码后的接口请求和结果解析</view>
+    <view class="card-desc">{{t.advancedApiDesc}}</view>
     
     <!-- 基础配置 -->
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">基础请求配置</view>
+      <view class="section-title">{{t.requestConfig || '基础请求配置'}}</view>
       
       <view class="input-group">
-        <text class="input-label">接口名称</text>
+        <text class="input-label">{{t.apiName}}</text>
         <input class="input" 
                type="text" 
-               placeholder="如：图书查询接口"
+               placeholder="{{t.apiNamePlaceholder}}"
                value="{{apiConfig.name}}"
                bindinput="onApiNameInput"/>
       </view>
       
       <view class="input-group">
-        <text class="input-label">请求URL</text>
+        <text class="input-label">{{t.requestUrl}}</text>
         <input class="input" 
                type="text" 
                placeholder="https://example.com/api/book"
                value="{{apiConfig.url}}"
                bindinput="onApiUrlInput"/>
-        <text class="input-tip">可使用 {{scanValue}} 作为扫码内容变量</text>
+        <text class="input-tip">{{t.requestUrlTip}}</text>
       </view>
       
       <view class="input-group">
-        <text class="input-label">请求方法</text>
+        <text class="input-label">{{t.requestMethod}}</text>
         <view class="radio-group inline">
           <view class="radio-item {{apiConfig.method === 'GET' ? 'active' : ''}}" bindtap="setApiMethod" data-method="GET">GET</view>
           <view class="radio-item {{apiConfig.method === 'POST' ? 'active' : ''}}" bindtap="setApiMethod" data-method="POST">POST</view>
@@ -40,15 +40,15 @@
       </view>
       
       <view class="input-group">
-        <text class="input-label">请求格式</text>
+        <text class="input-label">{{t.requestFormat}}</text>
         <view class="radio-group inline">
-          <view class="radio-item {{apiConfig.requestType === 'query' ? 'active' : ''}}" bindtap="setRequestType" data-type="query">Query参数</view>
-          <view class="radio-item {{apiConfig.requestType === 'json' ? 'active' : ''}}" bindtap="setRequestType" data-type="json">JSON Body</view>
+          <view class="radio-item {{apiConfig.requestType === 'query' ? 'active' : ''}}" bindtap="setRequestType" data-type="query">{{t.queryParams}}</view>
+          <view class="radio-item {{apiConfig.requestType === 'json' ? 'active' : ''}}" bindtap="setRequestType" data-type="json">{{t.jsonBody}}</view>
         </view>
       </view>
       
       <view class="input-group">
-        <text class="input-label">超时时间</text>
+        <text class="input-label">{{t.timeout}}</text>
         <view class="radio-group inline">
           <view class="radio-item {{apiConfig.timeout === 3000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="3000">3s</view>
           <view class="radio-item {{apiConfig.timeout === 5000 ? 'active' : ''}}" bindtap="setTimeout" data-timeout="5000">5s</view>
@@ -59,47 +59,47 @@
     
     <!-- 字段映射 -->
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">字段映射配置</view>
+      <view class="section-title">{{t.fieldMapping}}</view>
       <view class="field-list">
         <view class="field-item header">
-          <text class="field-label">显示名称</text>
-          <text class="field-path">数据路径</text>
-          <text class="field-visible">显示</text>
+          <text class="field-label">{{t.fieldLabel}}</text>
+          <text class="field-path">{{t.fieldPath}}</text>
+          <text class="field-visible">{{t.fieldVisible}}</text>
         </view>
         <view class="field-item" wx:for="{{apiConfig.fieldMappings}}" wx:key="index">
-          <input class="field-input" 
-                 placeholder="如：书名" 
+          <input class="field-input"
+                 placeholder="{{t.bookTitle}}"
                  value="{{item.label}}"
                  data-index="{{index}}"
                  data-field="label"
                  bindinput="onFieldChange"/>
-          <input class="field-input" 
-                 placeholder="如：data.title" 
+          <input class="field-input"
+                 placeholder="data.title"
                  value="{{item.path}}"
                  data-index="{{index}}"
                  data-field="path"
                  bindinput="onFieldChange"/>
-          <switch class="field-switch" 
+          <switch class="field-switch"
                   checked="{{item.visible}}"
                   data-index="{{index}}"
                   bindchange="onFieldVisibleChange"/>
         </view>
       </view>
-      <view class="btn btn-secondary mt-20" bindtap="addFieldMapping">添加字段</view>
+      <view class="btn btn-secondary mt-20" bindtap="addFieldMapping">{{t.addField}}</view>
     </view>
     
     <!-- 测试区域 -->
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">测试与预览</view>
+      <view class="section-title">{{t.testPreview}}</view>
       <view class="input-group">
-        <text class="input-label">测试扫码值</text>
-        <input class="input" 
-               type="text" 
-               placeholder="输入条码进行测试"
+        <text class="input-label">{{t.testValue}}</text>
+        <input class="input"
+               type="text"
+               placeholder="{{t.testValuePlaceholder}}"
                value="{{testValue}}"
                bindinput="onTestValueInput"/>
       </view>
-      <view class="btn btn-primary mt-20" bindtap="testApiConfig">测试连接</view>
+      <view class="btn btn-primary mt-20" bindtap="testApiConfig">{{t.testBtn}}</view>
       
       <!-- 测试结果 -->
       <view class="test-result" wx:if="{{testResult}}">
@@ -122,7 +122,7 @@
       </view>
     </view>
     
-    <view class="btn btn-primary mt-30" bindtap="saveAdvancedApiConfig" wx:if="{{showAdvancedConfig}}">保存高级配置</view>
+    <view class="btn btn-primary mt-30" bindtap="saveAdvancedApiConfig" wx:if="{{showAdvancedConfig}}">{{t.saveAdvancedConfig}}</view>
   </view>
 
   <!-- 语言设置 -->
@@ -152,49 +152,49 @@
 
   <!-- 输入规则配置 -->
   <view class="card">
-    <view class="card-title">⚙️ 输入规则配置</view>
-    <view class="card-desc">配置条码输入的校验规则</view>
-    
+    <view class="card-title">⚙️ {{t.inputRules}}</view>
+    <view class="card-desc">{{t.inputRulesDesc}}</view>
+
     <view class="switch-item">
-      <text class="switch-label">自动去除空格</text>
+      <text class="switch-label">{{t.trimSpace}}</text>
       <switch checked="{{inputRules.trimSpace}}" bindchange="toggleTrimSpace"/>
     </view>
-    
+
     <view class="switch-item">
-      <text class="switch-label">自动转大写</text>
+      <text class="switch-label">{{t.uppercase}}</text>
       <switch checked="{{inputRules.uppercase}}" bindchange="toggleUppercase"/>
     </view>
-    
+
     <view class="switch-item">
-      <text class="switch-label">图书模式必须ISBN格式</text>
+      <text class="switch-label">{{t.isbnRequired}}</text>
       <switch checked="{{inputRules.isbnRequired}}" bindchange="toggleIsbnRequired"/>
     </view>
   </view>
 
   <!-- 复制规则配置 -->
   <view class="card">
-    <view class="card-title">📋 复制规则配置</view>
-    <view class="card-desc">配置复制内容的格式</view>
-    
+    <view class="card-title">📋 {{t.copyRules}}</view>
+    <view class="card-desc">{{t.copyRulesDesc}}</view>
+
     <view class="switch-list">
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">简单格式</text>
-          <text class="switch-desc">仅复制条码内容</text>
+          <text class="switch-name">{{t.simpleFormat}}</text>
+          <text class="switch-desc">{{t.simpleFormatDesc}}</text>
         </view>
         <switch checked="{{copyFormat === 'simple'}}" bindchange="setCopyFormatSwitch" data-format="simple"/>
       </view>
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">详细格式</text>
-          <text class="switch-desc">包含书名、作者等信息</text>
+          <text class="switch-name">{{t.detailFormat}}</text>
+          <text class="switch-desc">{{t.detailFormatDesc}}</text>
         </view>
         <switch checked="{{copyFormat === 'detail'}}" bindchange="setCopyFormatSwitch" data-format="detail"/>
       </view>
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">JSON格式</text>
-          <text class="switch-desc">结构化数据，便于导入</text>
+          <text class="switch-name">{{t.jsonFormat}}</text>
+          <text class="switch-desc">{{t.jsonFormatDesc}}</text>
         </view>
         <switch checked="{{copyFormat === 'json'}}" bindchange="setCopyFormatSwitch" data-format="json"/>
       </view>
@@ -203,31 +203,31 @@
 
   <!-- 数据管理 -->
   <view class="card">
-    <view class="card-title">💾 数据管理</view>
+    <view class="card-title">💾 {{t.dataManagement}}</view>
     <view class="data-actions">
       <view class="action-item" bindtap="clearHistory">
         <text class="action-icon">🗑️</text>
         <view class="action-content">
-          <text class="action-title">清空扫描历史</text>
-          <text class="action-desc">删除所有扫描记录，不可恢复</text>
+          <text class="action-title">{{t.clearHistory}}</text>
+          <text class="action-desc">{{t.clearDesc}}</text>
         </view>
         <text class="action-arrow">></text>
       </view>
-      
+
       <view class="action-item" bindtap="exportData">
         <text class="action-icon">📤</text>
         <view class="action-content">
-          <text class="action-title">导出数据</text>
-          <text class="action-desc">将扫描记录导出为文本</text>
+          <text class="action-title">{{t.exportData}}</text>
+          <text class="action-desc">{{t.exportDesc}}</text>
         </view>
         <text class="action-arrow">></text>
       </view>
-      
+
       <view class="action-item" bindtap="resetAllSettings">
         <text class="action-icon">🔄</text>
         <view class="action-content">
-          <text class="action-title">恢复默认设置</text>
-          <text class="action-desc">重置所有配置为默认值</text>
+          <text class="action-title">{{t.resetSettings}}</text>
+          <text class="action-desc">{{t.resetSettingsDesc}}</text>
         </view>
         <text class="action-arrow">></text>
       </view>
@@ -236,30 +236,30 @@
 
   <!-- 使用说明 -->
   <view class="card">
-    <view class="card-title">📖 使用说明</view>
+    <view class="card-title">📖 {{t.helpTitle}}</view>
     <view class="help-content">
       <view class="help-item">
-        <text class="help-title">普通扫码模式</text>
-        <text class="help-text">用于扫描普通二维码和条形码，支持网址、文本、商品条码等。</text>
+        <text class="help-title">{{t.normalModeHelp}}</text>
+        <text class="help-text">{{t.normalModeHelpText}}</text>
       </view>
       <view class="help-item">
-        <text class="help-title">图书扫码模式</text>
-        <text class="help-text">扫描图书ISBN条码，自动查询图书信息。需先配置图书API。</text>
+        <text class="help-title">{{t.bookModeHelp}}</text>
+        <text class="help-text">{{t.bookModeHelpText}}</text>
       </view>
       <view class="help-item">
-        <text class="help-title">扫描批次</text>
-        <text class="help-text">每次扫描会话形成一个批次，便于管理和查看历史记录。</text>
+        <text class="help-title">{{t.batchHelp}}</text>
+        <text class="help-text">{{t.batchHelpText}}</text>
       </view>
     </view>
   </view>
 
   <!-- 关于 -->
   <view class="card">
-    <view class="card-title">ℹ️ 关于</view>
+    <view class="card-title">ℹ️ {{t.about}}</view>
     <view class="about-info">
-      <text class="app-name">扫码助手</text>
-      <text class="app-version">版本 1.0.0</text>
-      <text class="app-desc">一个简单实用的二维码/条形码/图书扫码工具</text>
+      <text class="app-name">{{t.appName}}</text>
+      <text class="app-version">{{t.version}}</text>
+      <text class="app-desc">{{t.appDesc}}</text>
     </view>
   </view>
 </view>
