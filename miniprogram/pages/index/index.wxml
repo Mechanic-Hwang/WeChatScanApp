@@ -29,13 +29,22 @@
   <!-- 手动输入 -->
   <view class="card input-section">
     <view class="input-label">{{t.manualInput}}</view>
-    <input class="input" 
+    <input wx:if="{{!inputRules.allowNewline}}"
+           class="input" 
            type="text" 
            placeholder="{{currentMode === 'book' ? t.inputBookPlaceholder : t.inputPlaceholder}}"
            value="{{inputValue}}"
+           maxlength="{{inputRules.maxLength}}"
            bindinput="onInputChange"
            confirm-type="done"
-           bindconfirm="onManualInput"/>
+           bindconfirm="onInputConfirm"/>
+    <textarea wx:else
+              class="input textarea-input"
+              placeholder="{{currentMode === 'book' ? t.inputBookPlaceholder : t.inputPlaceholder}}"
+              value="{{inputValue}}"
+              maxlength="{{inputRules.maxLength}}"
+              auto-height
+              bindinput="onInputChange"/>
     <view class="btn btn-primary mt-20 {{isLoading ? 'disabled' : ''}}" bindtap="onManualInput">{{isLoading ? t.querying : t.confirmBtn}}</view>
   </view>
 

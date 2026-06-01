@@ -7,6 +7,14 @@ Page({
     currentMode: 'normal',
     inputValue: '',
     isLoading: false,
+    inputRules: {
+      trimSpace: true,
+      uppercase: false,
+      isbnRequired: false,
+      allowNewline: false,
+      maxLength: 500,
+      enterSubmit: true
+    },
     recentBatches: [],
     t: i18n.locales[app.globalData.language || 'zh-CN']
   },
@@ -14,6 +22,7 @@ Page({
   onLoad() {
     this.setData({
       currentMode: app.globalData.currentMode,
+      inputRules: this.loadInputRules(),
       t: i18n.locales[app.globalData.language || 'zh-CN']
     });
   },
@@ -22,8 +31,16 @@ Page({
     this.loadRecentBatches();
     // 刷新语言
     this.setData({
+      inputRules: this.loadInputRules(),
       t: i18n.locales[app.globalData.language || 'zh-CN']
     });
+  },
+
+  loadInputRules() {
+    return {
+      ...this.data.inputRules,
+      ...(wx.getStorageSync('inputRules') || {})
+    };
   },
 
   // 加载最近批次
@@ -199,7 +216,7 @@ Page({
     if (this.data.isLoading) return;
 
     const { inputValue, currentMode, t } = this.data;
-    const inputRules = wx.getStorageSync('inputRules') || {};
+    const inputRules = this.loadInputRules();
     let normalizedValue = inputValue;
 
     if (inputRules.trimSpace !== false) {
@@ -207,6 +224,22 @@ Page({
     }
     if (inputRules.uppercase) {
       normalizedValue = normalizedValue.toUpperCase();
+    }
+
+    if (normalizedValue.length > inputRules.maxLength) {
+      wx.showToast({
+        title: `输入不能超过 ${inputRules.maxLength} 字符`,
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (currentMode === 'book' && inputRules.isbnRequired && !/^(\d{10}|\d{13}|A\d{9})$/.test(normalizedValue)) {
+      wx.showToast({
+        title: '请输入有效的 ISBN 或图书条码',
+        icon: 'none'
+      });
+      return;
     }
 
     if (!normalizedValue) {
@@ -219,6 +252,12 @@ Page({
 
     this.handleScanResult(normalizedValue);
     this.setData({ inputValue: '' });
+  },
+
+  onInputConfirm() {
+    if (this.data.inputRules.enterSubmit) {
+      this.onManualInput();
+    }
   },
 
   // 完成本次扫描

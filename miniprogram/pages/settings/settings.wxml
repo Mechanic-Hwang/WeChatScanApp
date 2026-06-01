@@ -178,6 +178,28 @@
       <text class="switch-label">{{t.isbnRequired}}</text>
       <switch checked="{{inputRules.isbnRequired}}" bindchange="toggleIsbnRequired"/>
     </view>
+
+    <view class="switch-item">
+      <text class="switch-label">允许换行</text>
+      <switch checked="{{inputRules.allowNewline}}" bindchange="toggleAllowNewline"/>
+    </view>
+
+    <view class="switch-item">
+      <text class="switch-label">回车直接提交</text>
+      <switch checked="{{inputRules.enterSubmit}}" bindchange="toggleEnterSubmit"/>
+    </view>
+
+    <view class="input-group mt-20">
+      <text class="input-label">最大输入长度</text>
+      <view class="radio-group inline">
+        <view class="radio-item {{inputRules.maxLength === 50 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="50">50</view>
+        <view class="radio-item {{inputRules.maxLength === 100 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="100">100</view>
+        <view class="radio-item {{inputRules.maxLength === 200 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="200">200</view>
+        <view class="radio-item {{inputRules.maxLength === 500 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="500">500</view>
+        <view class="radio-item {{inputRules.maxLength === 1000 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="1000">1000</view>
+      </view>
+      <text class="input-tip">超过长度时会拒绝提交并提示。</text>
+    </view>
   </view>
 
   <!-- 复制规则配置 -->

@@ -107,6 +107,14 @@
   pointer-events: none;
 }
 
+.textarea-input {
+  min-height: 144rpx;
+  height: auto;
+  line-height: 1.5;
+  padding-top: 20rpx;
+  padding-bottom: 20rpx;
+}
+
 /* 完成扫描 */
 .finish-section {
   padding: 0 30rpx;

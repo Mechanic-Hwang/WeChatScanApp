@@ -248,6 +248,29 @@ App({
     wx.setStorageSync('scanBatches', this.globalData.scanBatches);
   },
 
+  deleteRecordFromBatch(batchId, recordId) {
+    const batchIndex = this.globalData.scanBatches.findIndex(batch => batch.batchId === batchId);
+    if (batchIndex === -1) return false;
+
+    const batch = this.globalData.scanBatches[batchIndex];
+    const nextItems = batch.items.filter(item => item.id !== recordId);
+    if (nextItems.length === batch.items.length) return false;
+
+    batch.items = nextItems;
+    batch.itemCount = nextItems.length;
+    batch.updatedAt = new Date().toISOString();
+    batch.previewItems = this.buildPreviewItems(nextItems);
+
+    if (nextItems.length === 0) {
+      this.globalData.scanBatches.splice(batchIndex, 1);
+    } else {
+      this.globalData.scanBatches[batchIndex] = batch;
+    }
+
+    wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+    return true;
+  },
+
   // 获取批次详情
   getBatchDetail(batchId) {
     return this.globalData.scanBatches.find(b => b.batchId === batchId);

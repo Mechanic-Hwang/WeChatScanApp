@@ -12,10 +12,19 @@
     </view>
   </view>
 
+  <view class="page-size-bar" wx:if="{{batch.items.length > 0}}">
+    <text class="page-size-label">每页</text>
+    <view class="page-size {{pageSize === item ? 'active' : ''}}"
+          wx:for="{{pageSizes}}"
+          wx:key="*this"
+          bindtap="setPageSize"
+          data-size="{{item}}">{{item}}</view>
+  </view>
+
   <!-- 结果列表 -->
   <view class="result-list">
     <view class="result-item" 
-          wx:for="{{batch.items}}" 
+          wx:for="{{pagedItems}}" 
           wx:key="id">
       
       <!-- 普通模式 -->
@@ -24,6 +33,10 @@
         <view class="result-content">
           <view class="result-text">{{item.content}}</view>
           <view class="result-time">{{item.timeText}}</view>
+          <view class="record-actions">
+            <text class="record-action" catchtap="copyRecord" data-id="{{item.id}}">复制</text>
+            <text class="record-action danger" catchtap="deleteRecord" data-id="{{item.id}}">删除</text>
+          </view>
         </view>
       </block>
       
@@ -39,9 +52,20 @@
           <view class="book-call" wx:if="{{item.bookInfo.callNumber}}">
             {{t.bookCallNumber}}：{{item.bookInfo.callNumber}}
           </view>
+          <view class="result-time">{{item.timeText}}</view>
+          <view class="record-actions">
+            <text class="record-action" catchtap="copyRecord" data-id="{{item.id}}">复制</text>
+            <text class="record-action danger" catchtap="deleteRecord" data-id="{{item.id}}">删除</text>
+          </view>
         </view>
       </block>
     </view>
+  </view>
+
+  <view class="pagination" wx:if="{{batch.items.length > 0}}">
+    <view class="page-btn {{pageIndex <= 1 ? 'disabled' : ''}}" bindtap="prevPage">上一页</view>
+    <text class="page-info">{{pageIndex}} / {{totalPages}} · 共 {{batch.itemCount}} 条</text>
+    <view class="page-btn {{pageIndex >= totalPages ? 'disabled' : ''}}" bindtap="nextPage">下一页</view>
   </view>
 
   <!-- 空状态 -->

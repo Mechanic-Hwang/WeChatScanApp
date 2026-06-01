@@ -13,7 +13,10 @@ Page({
     inputRules: {
       trimSpace: true,
       uppercase: false,
-      isbnRequired: false
+      isbnRequired: false,
+      allowNewline: false,
+      maxLength: 500,
+      enterSubmit: true
     },
     copyFormat: 'detail',
     // 高级API配置
@@ -40,7 +43,10 @@ Page({
   // 加载设置
   loadSettings() {
     const { apiConfig: appApiConfig, language } = app.globalData;
-    const inputRules = wx.getStorageSync('inputRules') || this.data.inputRules;
+    const inputRules = {
+      ...this.data.inputRules,
+      ...(wx.getStorageSync('inputRules') || {})
+    };
     const copyFormat = wx.getStorageSync('copyFormat') || this.data.copyFormat;
     
     this.setData({
@@ -178,6 +184,24 @@ Page({
 
   toggleIsbnRequired(e) {
     const inputRules = { ...this.data.inputRules, isbnRequired: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  toggleAllowNewline(e) {
+    const inputRules = { ...this.data.inputRules, allowNewline: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  toggleEnterSubmit(e) {
+    const inputRules = { ...this.data.inputRules, enterSubmit: e.detail.value };
+    this.setData({ inputRules });
+    wx.setStorageSync('inputRules', inputRules);
+  },
+
+  setMaxInputLength(e) {
+    const inputRules = { ...this.data.inputRules, maxLength: Number(e.currentTarget.dataset.length) };
     this.setData({ inputRules });
     wx.setStorageSync('inputRules', inputRules);
   },
@@ -340,7 +364,7 @@ Page({
           // 重新加载页面
           this.loadSettings();
           this.setData({
-            inputRules: { trimSpace: true, uppercase: false, isbnRequired: false },
+            inputRules: { trimSpace: true, uppercase: false, isbnRequired: false, allowNewline: false, maxLength: 500, enterSubmit: true },
             copyFormat: 'detail'
           });
           
