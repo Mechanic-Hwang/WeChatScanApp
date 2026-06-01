@@ -242,3 +242,33 @@
   font-size: 26rpx;
   color: #4E5969;
 }
+
+.input-tip {
+  display: block;
+  color: #86909C;
+  font-size: 24rpx;
+  line-height: 1.5;
+  margin-top: 12rpx;
+}
+
+.field-option-list {
+  background: #F7FAFF;
+  border: 1rpx solid #E6F0FF;
+  border-radius: 12rpx;
+  margin-top: 12rpx;
+  padding: 0 20rpx;
+}
+
+.field-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  border-bottom: 1rpx solid #E6F0FF;
+  color: #1F2329;
+  font-size: 28rpx;
+}
+
+.field-option:last-child {
+  border-bottom: none;
+}

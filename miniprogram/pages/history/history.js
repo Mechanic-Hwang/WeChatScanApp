@@ -1,6 +1,7 @@
 // pages/history/history.js
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
+const copyRulesUtil = require('../../utils/copy-rules.js');
 
 Page({
   data: {
@@ -267,33 +268,8 @@ Page({
 
     if (selectedBatches.length === 0) return;
 
-    const copyFormat = wx.getStorageSync('copyFormat') || 'detail';
     const t = this.data.t || {};
-    let content = '';
-
-    if (copyFormat === 'simple') {
-      selectedBatches.forEach((batch, index) => {
-        if (index > 0) content += '\n\n';
-        batch.items.forEach(item => {
-          content += `${item.content}\n`;
-        });
-      });
-    } else if (copyFormat === 'json') {
-      const allItems = selectedBatches.flatMap(batch => batch.items);
-      content = JSON.stringify(allItems, null, 2);
-    } else {
-      selectedBatches.forEach((batch, index) => {
-        if (index > 0) content += '\n\n';
-        content += `【${batch.title}】\n`;
-        batch.items.forEach(item => {
-          if (item.mode === 'book' && item.bookInfo) {
-            content += `- ${item.bookInfo.title} / ${item.bookInfo.author || t.unknown || '未知'} (${item.content})\n`;
-          } else {
-            content += `- ${item.content}\n`;
-          }
-        });
-      });
-    }
+    const content = copyRulesUtil.formatBatches(selectedBatches);
 
     wx.setClipboardData({
       data: content,

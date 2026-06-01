@@ -207,28 +207,53 @@
     <view class="card-title">📋 {{t.copyRules}}</view>
     <view class="card-desc">{{t.copyRulesDesc}}</view>
 
+    <view class="input-group">
+      <text class="input-label">复制范围</text>
+      <view class="radio-group inline">
+        <view class="radio-item {{copyRules.range === 'raw' ? 'active' : ''}}" bindtap="setCopyRange" data-range="raw">原始内容</view>
+        <view class="radio-item {{copyRules.range === 'primary' ? 'active' : ''}}" bindtap="setCopyRange" data-range="primary">主要字段</view>
+        <view class="radio-item {{copyRules.range === 'full' ? 'active' : ''}}" bindtap="setCopyRange" data-range="full">完整详情</view>
+        <view class="radio-item {{copyRules.range === 'json' ? 'active' : ''}}" bindtap="setCopyRange" data-range="json">JSON</view>
+      </view>
+      <text class="input-tip">原始内容仅复制扫码值；主要字段用于常规粘贴；完整详情会包含接口解析结果。</text>
+    </view>
+
+    <view class="input-group">
+      <text class="input-label">多条分隔方式</text>
+      <view class="radio-group inline">
+        <view class="radio-item {{copyRules.separator === 'singleNewline' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="singleNewline">单换行</view>
+        <view class="radio-item {{copyRules.separator === 'blankLine' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="blankLine">空一行</view>
+        <view class="radio-item {{copyRules.separator === 'line' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="line">---</view>
+      </view>
+      <text class="input-tip">示例：空一行会在每条记录之间保留一个空白行，适合粘贴到文档。</text>
+    </view>
+
     <view class="switch-list">
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">{{t.simpleFormat}}</text>
-          <text class="switch-desc">{{t.simpleFormatDesc}}</text>
+          <text class="switch-name">包含时间</text>
+          <text class="switch-desc">在每条记录末尾附加完整本地时间戳。</text>
         </view>
-        <switch checked="{{copyFormat === 'simple'}}" bindchange="setCopyFormatSwitch" data-format="simple"/>
+        <switch checked="{{copyRules.includeTime}}" bindchange="toggleCopyIncludeTime"/>
       </view>
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">{{t.detailFormat}}</text>
-          <text class="switch-desc">{{t.detailFormatDesc}}</text>
+          <text class="switch-name">包含模式信息</text>
+          <text class="switch-desc">标明普通或图书模式，便于跨批次整理。</text>
         </view>
-        <switch checked="{{copyFormat === 'detail'}}" bindchange="setCopyFormatSwitch" data-format="detail"/>
+        <switch checked="{{copyRules.includeMode}}" bindchange="toggleCopyIncludeMode"/>
       </view>
-      <view class="switch-item">
-        <view class="switch-info">
-          <text class="switch-name">{{t.jsonFormat}}</text>
-          <text class="switch-desc">{{t.jsonFormatDesc}}</text>
+    </view>
+
+    <view class="input-group mt-20">
+      <text class="input-label">图书复制字段</text>
+      <view class="field-option-list">
+        <view class="field-option" wx:for="{{bookFieldOptions}}" wx:key="key">
+          <text>{{item.label}}</text>
+          <switch checked="{{item.checked}}" data-field="{{item.key}}" bindchange="toggleBookCopyField"/>
         </view>
-        <switch checked="{{copyFormat === 'json'}}" bindchange="setCopyFormatSwitch" data-format="json"/>
       </view>
+      <text class="input-tip">示例：选择书名、作者、条码、索书号后，复制内容会按这些字段逐行输出。</text>
     </view>
   </view>
 

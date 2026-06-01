@@ -2,6 +2,7 @@
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
 const apiConfigUtil = require('../../utils/api-config.js');
+const copyRulesUtil = require('../../utils/copy-rules.js');
 
 Page({
   data: {
@@ -19,6 +20,8 @@ Page({
       enterSubmit: true
     },
     copyFormat: 'detail',
+    copyRules: copyRulesUtil.DEFAULT_COPY_RULES,
+    bookFieldOptions: [],
     // 高级API配置
     apiConfig: apiConfigUtil.DEFAULT_API_CONFIG,
     testValue: '',
@@ -48,13 +51,16 @@ Page({
       ...(wx.getStorageSync('inputRules') || {})
     };
     const copyFormat = wx.getStorageSync('copyFormat') || this.data.copyFormat;
+    const copyRules = copyRulesUtil.loadCopyRules();
     
     this.setData({
       apiUrl: appApiConfig.url || '',
       apiKey: appApiConfig.key || '',
       currentLang: language || 'zh-CN',
       inputRules,
-      copyFormat
+      copyFormat,
+      copyRules,
+      bookFieldOptions: this.buildBookFieldOptions(copyRules)
     });
     
     // 加载高级API配置
@@ -226,6 +232,52 @@ Page({
     }
   },
 
+  setCopyRange(e) {
+    const copyRules = { ...this.data.copyRules, range: e.currentTarget.dataset.range };
+    this.setData({ copyRules });
+    copyRulesUtil.saveCopyRules(copyRules);
+  },
+
+  setCopySeparator(e) {
+    const copyRules = { ...this.data.copyRules, separator: e.currentTarget.dataset.separator };
+    this.setData({ copyRules });
+    copyRulesUtil.saveCopyRules(copyRules);
+  },
+
+  toggleCopyIncludeTime(e) {
+    const copyRules = { ...this.data.copyRules, includeTime: e.detail.value };
+    this.setData({ copyRules });
+    copyRulesUtil.saveCopyRules(copyRules);
+  },
+
+  toggleCopyIncludeMode(e) {
+    const copyRules = { ...this.data.copyRules, includeMode: e.detail.value };
+    this.setData({ copyRules });
+    copyRulesUtil.saveCopyRules(copyRules);
+  },
+
+  toggleBookCopyField(e) {
+    const field = e.currentTarget.dataset.field;
+    const bookFields = {
+      ...this.data.copyRules.bookFields,
+      [field]: e.detail.value
+    };
+    const copyRules = { ...this.data.copyRules, bookFields };
+    this.setData({
+      copyRules,
+      bookFieldOptions: this.buildBookFieldOptions(copyRules)
+    });
+    copyRulesUtil.saveCopyRules(copyRules);
+  },
+
+  buildBookFieldOptions(copyRules) {
+    return Object.keys(copyRulesUtil.BOOK_FIELD_LABELS).map(key => ({
+      key,
+      label: copyRulesUtil.BOOK_FIELD_LABELS[key],
+      checked: !!copyRules.bookFields[key]
+    }));
+  },
+
   // 切换高级配置显示
   toggleAdvancedConfig() {
     this.setData({ showAdvancedConfig: !this.data.showAdvancedConfig });
@@ -355,6 +407,7 @@ Page({
           wx.removeStorageSync('apiConfig');
           wx.removeStorageSync('inputRules');
           wx.removeStorageSync('copyFormat');
+          wx.removeStorageSync('copyRules');
           wx.removeStorageSync('language');
           
           // 重置全局数据
@@ -365,7 +418,9 @@ Page({
           this.loadSettings();
           this.setData({
             inputRules: { trimSpace: true, uppercase: false, isbnRequired: false, allowNewline: false, maxLength: 500, enterSubmit: true },
-            copyFormat: 'detail'
+            copyFormat: 'detail',
+            copyRules: copyRulesUtil.DEFAULT_COPY_RULES,
+            bookFieldOptions: this.buildBookFieldOptions(copyRulesUtil.DEFAULT_COPY_RULES)
           });
           
           wx.showToast({ title: '已恢复默认设置', icon: 'success' });

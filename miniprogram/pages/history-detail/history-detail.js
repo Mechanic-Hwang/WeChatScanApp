@@ -1,6 +1,7 @@
 // pages/history-detail/history-detail.js
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
+const copyRulesUtil = require('../../utils/copy-rules.js');
 
 Page({
   data: {
@@ -106,21 +107,7 @@ Page({
   },
 
   formatItemForCopy(item) {
-    const t = this.data.t;
-    if (item.mode === 'book' && item.bookInfo) {
-      return [
-        `${t.bookTitle || '书名'}: ${item.bookInfo.title || t.unknownBookTitle || '未知书名'}`,
-        `${t.bookAuthor || '作者'}: ${item.bookInfo.author || t.unknown || '未知'}`,
-        `${t.bookBarcode || '条码号'}: ${item.barcode || item.content}`,
-        `${t.bookCallNumber || '索书号'}: ${item.bookInfo.callNumber || t.unknown || '未知'}`,
-        `${t.scanTime || '扫描时间'}: ${this.formatItemTime(item.createdAt)}`
-      ].join('\n');
-    }
-
-    return [
-      item.content,
-      `${t.scanTime || '扫描时间'}: ${this.formatItemTime(item.createdAt)}`
-    ].join('\n');
+    return copyRulesUtil.formatRecord(item);
   },
 
   copyRecord(e) {
@@ -168,32 +155,8 @@ Page({
   // 复制整个批次
   copyBatch() {
     const { batch } = this.data;
-    const copyFormat = wx.getStorageSync('copyFormat') || 'detail';
     const t = this.data.t;
-
-    let content = '';
-
-    if (copyFormat === 'simple') {
-      // 简单格式：只复制条码内容
-      content = batch.items.map(item => item.content).join('\n');
-    } else if (copyFormat === 'json') {
-      // JSON格式
-      content = JSON.stringify(batch.items, null, 2);
-    } else {
-      // 详细格式（默认）
-      content = `【${batch.title}】\n`;
-      content += `${t.scanTime || '扫描时间'}：${batch.timeText}\n`;
-      content += `${t.totalItems || '共'} ${batch.itemCount} ${t.items || '条记录'}\n\n`;
-
-      batch.items.forEach((item, index) => {
-        content += `${index + 1}. `;
-        if (item.mode === 'book' && item.bookInfo) {
-          content += `${item.bookInfo.title} / ${item.bookInfo.author || t.unknown || '未知'} (${item.content})\n`;
-        } else {
-          content += `${item.content}\n`;
-        }
-      });
-    }
+    const content = copyRulesUtil.formatBatch(batch);
 
     wx.setClipboardData({
       data: content,
