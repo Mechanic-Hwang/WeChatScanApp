@@ -4,11 +4,11 @@
   display: flex;
   align-items: center;
   background: #fff;
-  border: 2rpx solid #e0e0e0;
+  border: 2rpx solid #D8E6FF;
   border-radius: 16rpx;
   margin: 20rpx;
   padding: 20rpx 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2rpx 8rpx rgba(29, 111, 234, 0.06);
 }
 
 .search-icon {
@@ -20,7 +20,7 @@
 .search-input {
   flex: 1;
   font-size: 30rpx;
-  color: #333;
+  color: #1F2329;
   background: transparent;
   border: none;
 }
@@ -45,7 +45,7 @@
 .page-size,
 .page-btn {
   background: #fff;
-  border: 2rpx solid #e5e6eb;
+  border: 2rpx solid #D8E6FF;
   border-radius: 10rpx;
   color: #4e5969;
   font-size: 24rpx;
@@ -59,9 +59,9 @@
 
 .filter-chip.active,
 .page-size.active {
-  background: #e8f7ef;
-  border-color: #07c160;
-  color: #07c160;
+  background: #EAF2FF;
+  border-color: #1D6FEA;
+  color: #1D6FEA;
 }
 
 .page-size-label,
@@ -93,13 +93,14 @@
   border-radius: 16rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #E6F0FF;
+  box-shadow: 0 2rpx 10rpx rgba(29, 111, 234, 0.05);
   transition: all 0.2s;
 }
 
 .batch-item.selected {
-  background: #f0f4ff;
-  border: 2rpx solid #667eea;
+  background: #EAF2FF;
+  border: 2rpx solid #1D6FEA;
 }
 
 .batch-item:active {
@@ -125,8 +126,8 @@
 }
 
 .checkbox.checked {
-  background: #667eea;
-  border-color: #667eea;
+  background: #1D6FEA;
+  border-color: #1D6FEA;
   color: #fff;
   font-size: 24rpx;
 }
@@ -152,13 +153,13 @@
 }
 
 .batch-type-tag.book {
-  background: #e8f5e9;
-  color: #388e3c;
+  background: #EDF6FF;
+  color: #0B78D0;
 }
 
 .batch-type-tag.normal {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #EAF2FF;
+  color: #1D6FEA;
 }
 
 .batch-time {
@@ -169,13 +170,13 @@
 .batch-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: #1F2329;
   margin-bottom: 16rpx;
 }
 
 /* 预览内容 */
 .batch-preview {
-  background: #f8f9fa;
+  background: #F7FAFF;
   border-radius: 12rpx;
   padding: 16rpx;
   margin-bottom: 16rpx;
@@ -199,7 +200,7 @@
 
 .preview-text {
   font-size: 26rpx;
-  color: #666;
+  color: #4E5969;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -209,7 +210,7 @@
 /* 数量 */
 .batch-count {
   font-size: 26rpx;
-  color: #667eea;
+  color: #1D6FEA;
   font-weight: 500;
 }
 
@@ -233,9 +234,9 @@
   padding: 12rpx 24rpx;
   border-radius: 8rpx;
   font-size: 26rpx;
-  background: #f0f4ff;
-  color: #667eea;
-  border: 1rpx solid #667eea;
+  background: #EAF2FF;
+  color: #1D6FEA;
+  border: 1rpx solid #1D6FEA;
 }
 
 .action-bar .action-btn.danger {
@@ -253,7 +254,7 @@
   background: #fff;
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4rpx 20rpx rgba(29, 111, 234, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -265,7 +266,7 @@
 
 .selected-text {
   font-size: 30rpx;
-  color: #333;
+  color: #1F2329;
   font-weight: 500;
 }
 
@@ -283,12 +284,12 @@
 }
 
 .action-btn.copy {
-  background: #667eea;
+  background: #1D6FEA;
   color: #fff;
 }
 
 .action-btn.delete {
-  background: #ff4757;
+  background: #FA5151;
   color: #fff;
 }
 

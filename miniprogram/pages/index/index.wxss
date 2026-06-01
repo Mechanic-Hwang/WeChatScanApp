@@ -6,13 +6,13 @@
 
 .mode-label {
   font-size: 28rpx;
-  color: #666;
+  color: #4E5969;
   margin-bottom: 20rpx;
 }
 
 .mode-toggle {
   display: flex;
-  background: #f5f5f5;
+  background: #EAF2FF;
   border-radius: 16rpx;
   padding: 6rpx;
 }
@@ -29,7 +29,7 @@
 
 .mode-option.active {
   background: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4rpx 16rpx rgba(29, 111, 234, 0.12);
 }
 
 .mode-icon {
@@ -39,11 +39,11 @@
 
 .mode-text {
   font-size: 26rpx;
-  color: #666;
+  color: #4E5969;
 }
 
 .mode-option.active .mode-text {
-  color: #667eea;
+  color: #1D6FEA;
   font-weight: 500;
 }
 
@@ -59,12 +59,12 @@
   width: 240rpx;
   height: 240rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1D6FEA;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 40rpx rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12rpx 34rpx rgba(29, 111, 234, 0.24);
   transition: transform 0.2s;
 }
 
@@ -86,7 +86,7 @@
 .scan-tip {
   margin-top: 30rpx;
   font-size: 26rpx;
-  color: #999;
+  color: #86909C;
 }
 
 /* 输入区域 */
@@ -96,13 +96,13 @@
 
 .input-label {
   font-size: 28rpx;
-  color: #333;
+  color: #1F2329;
   margin-bottom: 16rpx;
   font-weight: 500;
 }
 
 .btn.disabled {
-  background: #c9cdd4;
+  background: #C9CDD4;
   color: #fff;
   pointer-events: none;
 }
@@ -136,12 +136,12 @@
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: #1F2329;
 }
 
 .view-all {
   font-size: 26rpx;
-  color: #667eea;
+  color: #1D6FEA;
 }
 
 .record-list {
@@ -171,7 +171,7 @@
 
 .record-title {
   font-size: 30rpx;
-  color: #333;
+  color: #1F2329;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -179,7 +179,7 @@
 
 .record-meta {
   font-size: 24rpx;
-  color: #999;
+  color: #86909C;
   margin-top: 8rpx;
 }
 

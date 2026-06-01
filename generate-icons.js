@@ -10,7 +10,7 @@ try {
   
   const ICON_SIZE = 81;
   const COLOR_GRAY = '#999999';
-  const COLOR_GREEN = '#07C160';
+  const COLOR_BLUE = '#1D6FEA';
   
   // 确保目录存在
   const imagesDir = path.join(__dirname, 'miniprogram', 'images');
@@ -131,11 +131,11 @@ try {
   console.log('Generating WeUI style icons...\n');
   
   generateIcon('home.png', drawHomeIcon, COLOR_GRAY);
-  generateIcon('home-active.png', drawHomeIcon, COLOR_GREEN);
+  generateIcon('home-active.png', drawHomeIcon, COLOR_BLUE);
   generateIcon('history.png', drawHistoryIcon, COLOR_GRAY);
-  generateIcon('history-active.png', drawHistoryIcon, COLOR_GREEN);
+  generateIcon('history-active.png', drawHistoryIcon, COLOR_BLUE);
   generateIcon('settings.png', drawSettingsIcon, COLOR_GRAY);
-  generateIcon('settings-active.png', drawSettingsIcon, COLOR_GREEN);
+  generateIcon('settings-active.png', drawSettingsIcon, COLOR_BLUE);
   
   console.log('\n✅ All icons generated successfully!');
   console.log(`📁 Location: ${imagesDir}`);

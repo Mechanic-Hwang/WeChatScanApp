@@ -3,7 +3,7 @@
 
 const ICON_SIZE = 81;
 const COLOR_GRAY = '#999999';
-const COLOR_GREEN = '#07C160';
+const COLOR_BLUE = '#1D6FEA';
 
 // 绘制首页图标
 function drawHomeIcon(ctx, color) {
@@ -109,10 +109,10 @@ function generateAllIcons() {
     const ctxGray = canvasGray.getContext('2d');
     icon.draw(ctxGray, COLOR_GRAY);
     
-    // 生成绿色版本
-    const canvasGreen = wx.createOffscreenCanvas({ type: '2d', width: ICON_SIZE, height: ICON_SIZE });
-    const ctxGreen = canvasGreen.getContext('2d');
-    icon.draw(ctxGreen, COLOR_GREEN);
+    // 生成蓝色选中版本
+    const canvasBlue = wx.createOffscreenCanvas({ type: '2d', width: ICON_SIZE, height: ICON_SIZE });
+    const ctxBlue = canvasBlue.getContext('2d');
+    icon.draw(ctxBlue, COLOR_BLUE);
     
     // 导出并保存
     // 注意：实际导出需要 wx.canvasToTempFilePath

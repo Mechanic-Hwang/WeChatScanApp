@@ -4,7 +4,8 @@
   border-radius: 20rpx;
   padding: 30rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #E6F0FF;
+  box-shadow: 0 4rpx 18rpx rgba(29, 111, 234, 0.06);
 }
 
 .batch-type-tag {
@@ -16,19 +17,19 @@
 }
 
 .batch-type-tag.book {
-  background: #e8f5e9;
-  color: #388e3c;
+  background: #EDF6FF;
+  color: #0B78D0;
 }
 
 .batch-type-tag.normal {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #EAF2FF;
+  color: #1D6FEA;
 }
 
 .batch-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #333;
+  color: #1F2329;
   margin-bottom: 16rpx;
 }
 
@@ -60,7 +61,7 @@
 .page-size,
 .page-btn {
   background: #fff;
-  border: 2rpx solid #e5e6eb;
+  border: 2rpx solid #D8E6FF;
   border-radius: 10rpx;
   color: #4e5969;
   font-size: 24rpx;
@@ -68,9 +69,9 @@
 }
 
 .page-size.active {
-  background: #e8f7ef;
-  border-color: #07c160;
-  color: #07c160;
+  background: #EAF2FF;
+  border-color: #1D6FEA;
+  color: #1D6FEA;
 }
 
 .pagination {
@@ -96,7 +97,8 @@
   border-radius: 16rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #E6F0FF;
+  box-shadow: 0 2rpx 10rpx rgba(29, 111, 234, 0.05);
 }
 
 .result-icon {
@@ -112,7 +114,7 @@
 
 .result-text {
   font-size: 30rpx;
-  color: #333;
+  color: #1F2329;
   word-break: break-all;
   line-height: 1.5;
   margin-bottom: 8rpx;
@@ -127,7 +129,7 @@
 .book-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #333;
+  color: #1F2329;
   margin-bottom: 8rpx;
 }
 
@@ -135,7 +137,7 @@
 .book-barcode,
 .book-call {
   font-size: 26rpx;
-  color: #666;
+  color: #4E5969;
   margin-bottom: 4rpx;
 }
 
@@ -146,12 +148,12 @@
 }
 
 .record-action {
-  color: #07c160;
+  color: #1D6FEA;
   font-size: 26rpx;
 }
 
 .record-action.danger {
-  color: #fa5151;
+  color: #FA5151;
 }
 
 /* 底部操作栏 */
@@ -163,7 +165,7 @@
   background: #fff;
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4rpx 20rpx rgba(29, 111, 234, 0.08);
   display: flex;
   gap: 20rpx;
 }
@@ -179,17 +181,18 @@
 }
 
 .action-btn.scan {
-  background: #07C160;
+  background: #1D6FEA;
   color: #fff;
 }
 
 .action-btn.copy {
-  background: #667eea;
+  background: #EAF2FF;
+  color: #1D6FEA;
   color: #fff;
 }
 
 .action-btn.delete {
-  background: #ff4757;
+  background: #FA5151;
   color: #fff;
 }
 

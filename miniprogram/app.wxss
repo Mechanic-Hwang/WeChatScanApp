@@ -1,8 +1,8 @@
 /* app.wxss - 全局样式 */
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #F5F5F5;
-  color: #333;
+  background-color: #F4F8FF;
+  color: #1F2329;
   font-size: 28rpx;
   line-height: 1.6;
 }
@@ -19,7 +19,8 @@ page {
   border-radius: 16rpx;
   padding: 30rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #E6F0FF;
+  box-shadow: 0 2rpx 10rpx rgba(29, 111, 234, 0.06);
 }
 
 /* 按钮样式 */
@@ -35,7 +36,7 @@ page {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1D6FEA;
   color: #fff;
 }
 
@@ -44,12 +45,12 @@ page {
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #666;
+  background: #EAF2FF;
+  color: #1D6FEA;
 }
 
 .btn-danger {
-  background: #ff4757;
+  background: #FA5151;
   color: #fff;
 }
 
@@ -61,7 +62,7 @@ page {
 .input-label {
   display: block;
   margin-bottom: 12rpx;
-  color: #666;
+  color: #4E5969;
   font-size: 28rpx;
 }
 
@@ -69,7 +70,7 @@ page {
   width: 100%;
   height: 88rpx;
   padding: 0 24rpx;
-  border: 2rpx solid #e0e0e0;
+  border: 2rpx solid #D8E6FF;
   border-radius: 12rpx;
   font-size: 30rpx;
   box-sizing: border-box;
@@ -77,7 +78,7 @@ page {
 }
 
 .input:focus {
-  border-color: #667eea;
+  border-color: #1D6FEA;
 }
 
 /* 开关样式 */
@@ -134,13 +135,13 @@ page {
 }
 
 .tag-primary {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #EAF2FF;
+  color: #1D6FEA;
 }
 
 .tag-success {
-  background: #e8f5e9;
-  color: #388e3c;
+  background: #EDF6FF;
+  color: #0B78D0;
 }
 
 .tag-warning {
@@ -162,11 +163,11 @@ page {
 }
 
 .text-primary {
-  color: #667eea;
+  color: #1D6FEA;
 }
 
 .text-danger {
-  color: #ff4757;
+  color: #FA5151;
 }
 
 /* 间距工具类 */
@@ -212,7 +213,7 @@ page {
   background: #fff;
   padding: 20rpx 30rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4rpx 20rpx rgba(29, 111, 234, 0.08);
   display: flex;
   gap: 20rpx;
 }
@@ -235,8 +236,8 @@ page {
 }
 
 .checkbox.checked {
-  background: #667eea;
-  border-color: #667eea;
+  background: #1D6FEA;
+  border-color: #1D6FEA;
   color: #fff;
 }
 
@@ -256,7 +257,7 @@ page {
   top: 0;
   bottom: 0;
   width: 160rpx;
-  background: #ff4757;
+  background: #FA5151;
   color: #fff;
   display: flex;
   align-items: center;

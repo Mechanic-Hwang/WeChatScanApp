@@ -42,11 +42,11 @@ const readmeContent = `# TabBar 图标说明
 | 文件名 | 用途 | 状态 |
 |--------|------|------|
 | home.png | 首页未选中 | 灰色 #999999 |
-| home-active.png | 首页选中 | 微信绿 #07C160 |
+| home-active.png | 首页选中 | 主蓝 #1D6FEA |
 | history.png | 历史未选中 | 灰色 #999999 |
-| history-active.png | 历史选中 | 微信绿 #07C160 |
+| history-active.png | 历史选中 | 主蓝 #1D6FEA |
 | settings.png | 设置未选中 | 灰色 #999999 |
-| settings-active.png | 设置选中 | 微信绿 #07C160 |
+| settings-active.png | 设置选中 | 主蓝 #1D6FEA |
 
 ## 图标规范
 
@@ -86,7 +86,7 @@ const readmeContent = `# TabBar 图标说明
 3. 选择线性风格图标
 4. 下载 PNG 格式
 5. 使用图片编辑工具调整为 81x81 像素
-6. 分别制作灰色和绿色版本
+6. 分别制作灰色和蓝色版本
 `;
 
 fs.writeFileSync(path.join(imagesDir, 'README.md'), readmeContent);
