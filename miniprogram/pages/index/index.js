@@ -6,6 +6,7 @@ Page({
   data: {
     currentMode: 'normal',
     inputValue: '',
+    isLoading: false,
     recentBatches: [],
     t: i18n.locales[app.globalData.language || 'zh-CN']
   },
@@ -109,24 +110,31 @@ Page({
     
     const t = this.data.t;
     if (currentMode === 'book') {
+      if (this.data.isLoading) return;
+      this.setData({ isLoading: true });
       wx.showLoading({ title: t.querying });
 
       try {
         const bookInfo = await app.queryBookInfo(content);
         wx.hideLoading();
+        this.setData({ isLoading: false });
 
         // 添加到当前批次
-        app.addScanRecordToBatch({
+        const added = app.addScanRecordToBatch({
           mode: 'book',
           content: content,
+          barcode: bookInfo.barcode || content,
           title: bookInfo.title || content,
           bookInfo: bookInfo
         });
 
-        wx.showToast({ title: t.addSuccess, icon: 'success' });
+        if (added) {
+          wx.showToast({ title: t.addSuccess, icon: 'success' });
+        }
         this.loadRecentBatches();
       } catch (error) {
         wx.hideLoading();
+        this.setData({ isLoading: false });
         wx.showModal({
           title: t.queryFailed,
           content: error.message || t.cannotGetBookInfo,
@@ -135,14 +143,34 @@ Page({
       }
     } else {
       // 普通模式
-      app.addScanRecordToBatch({
+      const record = {
         mode: 'normal',
         content: content,
         title: content.length > 20 ? content.substring(0, 20) + '...' : content,
         type: this.detectCodeType(content)
-      });
+      };
 
-      wx.showToast({ title: t.addSuccess, icon: 'success' });
+      try {
+        const customResult = await app.queryCustomScan(content);
+        if (customResult && customResult.parsedResult) {
+          record.customResult = customResult.parsedResult;
+          record.rawResponse = customResult.rawResponse;
+          record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
+          record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
+        }
+      } catch (error) {
+        wx.showToast({
+          title: error.message || t.queryFailed,
+          icon: 'none',
+          duration: 2000
+        });
+      }
+
+      const added = app.addScanRecordToBatch(record);
+
+      if (added) {
+        wx.showToast({ title: t.addSuccess, icon: 'success' });
+      }
       this.loadRecentBatches();
     }
   },
@@ -168,9 +196,20 @@ Page({
 
   // 手动输入确认
   onManualInput() {
-    const { inputValue, currentMode, t } = this.data;
+    if (this.data.isLoading) return;
 
-    if (!inputValue.trim()) {
+    const { inputValue, currentMode, t } = this.data;
+    const inputRules = wx.getStorageSync('inputRules') || {};
+    let normalizedValue = inputValue;
+
+    if (inputRules.trimSpace !== false) {
+      normalizedValue = normalizedValue.trim();
+    }
+    if (inputRules.uppercase) {
+      normalizedValue = normalizedValue.toUpperCase();
+    }
+
+    if (!normalizedValue) {
       wx.showToast({
         title: currentMode === 'book' ? t.pleaseInputBookBarcode : t.pleaseInputContent,
         icon: 'none'
@@ -178,7 +217,7 @@ Page({
       return;
     }
 
-    this.handleScanResult(inputValue.trim());
+    this.handleScanResult(normalizedValue);
     this.setData({ inputValue: '' });
   },
 

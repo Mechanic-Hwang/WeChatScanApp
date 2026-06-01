@@ -40,11 +40,15 @@ Page({
   // 加载设置
   loadSettings() {
     const { apiConfig: appApiConfig, language } = app.globalData;
+    const inputRules = wx.getStorageSync('inputRules') || this.data.inputRules;
+    const copyFormat = wx.getStorageSync('copyFormat') || this.data.copyFormat;
     
     this.setData({
       apiUrl: appApiConfig.url || '',
       apiKey: appApiConfig.key || '',
-      currentLang: language || 'zh-CN'
+      currentLang: language || 'zh-CN',
+      inputRules,
+      copyFormat
     });
     
     // 加载高级API配置
@@ -290,7 +294,11 @@ Page({
 
   // 保存高级API配置
   saveAdvancedApiConfig() {
-    const { apiConfig } = this.data;
+    const apiConfig = {
+      ...this.data.apiConfig,
+      enabled: true,
+      apiConfigId: this.data.apiConfig.apiConfigId || 'api_book_query'
+    };
     
     // 验证配置
     const validation = apiConfigUtil.validateConfig(apiConfig);

@@ -1,4 +1,5 @@
 // app.js - 小程序入口（支持扫描批次）
+const apiConfigUtil = require('./utils/api-config.js');
 App({
   globalData: {
     // 扫描批次列表
@@ -94,9 +95,17 @@ App({
       return false;
     }
 
+    const getDedupKey = (item) => {
+      if (item.mode === 'book') {
+        return item.barcode || (item.bookInfo && item.bookInfo.barcode) || item.content;
+      }
+      return item.content;
+    };
+    const recordKey = getDedupKey(record);
+
     // 检查当前批次是否已存在
     const existsInBatch = batch.items.findIndex(
-      item => item.content === record.content
+      item => item.mode === record.mode && getDedupKey(item) === recordKey
     );
     
     if (existsInBatch !== -1) {
@@ -105,26 +114,38 @@ App({
       existingItem.createdAt = new Date().toISOString();
       batch.items.unshift(existingItem);
       batch.updatedAt = new Date().toISOString();
+      batch.previewItems = this.buildPreviewItems(batch.items);
       this.saveBatch(batch);
       wx.showToast({ title: '记录已存在，已移到顶部', icon: 'none' });
       return false;
     }
 
-    // 检查其他批次是否已存在
-    for (const existingBatch of this.globalData.scanBatches) {
+    // 检查其他批次是否已存在。命中后不新增，只把原记录和原批次移到顶部。
+    for (let batchIndex = 0; batchIndex < this.globalData.scanBatches.length; batchIndex += 1) {
+      const existingBatch = this.globalData.scanBatches[batchIndex];
+      if (existingBatch.batchId === batch.batchId) continue;
+
       const existsInOtherBatch = existingBatch.items.findIndex(
-        item => item.content === record.content
+        item => item.mode === record.mode && getDedupKey(item) === recordKey
       );
       
       if (existsInOtherBatch !== -1) {
-        // 在其他批次中找到，提示用户
-        wx.showToast({ 
-          title: '该记录已在历史中存在', 
+        const existingItem = existingBatch.items.splice(existsInOtherBatch, 1)[0];
+        existingItem.createdAt = new Date().toISOString();
+        existingBatch.items.unshift(existingItem);
+        existingBatch.updatedAt = new Date().toISOString();
+        existingBatch.previewItems = this.buildPreviewItems(existingBatch.items);
+
+        this.globalData.scanBatches.splice(batchIndex, 1);
+        this.globalData.scanBatches.unshift(existingBatch);
+        wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+
+        wx.showToast({
+          title: '已存在，已移到顶部',
           icon: 'none',
           duration: 2000
         });
-        // 仍然添加到当前批次，但给用户提示
-        break;
+        return false;
       }
     }
 
@@ -136,18 +157,22 @@ App({
     batch.updatedAt = new Date().toISOString();
     
     // 更新预览项（前3条）
-    batch.previewItems = batch.items.slice(0, 3).map(item => {
-      if (item.mode === 'book' && item.bookInfo) {
-        return `${item.bookInfo.title} / ${item.bookInfo.author || '未知作者'}`;
-      }
-      return item.content.length > 30 
-        ? item.content.substring(0, 30) + '...' 
-        : item.content;
-    });
+    batch.previewItems = this.buildPreviewItems(batch.items);
 
     // 保存批次
     this.saveBatch(batch);
     return true;
+  },
+
+  buildPreviewItems(items) {
+    return items.slice(0, 3).map(item => {
+      if (item.mode === 'book' && item.bookInfo) {
+        return `${item.bookInfo.title || item.content} / ${item.bookInfo.author || '未知作者'}`;
+      }
+      return item.content.length > 30
+        ? item.content.substring(0, 30) + '...'
+        : item.content;
+    });
   },
 
   // 保存批次
@@ -248,6 +273,31 @@ App({
 
   // 查询图书信息
   async queryBookInfo(barcode) {
+    const advancedConfig = apiConfigUtil.loadApiConfig();
+    if (advancedConfig && advancedConfig.enabled && advancedConfig.url) {
+      const result = await apiConfigUtil.executeScanRequest(barcode, {
+        configs: [advancedConfig],
+        rules: apiConfigUtil.loadScanRules()
+      });
+      const parsed = result.parsedResult || {};
+
+      return {
+        title: parsed.title || parsed['书名'] || parsed.Title || barcode,
+        author: parsed.author || parsed['作者'] || parsed.Author || '',
+        isbn: parsed.isbn || parsed.ISBN || '',
+        publisher: parsed.publisher || parsed['出版社'] || '',
+        place: parsed.place || parsed['出版地'] || '',
+        year: parsed.year || parsed['出版年'] || '',
+        callNumber: parsed.callNumber || parsed['索书号'] || '',
+        status: parsed.status || parsed['馆藏状态'] || '',
+        barcode: parsed.barcode || parsed['条码号'] || barcode,
+        customResult: parsed,
+        rawResponse: advancedConfig.showRawResponse ? result.rawResponse : undefined,
+        matchedRuleId: result.matchedRule && result.matchedRule.ruleId,
+        apiConfigId: result.apiConfig && result.apiConfig.apiConfigId
+      };
+    }
+
     const { url, key } = this.globalData.apiConfig;
     
     if (!url) {
@@ -288,6 +338,10 @@ App({
       return this.parseAlmaXml(data);
     }
     return data;
+  },
+
+  async queryCustomScan(scanValue) {
+    return apiConfigUtil.executeScanRequest(scanValue);
   },
 
   // 解析Alma XML

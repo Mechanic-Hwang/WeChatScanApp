@@ -1,5 +1,4 @@
 // miniprogram/utils/api-config.js - API配置管理
-const app = getApp();
 
 // XML解析函数
 function parseXML(xmlString) {
@@ -71,6 +70,7 @@ function parseXML(xmlString) {
 
 // 默认API配置
 const DEFAULT_API_CONFIG = {
+  apiConfigId: 'api_book_query',
   enabled: false,
   name: '图书查询接口',
   url: '',
@@ -102,6 +102,8 @@ const DEFAULT_API_CONFIG = {
   ]
 };
 
+const DEFAULT_SCAN_RULES = [];
+
 // 加载API配置
 function loadApiConfig() {
   try {
@@ -113,6 +115,61 @@ function loadApiConfig() {
     console.error('[ApiConfig] 加载配置失败:', e);
   }
   return { ...DEFAULT_API_CONFIG };
+}
+
+function normalizeApiConfig(config, index = 0) {
+  return {
+    ...DEFAULT_API_CONFIG,
+    ...config,
+    apiConfigId: config.apiConfigId || config.id || `api_config_${index + 1}`
+  };
+}
+
+function loadApiConfigs() {
+  try {
+    const configs = wx.getStorageSync('apiConfigs');
+    if (Array.isArray(configs) && configs.length > 0) {
+      return configs.map(normalizeApiConfig);
+    }
+
+    const singleConfig = wx.getStorageSync('apiConfig_v2');
+    if (singleConfig) {
+      return [normalizeApiConfig(singleConfig)];
+    }
+  } catch (e) {
+    console.error('[ApiConfig] 加载多接口配置失败:', e);
+  }
+  return [normalizeApiConfig(DEFAULT_API_CONFIG)];
+}
+
+function saveApiConfigs(configs) {
+  try {
+    wx.setStorageSync('apiConfigs', configs.map(normalizeApiConfig));
+    return true;
+  } catch (e) {
+    console.error('[ApiConfig] 保存多接口配置失败:', e);
+    return false;
+  }
+}
+
+function loadScanRules() {
+  try {
+    const rules = wx.getStorageSync('scanRules');
+    return Array.isArray(rules) ? rules : DEFAULT_SCAN_RULES;
+  } catch (e) {
+    console.error('[ApiConfig] 加载规则配置失败:', e);
+    return DEFAULT_SCAN_RULES;
+  }
+}
+
+function saveScanRules(rules) {
+  try {
+    wx.setStorageSync('scanRules', rules);
+    return true;
+  } catch (e) {
+    console.error('[ApiConfig] 保存规则配置失败:', e);
+    return false;
+  }
 }
 
 // 保存API配置
@@ -130,6 +187,65 @@ function saveApiConfig(config) {
 function replaceVariables(template, scanValue) {
   if (!template) return template;
   return template.replace(/\{\{scanValue\}\}/g, scanValue);
+}
+
+function validateRule(rule) {
+  if (!rule || !rule.pattern) {
+    return { valid: false, error: '规则表达式不能为空' };
+  }
+
+  try {
+    new RegExp(rule.pattern);
+    return { valid: true };
+  } catch (e) {
+    return { valid: false, error: `无效正则表达式: ${e.message}` };
+  }
+}
+
+function matchScanRule(scanValue, rules = loadScanRules()) {
+  const enabledRules = rules
+    .filter(rule => rule && rule.enabled !== false)
+    .slice()
+    .sort((a, b) => Number(a.priority || 9999) - Number(b.priority || 9999));
+
+  for (const rule of enabledRules) {
+    const validation = validateRule(rule);
+    if (!validation.valid) continue;
+
+    if (new RegExp(rule.pattern).test(scanValue)) {
+      return rule;
+    }
+  }
+
+  return null;
+}
+
+function getApiConfigById(apiConfigId, configs = loadApiConfigs()) {
+  return configs.find(config => config.apiConfigId === apiConfigId || config.id === apiConfigId) || null;
+}
+
+function getDefaultApiConfig(configs = loadApiConfigs()) {
+  return configs.find(config => config.isDefault && config.enabled !== false) ||
+    configs.find(config => config.enabled) ||
+    null;
+}
+
+function resolveApiConfigForScan(scanValue, options = {}) {
+  const configs = options.configs || loadApiConfigs();
+  const rules = options.rules || loadScanRules();
+  const matchedRule = matchScanRule(scanValue, rules);
+
+  if (matchedRule) {
+    return {
+      rule: matchedRule,
+      apiConfig: getApiConfigById(matchedRule.apiConfigId, configs)
+    };
+  }
+
+  return {
+    rule: null,
+    apiConfig: getDefaultApiConfig(configs)
+  };
 }
 
 // 构建请求配置
@@ -280,6 +396,34 @@ async function testApiConfig(apiConfig, testValue) {
   }
 }
 
+async function executeScanRequest(scanValue, options = {}) {
+  const resolved = resolveApiConfigForScan(scanValue, options);
+
+  if (!resolved.apiConfig || !resolved.apiConfig.url) {
+    return {
+      matchedRule: resolved.rule,
+      apiConfig: null,
+      rawResponse: null,
+      parsedResult: null
+    };
+  }
+
+  const rawResponse = await executeRequest(resolved.apiConfig, scanValue);
+  let responseType = resolved.apiConfig.responseType;
+  if (responseType === 'auto' && typeof rawResponse === 'string' && rawResponse.trim().startsWith('<')) {
+    responseType = 'xml';
+  }
+  const configWithType = { ...resolved.apiConfig, responseType };
+  const parsedResult = parseResponse(configWithType, rawResponse);
+
+  return {
+    matchedRule: resolved.rule,
+    apiConfig: resolved.apiConfig,
+    rawResponse,
+    parsedResult
+  };
+}
+
 // 验证配置
 function validateConfig(config) {
   const errors = [];
@@ -316,12 +460,21 @@ function validateConfig(config) {
 
 module.exports = {
   DEFAULT_API_CONFIG,
+  DEFAULT_SCAN_RULES,
   loadApiConfig,
   saveApiConfig,
+  loadApiConfigs,
+  saveApiConfigs,
+  loadScanRules,
+  saveScanRules,
   buildRequest,
   executeRequest,
+  executeScanRequest,
   parseResponse,
   testApiConfig,
   validateConfig,
+  validateRule,
+  matchScanRule,
+  resolveApiConfigForScan,
   replaceVariables
 };

@@ -29,6 +29,58 @@
   color: #bbb;
 }
 
+.recent-searches,
+.filter-bar,
+.page-size-bar,
+.pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 0 20rpx 20rpx;
+}
+
+.recent-chip,
+.filter-chip,
+.page-size,
+.page-btn {
+  background: #fff;
+  border: 2rpx solid #e5e6eb;
+  border-radius: 10rpx;
+  color: #4e5969;
+  font-size: 24rpx;
+  padding: 10rpx 18rpx;
+}
+
+.recent-delete {
+  color: #86909c;
+  margin-left: 12rpx;
+}
+
+.filter-chip.active,
+.page-size.active {
+  background: #e8f7ef;
+  border-color: #07c160;
+  color: #07c160;
+}
+
+.page-size-label,
+.page-info {
+  color: #86909c;
+  font-size: 24rpx;
+}
+
+.pagination {
+  justify-content: center;
+  padding-bottom: 140rpx;
+}
+
+.page-btn.disabled {
+  background: #f2f3f5;
+  color: #c9cdd4;
+  pointer-events: none;
+}
+
 /* 批次列表 */
 .batch-list {
   padding: 0 20rpx 120rpx;

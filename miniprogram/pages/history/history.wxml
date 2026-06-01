@@ -7,17 +7,41 @@
            type="text"
            placeholder="{{t.searchPlaceholder || '搜索历史记录...'}}"
            value="{{searchKeyword}}"
-           bindinput="onSearchInput"/>
+           bindinput="onSearchInput"
+           bindconfirm="onSearchConfirm"
+           confirm-type="search"/>
+  </view>
+
+  <view class="recent-searches" wx:if="{{recentSearches.length > 0}}">
+    <view class="recent-chip" wx:for="{{recentSearches}}" wx:key="*this">
+      <text catchtap="useRecentSearch" data-keyword="{{item}}">{{item}}</text>
+      <text class="recent-delete" catchtap="deleteRecentSearch" data-keyword="{{item}}">×</text>
+    </view>
+  </view>
+
+  <view class="filter-bar" wx:if="{{allBatches.length > 0}}">
+    <view class="filter-chip {{modeFilter === 'all' ? 'active' : ''}}" bindtap="setModeFilter" data-mode="all">全部</view>
+    <view class="filter-chip {{modeFilter === 'normal' ? 'active' : ''}}" bindtap="setModeFilter" data-mode="normal">普通</view>
+    <view class="filter-chip {{modeFilter === 'book' ? 'active' : ''}}" bindtap="setModeFilter" data-mode="book">图书</view>
   </view>
 
   <!-- 操作栏 -->
-  <view class="action-bar" wx:if="{{batches.length > 0}}">
+  <view class="action-bar" wx:if="{{allBatches.length > 0}}">
     <view class="action-btn" bindtap="selectAll">
       <text>{{isAllSelected ? (t.cancelSelectAll || '取消全选') : (t.selectAll || '全选')}}</text>
     </view>
     <view class="action-btn danger" bindtap="clearAllHistory">
       <text>{{t.clearAll || '清空全部'}}</text>
     </view>
+  </view>
+
+  <view class="page-size-bar" wx:if="{{totalCount > 0}}">
+    <text class="page-size-label">每页</text>
+    <view class="page-size {{pageSize === item ? 'active' : ''}}"
+          wx:for="{{pageSizes}}"
+          wx:key="*this"
+          bindtap="setPageSize"
+          data-size="{{item}}">{{item}}</view>
   </view>
 
   <!-- 批次列表 -->
@@ -65,12 +89,24 @@
     </view>
   </view>
 
+  <view class="pagination" wx:if="{{totalCount > 0}}">
+    <view class="page-btn {{pageIndex <= 1 ? 'disabled' : ''}}" bindtap="prevPage">上一页</view>
+    <text class="page-info">{{pageIndex}} / {{totalPages}} · 共 {{totalCount}} 批次</text>
+    <view class="page-btn {{pageIndex >= totalPages ? 'disabled' : ''}}" bindtap="nextPage">下一页</view>
+  </view>
+
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{batches.length === 0}}">
+  <view class="empty-state" wx:if="{{allBatches.length === 0}}">
     <text class="empty-icon">📭</text>
     <text class="empty-title">{{t.noHistory}}</text>
     <text class="empty-subtitle">{{t.emptyHistoryTip || '去扫描一些内容后，这里会显示你的记录'}}</text>
     <view class="btn btn-primary mt-30" bindtap="goToScan">{{t.goToScan}}</view>
+  </view>
+
+  <view class="empty-state" wx:if="{{allBatches.length > 0 && batches.length === 0}}">
+    <text class="empty-icon">🔎</text>
+    <text class="empty-title">没有匹配结果</text>
+    <text class="empty-subtitle">请调整搜索关键词或筛选条件</text>
   </view>
 
   <!-- 底部操作栏 -->

@@ -101,6 +101,12 @@
   font-weight: 500;
 }
 
+.btn.disabled {
+  background: #c9cdd4;
+  color: #fff;
+  pointer-events: none;
+}
+
 /* 完成扫描 */
 .finish-section {
   padding: 0 30rpx;
