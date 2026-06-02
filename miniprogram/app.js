@@ -171,7 +171,8 @@ App({
   buildPreviewItems(items) {
     return items.slice(0, 3).map(item => {
       if (item.mode === 'book' && item.bookInfo) {
-        return `${item.bookInfo.title || item.content} / ${item.bookInfo.author || '未知作者'}`;
+        const t = i18n.locales[this.globalData.language] || i18n.locales['zh-CN'];
+        return `${item.bookInfo.title || item.content} / ${item.bookInfo.author || t.unknownAuthor}`;
       }
       return item.content.length > 30
         ? item.content.substring(0, 30) + '...'

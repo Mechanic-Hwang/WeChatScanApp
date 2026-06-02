@@ -273,6 +273,8 @@ const locales = {
     recordNotFound: '记录不存在',
     deleteRecordConfirm: '确定删除这条记录吗？此操作不可恢复。',
     newBatchCreated: '已创建新{mode}扫描批次',
+    unknownAuthor: '未知作者',
+    monthDay: '{month}月{day}日',
 
     // History
     searchPlaceholder: '搜索历史记录...',
@@ -581,6 +583,8 @@ const locales = {
     recordNotFound: '記錄不存在',
     deleteRecordConfirm: '確定刪除這條記錄嗎？此操作不可恢復。',
     newBatchCreated: '已建立新{mode}掃描批次',
+    unknownAuthor: '未知作者',
+    monthDay: '{month}月{day}日',
 
     // History
     searchPlaceholder: '搜尋歷史記錄...',
@@ -889,6 +893,8 @@ const locales = {
     recordNotFound: 'Record not found',
     deleteRecordConfirm: 'Delete this record? This cannot be undone.',
     newBatchCreated: 'New {mode} scan batch created',
+    unknownAuthor: 'Unknown Author',
+    monthDay: '{month}/{day}',
 
     // History
     searchPlaceholder: 'Search history...',

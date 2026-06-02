@@ -69,7 +69,7 @@
         <view class="record-icon">{{item.batchType === 'book' ? '📚' : '📷'}}</view>
         <view class="record-content">
           <view class="record-title">{{item.title}}</view>
-          <view class="record-meta">{{item.time}} · 共{{item.itemCount}}条</view>
+          <view class="record-meta">{{item.time}} · {{t.itemCountFull.replace('{count}', item.itemCount)}}</view>
         </view>
         <text class="record-arrow">></text>
       </view>

@@ -70,7 +70,9 @@ Page({
     if (diff < 86400000) {
       return t.hoursAgo.replace('{count}', Math.floor(diff / 3600000));
     }
-    return `${date.getMonth() + 1}月${date.getDate()}日`;
+    return t.monthDay
+      .replace('{month}', date.getMonth() + 1)
+      .replace('{day}', date.getDate());
   },
 
   // 格式化批次标题
