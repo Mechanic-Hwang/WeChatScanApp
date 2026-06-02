@@ -48,11 +48,21 @@ Page({
     this._scrollTop = e.scrollTop;
   },
 
+  text(key, params = {}) {
+    let value = (this.data.t && this.data.t[key]) || key;
+    Object.keys(params).forEach(name => {
+      value = value.replace(`{${name}}`, params[name]);
+    });
+    return value;
+  },
+
   loadBatches() {
     const batches = app.globalData.scanBatches.map(batch => ({
       ...batch,
       timeText: this.formatBatchTime(batch.createdAt),
       title: this.formatBatchTitle(batch),
+      typeIcon: batch.batchType === 'book' ? '📚' : '📷',
+      typeText: batch.batchType === 'book' ? this.text('book') : this.text('normal'),
       selected: false
     }));
 
@@ -255,8 +265,8 @@ Page({
 
   clearAllHistory() {
     wx.showModal({
-      title: '确认清空',
-      content: `确定清空所有历史记录吗？此操作不可恢复，共 ${this.data.allBatches.length} 个批次。`,
+      title: this.text('confirmClear'),
+      content: this.text('clearAllHistoryConfirm', { count: this.data.allBatches.length }),
       success: (res) => {
         if (res.confirm) {
           app.globalData.scanBatches = [];
@@ -270,7 +280,7 @@ Page({
             totalPages: 1,
             pageIndex: 1
           });
-          wx.showToast({ title: '已清空全部历史', icon: 'success' });
+          wx.showToast({ title: this.text('clearAllHistoryDone'), icon: 'success' });
         }
       }
     });
@@ -284,20 +294,24 @@ Page({
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date >= today) {
-      return `今天 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+      return `${this.text('today')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     }
 
     if (date >= yesterday) {
-      return `昨天 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+      return `${this.text('yesterday')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     }
 
-    return `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    return this.text('monthDayTime', {
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+      time: `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+    });
   },
 
   formatBatchTitle(batch) {
     const date = new Date(batch.createdAt);
     const timeStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-    return `${timeStr} 扫描记录`;
+    return this.text('scanRecordTitle', { time: timeStr });
   },
 
   onBatchTap(e) {
@@ -331,13 +345,13 @@ Page({
     if (selectedIds.length === 0) return;
 
     wx.showModal({
-      title: '确认删除',
-      content: `确定删除选中的 ${selectedIds.length} 个批次吗？`,
+      title: this.text('confirmDeleteSelected'),
+      content: this.text('deleteSelectedConfirm', { count: selectedIds.length }),
       success: (res) => {
         if (res.confirm) {
           app.deleteBatches(selectedIds);
           this.loadBatches();
-          wx.showToast({ title: '删除成功', icon: 'success' });
+          wx.showToast({ title: this.text('deleteSuccess'), icon: 'success' });
         }
       }
     });
@@ -354,7 +368,7 @@ Page({
     wx.setClipboardData({
       data: content,
       success: () => {
-        wx.showToast({ title: t.copySuccess || '已复制到剪贴板', icon: 'success' });
+        wx.showToast({ title: t.copySuccess, icon: 'success' });
       }
     });
   },

@@ -9,35 +9,35 @@
     <view class="card-desc">{{t.advancedApiDesc}}</view>
 
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">接口配置列表</view>
+      <view class="section-title">{{t.apiConfigList}}</view>
       <view class="config-chip-list">
         <view class="config-chip {{activeApiConfigId === item.apiConfigId ? 'active' : ''}}"
               wx:for="{{apiConfigs}}"
               wx:key="apiConfigId"
               bindtap="selectApiConfig"
               data-id="{{item.apiConfigId}}">
-          {{item.name || item.apiConfigId}}{{item.isDefault ? ' · 默认' : ''}}
+          {{item.name || item.apiConfigId}}{{item.isDefault ? t.defaultApiSuffix : ''}}
         </view>
       </view>
       <view class="inline-actions">
-        <view class="btn btn-secondary" bindtap="addApiConfig">新增接口</view>
-        <view class="btn btn-danger" bindtap="deleteApiConfig">删除当前</view>
+        <view class="btn btn-secondary" bindtap="addApiConfig">{{t.addApi}}</view>
+        <view class="btn btn-danger" bindtap="deleteApiConfig">{{t.deleteCurrent}}</view>
       </view>
     </view>
     
     <!-- 基础配置 -->
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">{{t.requestConfig || '基础请求配置'}}</view>
+      <view class="section-title">{{t.requestConfig}}</view>
 
       <view class="switch-item">
-        <text class="switch-label">启用当前接口</text>
+        <text class="switch-label">{{t.enableCurrentApi}}</text>
         <switch checked="{{apiConfig.enabled}}" bindchange="toggleApiEnabled"/>
       </view>
 
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">默认接口</text>
-          <text class="switch-desc">规则未命中时使用此接口。</text>
+          <text class="switch-name">{{t.defaultApi}}</text>
+          <text class="switch-desc">{{t.defaultApiDesc}}</text>
         </view>
         <switch checked="{{apiConfig.isDefault}}" bindchange="setDefaultApi"/>
       </view>
@@ -87,49 +87,49 @@
       </view>
 
       <view class="input-group">
-        <text class="input-label">{{t.responseFormat || '返回格式'}}</text>
+        <text class="input-label">{{t.responseFormat}}</text>
         <view class="radio-group inline">
           <view class="radio-item {{apiConfig.responseType === 'json' ? 'active' : ''}}" bindtap="setResponseType" data-type="json">JSON</view>
           <view class="radio-item {{apiConfig.responseType === 'xml' ? 'active' : ''}}" bindtap="setResponseType" data-type="xml">XML</view>
-          <view class="radio-item {{apiConfig.responseType === 'auto' ? 'active' : ''}}" bindtap="setResponseType" data-type="auto">{{t.autoDetect || '自动'}}</view>
+          <view class="radio-item {{apiConfig.responseType === 'auto' ? 'active' : ''}}" bindtap="setResponseType" data-type="auto">{{t.autoDetect}}</view>
         </view>
       </view>
 
       <view class="input-group">
-        <text class="input-label">空值处理</text>
+        <text class="input-label">{{t.emptyValueHandling}}</text>
         <view class="radio-group inline">
-          <view class="radio-item {{apiConfig.emptyValueMode === 'placeholder' ? 'active' : ''}}" bindtap="setEmptyValueMode" data-mode="placeholder">显示暂无数据</view>
-          <view class="radio-item {{apiConfig.emptyValueMode === 'hide' ? 'active' : ''}}" bindtap="setEmptyValueMode" data-mode="hide">隐藏字段</view>
+          <view class="radio-item {{apiConfig.emptyValueMode === 'placeholder' ? 'active' : ''}}" bindtap="setEmptyValueMode" data-mode="placeholder">{{t.showPlaceholder}}</view>
+          <view class="radio-item {{apiConfig.emptyValueMode === 'hide' ? 'active' : ''}}" bindtap="setEmptyValueMode" data-mode="hide">{{t.hideField}}</view>
         </view>
       </view>
 
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">显示原始响应</text>
-          <text class="switch-desc">测试预览和记录详情中保留接口原始返回。</text>
+          <text class="switch-name">{{t.showRawResponse}}</text>
+          <text class="switch-desc">{{t.showRawResponseDesc}}</text>
         </view>
         <switch checked="{{apiConfig.showRawResponse}}" bindchange="toggleShowRawResponse"/>
       </view>
     </view>
 
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">Query 参数</view>
+      <view class="section-title">{{t.queryParams}}</view>
       <view class="pair-row" wx:for="{{apiConfig.queryParams}}" wx:key="index">
         <input class="pair-input" placeholder="key" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onQueryParamChange"/>
         <input class="pair-input" placeholder="{{scanValue}}" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="onQueryParamChange"/>
-        <text class="pair-delete" bindtap="deleteQueryParam" data-index="{{index}}">删除</text>
+        <text class="pair-delete" bindtap="deleteQueryParam" data-index="{{index}}">{{t.delete}}</text>
       </view>
-      <view class="btn btn-secondary mt-20" bindtap="addQueryParam">添加 Query 参数</view>
+      <view class="btn btn-secondary mt-20" bindtap="addQueryParam">{{t.addQueryParam}}</view>
     </view>
 
     <view class="config-section" wx:if="{{showAdvancedConfig}}">
-      <view class="section-title">Header 配置</view>
+      <view class="section-title">{{t.headerConfig}}</view>
       <view class="pair-row" wx:for="{{headerItems}}" wx:key="index">
-        <input class="pair-input" placeholder="Header 名称" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onHeaderChange"/>
-        <input class="pair-input" placeholder="Header 值" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="onHeaderChange"/>
-        <text class="pair-delete" bindtap="deleteHeader" data-index="{{index}}">删除</text>
+        <input class="pair-input" placeholder="{{t.headerName}}" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onHeaderChange"/>
+        <input class="pair-input" placeholder="{{t.headerValue}}" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="onHeaderChange"/>
+        <text class="pair-delete" bindtap="deleteHeader" data-index="{{index}}">{{t.delete}}</text>
       </view>
-      <view class="btn btn-secondary mt-20" bindtap="addHeader">添加 Header</view>
+      <view class="btn btn-secondary mt-20" bindtap="addHeader">{{t.addHeader}}</view>
     </view>
 
     <view class="config-section" wx:if="{{showAdvancedConfig && apiConfig.requestType === 'json'}}">
@@ -139,7 +139,7 @@
                 bindinput="onJsonBodyInput"
                 placeholder='{"barcode":"{{scanValue}}"}'
                 auto-height/>
-      <text class="input-tip">可使用 {{scanValue}} 作为扫码值变量。</text>
+      <text class="input-tip">{{t.scanValueTip}}</text>
     </view>
     
     <!-- 字段映射 -->
@@ -189,19 +189,19 @@
       <!-- 测试结果 -->
       <view class="test-result" wx:if="{{testResult}}">
         <view wx:if="{{testResult.success}}">
-          <view class="result-title">✅ 测试成功</view>
+          <view class="result-title">✅ {{t.testSuccess}}</view>
           <view class="result-section">
-            <text class="result-label">解析结果：</text>
+            <text class="result-label">{{t.parsedResult}}</text>
             <view class="result-fields">
               <view class="result-field" wx:for="{{testResult.parsedResult}}" wx:key="label" wx:for-item="value">
                 <text class="field-name">{{item.label}}：</text>
-                <text class="field-value">{{value || '暂无数据'}}</text>
+                <text class="field-value">{{value || t.noData}}</text>
               </view>
             </view>
           </view>
         </view>
         <view wx:else>
-          <view class="result-title">❌ 测试失败</view>
+          <view class="result-title">❌ {{t.testFailed}}</view>
           <text class="error-message">{{testResult.error}}</text>
         </view>
       </view>
@@ -211,41 +211,41 @@
   </view>
 
   <view class="card">
-    <view class="card-title">🧭 规则路由配置</view>
-    <view class="card-desc">按正则表达式和优先级将扫码值路由到不同接口。</view>
+    <view class="card-title">🧭 {{t.routeRules}}</view>
+    <view class="card-desc">{{t.routeRulesDesc}}</view>
 
     <view class="rule-card" wx:for="{{scanRules}}" wx:key="ruleId">
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">{{item.name || '未命名规则'}}</text>
-          <text class="switch-desc">绑定接口：{{item.apiConfigId || '未绑定'}}</text>
+          <text class="switch-name">{{item.name || t.unnamedRule}}</text>
+          <text class="switch-desc">{{t.boundApi.replace('{apiConfigId}', item.apiConfigId || t.unbound)}}</text>
         </view>
         <switch checked="{{item.enabled}}" data-index="{{index}}" bindchange="toggleScanRule"/>
       </view>
 
       <view class="input-group">
-        <text class="input-label">规则名称</text>
+        <text class="input-label">{{t.ruleName}}</text>
         <input class="input" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="onScanRuleChange"/>
       </view>
       <view class="input-group">
-        <text class="input-label">正则表达式</text>
+        <text class="input-label">{{t.regexPattern}}</text>
         <input class="input" placeholder="^A\\d{9}$" value="{{item.pattern}}" data-index="{{index}}" data-field="pattern" bindinput="onScanRuleChange"/>
       </view>
       <view class="input-group">
-        <text class="input-label">优先级</text>
+        <text class="input-label">{{t.priority}}</text>
         <input class="input" type="number" value="{{item.priority}}" data-index="{{index}}" data-field="priority" bindinput="onScanRuleChange"/>
       </view>
       <view class="input-group">
-        <text class="input-label">绑定接口 ID</text>
+        <text class="input-label">{{t.bindApiId}}</text>
         <input class="input" value="{{item.apiConfigId}}" data-index="{{index}}" data-field="apiConfigId" bindinput="onScanRuleChange"/>
-        <view class="btn btn-secondary mt-20" bindtap="bindRuleToActiveApi" data-index="{{index}}">绑定当前接口</view>
+        <view class="btn btn-secondary mt-20" bindtap="bindRuleToActiveApi" data-index="{{index}}">{{t.bindCurrentApi}}</view>
       </view>
-      <view class="btn btn-danger mt-20" bindtap="deleteScanRule" data-index="{{index}}">删除规则</view>
+      <view class="btn btn-danger mt-20" bindtap="deleteScanRule" data-index="{{index}}">{{t.deleteRule}}</view>
     </view>
 
     <view class="inline-actions mt-20">
-      <view class="btn btn-secondary" bindtap="addScanRule">新增规则</view>
-      <view class="btn btn-primary" bindtap="saveScanRules">保存规则</view>
+      <view class="btn btn-secondary" bindtap="addScanRule">{{t.addRule}}</view>
+      <view class="btn btn-primary" bindtap="saveScanRules">{{t.saveRules}}</view>
     </view>
   </view>
 
@@ -256,19 +256,19 @@
       <view class="language-item {{currentLang === 'zh-CN' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="zh-CN">
-        <text class="lang-name">简体中文</text>
+        <text class="lang-name">{{t.langZhCN}}</text>
         <text class="lang-check" wx:if="{{currentLang === 'zh-CN'}}">✓</text>
       </view>
       <view class="language-item {{currentLang === 'zh-TW' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="zh-TW">
-        <text class="lang-name">繁體中文</text>
+        <text class="lang-name">{{t.langZhTW}}</text>
         <text class="lang-check" wx:if="{{currentLang === 'zh-TW'}}">✓</text>
       </view>
       <view class="language-item {{currentLang === 'en' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="en">
-        <text class="lang-name">English</text>
+        <text class="lang-name">{{t.langEn}}</text>
         <text class="lang-check" wx:if="{{currentLang === 'en'}}">✓</text>
       </view>
     </view>
@@ -295,17 +295,17 @@
     </view>
 
     <view class="switch-item">
-      <text class="switch-label">允许换行</text>
+      <text class="switch-label">{{t.allowNewline}}</text>
       <switch checked="{{inputRules.allowNewline}}" bindchange="toggleAllowNewline"/>
     </view>
 
     <view class="switch-item">
-      <text class="switch-label">回车直接提交</text>
+      <text class="switch-label">{{t.enterSubmit}}</text>
       <switch checked="{{inputRules.enterSubmit}}" bindchange="toggleEnterSubmit"/>
     </view>
 
     <view class="input-group mt-20">
-      <text class="input-label">最大输入长度</text>
+      <text class="input-label">{{t.maxInputLength}}</text>
       <view class="radio-group inline">
         <view class="radio-item {{inputRules.maxLength === 50 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="50">50</view>
         <view class="radio-item {{inputRules.maxLength === 100 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="100">100</view>
@@ -313,7 +313,7 @@
         <view class="radio-item {{inputRules.maxLength === 500 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="500">500</view>
         <view class="radio-item {{inputRules.maxLength === 1000 ? 'active' : ''}}" bindtap="setMaxInputLength" data-length="1000">1000</view>
       </view>
-      <text class="input-tip">超过长度时会拒绝提交并提示。</text>
+      <text class="input-tip">{{t.maxInputLengthTip}}</text>
     </view>
   </view>
 
@@ -323,52 +323,52 @@
     <view class="card-desc">{{t.copyRulesDesc}}</view>
 
     <view class="input-group">
-      <text class="input-label">复制范围</text>
+      <text class="input-label">{{t.copyRange}}</text>
       <view class="radio-group inline">
-        <view class="radio-item {{copyRules.range === 'raw' ? 'active' : ''}}" bindtap="setCopyRange" data-range="raw">原始内容</view>
-        <view class="radio-item {{copyRules.range === 'primary' ? 'active' : ''}}" bindtap="setCopyRange" data-range="primary">主要字段</view>
-        <view class="radio-item {{copyRules.range === 'full' ? 'active' : ''}}" bindtap="setCopyRange" data-range="full">完整详情</view>
+        <view class="radio-item {{copyRules.range === 'raw' ? 'active' : ''}}" bindtap="setCopyRange" data-range="raw">{{t.rawContent}}</view>
+        <view class="radio-item {{copyRules.range === 'primary' ? 'active' : ''}}" bindtap="setCopyRange" data-range="primary">{{t.primaryFields}}</view>
+        <view class="radio-item {{copyRules.range === 'full' ? 'active' : ''}}" bindtap="setCopyRange" data-range="full">{{t.fullDetail}}</view>
         <view class="radio-item {{copyRules.range === 'json' ? 'active' : ''}}" bindtap="setCopyRange" data-range="json">JSON</view>
       </view>
-      <text class="input-tip">原始内容仅复制扫码值；主要字段用于常规粘贴；完整详情会包含接口解析结果。</text>
+      <text class="input-tip">{{t.copyRangeTip}}</text>
     </view>
 
     <view class="input-group">
-      <text class="input-label">多条分隔方式</text>
+      <text class="input-label">{{t.copySeparator}}</text>
       <view class="radio-group inline">
-        <view class="radio-item {{copyRules.separator === 'singleNewline' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="singleNewline">单换行</view>
-        <view class="radio-item {{copyRules.separator === 'blankLine' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="blankLine">空一行</view>
+        <view class="radio-item {{copyRules.separator === 'singleNewline' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="singleNewline">{{t.singleNewline}}</view>
+        <view class="radio-item {{copyRules.separator === 'blankLine' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="blankLine">{{t.blankLine}}</view>
         <view class="radio-item {{copyRules.separator === 'line' ? 'active' : ''}}" bindtap="setCopySeparator" data-separator="line">---</view>
       </view>
-      <text class="input-tip">示例：空一行会在每条记录之间保留一个空白行，适合粘贴到文档。</text>
+      <text class="input-tip">{{t.copySeparatorTip}}</text>
     </view>
 
     <view class="switch-list">
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">包含时间</text>
-          <text class="switch-desc">在每条记录末尾附加完整本地时间戳。</text>
+          <text class="switch-name">{{t.includeTime}}</text>
+          <text class="switch-desc">{{t.includeTimeDesc}}</text>
         </view>
         <switch checked="{{copyRules.includeTime}}" bindchange="toggleCopyIncludeTime"/>
       </view>
       <view class="switch-item">
         <view class="switch-info">
-          <text class="switch-name">包含模式信息</text>
-          <text class="switch-desc">标明普通或图书模式，便于跨批次整理。</text>
+          <text class="switch-name">{{t.includeMode}}</text>
+          <text class="switch-desc">{{t.includeModeDesc}}</text>
         </view>
         <switch checked="{{copyRules.includeMode}}" bindchange="toggleCopyIncludeMode"/>
       </view>
     </view>
 
     <view class="input-group mt-20">
-      <text class="input-label">图书复制字段</text>
+      <text class="input-label">{{t.bookCopyFields}}</text>
       <view class="field-option-list">
         <view class="field-option" wx:for="{{bookFieldOptions}}" wx:key="key">
           <text>{{item.label}}</text>
           <switch checked="{{item.checked}}" data-field="{{item.key}}" bindchange="toggleBookCopyField"/>
         </view>
       </view>
-      <text class="input-tip">示例：选择书名、作者、条码、索书号后，复制内容会按这些字段逐行输出。</text>
+      <text class="input-tip">{{t.bookCopyFieldsTip}}</text>
     </view>
   </view>
 

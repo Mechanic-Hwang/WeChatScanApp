@@ -47,6 +47,14 @@ Page({
     });
   },
 
+  text(key, params = {}) {
+    let value = (this.data.t && this.data.t[key]) || key;
+    Object.keys(params).forEach(name => {
+      value = value.replace(`{${name}}`, params[name]);
+    });
+    return value;
+  },
+
   // 加载设置
   loadSettings() {
     const { apiConfig: appApiConfig, language } = app.globalData;
@@ -101,14 +109,14 @@ Page({
     
     // 验证URL格式
     if (apiUrl && !this.isValidUrl(apiUrl)) {
-      wx.showToast({ title: 'API地址格式不正确', icon: 'none' });
+      wx.showToast({ title: this.text('invalidUrl'), icon: 'none' });
       return;
     }
 
     app.saveApiConfig(apiUrl, apiKey);
     
     wx.showToast({
-      title: '保存成功',
+      title: this.text('saveSuccess'),
       icon: 'success'
     });
   },
@@ -123,11 +131,11 @@ Page({
     const { apiUrl, apiKey } = this.data;
     
     if (!apiUrl) {
-      wx.showToast({ title: '请先输入API地址', icon: 'none' });
+      wx.showToast({ title: this.text('inputApiUrl'), icon: 'none' });
       return;
     }
 
-    wx.showLoading({ title: '测试中...' });
+    wx.showLoading({ title: this.text('testing') });
 
     try {
       // 使用测试条码
@@ -151,18 +159,18 @@ Page({
 
       if (response.statusCode === 200) {
         wx.showModal({
-          title: '连接成功',
-          content: 'API连接正常，可以获取图书信息',
+          title: this.text('connectionSuccess'),
+          content: this.text('apiConnectionOk'),
           showCancel: false
         });
       } else {
-        throw new Error(`状态码: ${response.statusCode}`);
+        throw new Error(this.text('statusCode', { code: response.statusCode }));
       }
     } catch (error) {
       wx.hideLoading();
       wx.showModal({
-        title: '连接失败',
-        content: `无法连接到API: ${error.errMsg || error.message}`,
+        title: this.text('connectionFailed'),
+        content: this.text('cannotConnectApi', { message: error.errMsg || error.message }),
         showCancel: false
       });
     }
@@ -175,14 +183,8 @@ Page({
     app.saveLanguage(lang);
     this.updateLanguage();
     
-    const messages = {
-      'zh-CN': '已切换到简体中文',
-      'zh-TW': '已切換到繁體中文',
-      'en': 'Switched to English'
-    };
-    
     wx.showToast({
-      title: messages[lang],
+      title: this.text('languageSwitched'),
       icon: 'none'
     });
   },
@@ -229,7 +231,7 @@ Page({
     const format = e.currentTarget.dataset.format;
     this.setData({ copyFormat: format });
     wx.setStorageSync('copyFormat', format);
-    wx.showToast({ title: '已设置复制格式', icon: 'success' });
+    wx.showToast({ title: this.text('saveSuccess'), icon: 'success' });
   },
 
   // 复制格式配置（新版开关方式）
@@ -335,7 +337,7 @@ Page({
     const apiConfig = {
       ...apiConfigUtil.DEFAULT_API_CONFIG,
       apiConfigId: `api_config_${Date.now()}`,
-      name: `接口配置 ${this.data.apiConfigs.length + 1}`,
+      name: this.text('apiConfigName', { number: this.data.apiConfigs.length + 1 }),
       enabled: true,
       isDefault: this.data.apiConfigs.length === 0
     };
@@ -351,13 +353,13 @@ Page({
 
   deleteApiConfig() {
     if (this.data.apiConfigs.length <= 1) {
-      wx.showToast({ title: '至少保留一个接口配置', icon: 'none' });
+      wx.showToast({ title: this.text('keepOneApiConfig'), icon: 'none' });
       return;
     }
     const apiConfigName = this.data.apiConfig.name || this.data.apiConfig.apiConfigId;
     wx.showModal({
-      title: '确认删除',
-      content: `确定删除接口“${apiConfigName}”吗？`,
+      title: this.text('confirmDeleteApi'),
+      content: this.text('deleteApiConfirm', { name: apiConfigName }),
       success: (res) => {
         if (!res.confirm) return;
         const apiConfigs = this.data.apiConfigs.filter(config => config.apiConfigId !== this.data.apiConfig.apiConfigId);
@@ -480,7 +482,7 @@ Page({
       ...this.data.scanRules,
       {
         ruleId: `rule_${Date.now()}`,
-        name: `规则 ${this.data.scanRules.length + 1}`,
+        name: this.text('ruleNameDefault', { number: this.data.scanRules.length + 1 }),
         enabled: true,
         pattern: '',
         priority: this.data.scanRules.length + 1,
@@ -522,16 +524,16 @@ Page({
     this.data.scanRules.forEach((rule, index) => {
       const validation = apiConfigUtil.validateRule(rule);
       if (!validation.valid) {
-        errors.push(`规则 ${index + 1}: ${validation.error}`);
+        errors.push(this.text('ruleError', { number: index + 1, error: validation.error }));
       }
       if (!rule.apiConfigId) {
-        errors.push(`规则 ${index + 1}: 请选择绑定接口`);
+        errors.push(this.text('selectBoundApi', { number: index + 1 }));
       }
     });
 
     if (errors.length > 0) {
       wx.showModal({
-        title: '规则配置错误',
+        title: this.text('ruleConfigError'),
         content: errors.join('\n'),
         showCancel: false
       });
@@ -539,7 +541,7 @@ Page({
     }
 
     apiConfigUtil.saveScanRules(this.data.scanRules);
-    wx.showToast({ title: '规则配置已保存', icon: 'success' });
+    wx.showToast({ title: this.text('ruleConfigSaved'), icon: 'success' });
   },
 
   onFieldChange(e) {
@@ -573,11 +575,11 @@ Page({
     const { apiConfig, testValue } = this.data;
     
     if (!testValue) {
-      wx.showToast({ title: '请输入测试值', icon: 'none' });
+      wx.showToast({ title: this.text('inputTestValue'), icon: 'none' });
       return;
     }
 
-    wx.showLoading({ title: '测试中...' });
+    wx.showLoading({ title: this.text('testing') });
     
     const result = await apiConfigUtil.testApiConfig(apiConfig, testValue);
     
@@ -598,7 +600,7 @@ Page({
     const validation = apiConfigUtil.validateConfig(apiConfig);
     if (!validation.valid) {
       wx.showModal({
-        title: '配置错误',
+        title: this.text('configError'),
         content: validation.errors.join('\n'),
         showCancel: false
       });
@@ -614,7 +616,7 @@ Page({
     wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
     
     wx.showToast({
-      title: '高级配置已保存',
+      title: this.text('advancedConfigSaved'),
       icon: 'success'
     });
   },
@@ -622,8 +624,8 @@ Page({
   // 恢复默认设置
   resetAllSettings() {
     wx.showModal({
-      title: '确认恢复',
-      content: '确定恢复所有设置为默认值吗？',
+      title: this.text('confirmRestore'),
+      content: this.text('resetSettingsConfirm'),
       success: (res) => {
         if (res.confirm) {
           // 清除所有本地存储的设置
@@ -649,7 +651,7 @@ Page({
             bookFieldOptions: this.buildBookFieldOptions(copyRulesUtil.DEFAULT_COPY_RULES)
           });
           
-          wx.showToast({ title: '已恢复默认设置', icon: 'success' });
+          wx.showToast({ title: this.text('resetSettingsDone'), icon: 'success' });
         }
       }
     });
@@ -658,13 +660,13 @@ Page({
   // 清空历史
   clearHistory() {
     wx.showModal({
-      title: '确认清空',
-      content: '确定清空所有扫描历史吗？此操作不可恢复。',
+      title: this.text('confirmClear'),
+      content: this.text('clearConfirm'),
       success: (res) => {
         if (res.confirm) {
           app.globalData.scanBatches = [];
           wx.setStorageSync('scanBatches', []);
-          wx.showToast({ title: '已清空', icon: 'success' });
+          wx.showToast({ title: this.text('clearDone'), icon: 'success' });
         }
       }
     });
@@ -675,18 +677,21 @@ Page({
     const batches = app.globalData.scanBatches;
     
     if (batches.length === 0) {
-      wx.showToast({ title: '没有数据可导出', icon: 'none' });
+      wx.showToast({ title: this.text('noDataToExport'), icon: 'none' });
       return;
     }
 
     let content = '';
     batches.forEach((batch, index) => {
       if (index > 0) content += '\n\n';
-      content += `【批次 ${index + 1}】${new Date(batch.createdAt).toLocaleString()}\n`;
+      content += `${this.text('exportBatchTitle', {
+        number: index + 1,
+        time: new Date(batch.createdAt).toLocaleString()
+      })}\n`;
       batch.items.forEach(item => {
         const time = new Date(item.createdAt).toLocaleString();
         if (item.mode === 'book' && item.bookInfo) {
-          content += `[${time}] 图书: ${item.bookInfo.title} - ${item.content}\n`;
+          content += `[${time}] ${this.text('exportBookLabel')}: ${item.bookInfo.title} - ${item.content}\n`;
         } else {
           content += `[${time}] ${item.content}\n`;
         }
@@ -697,8 +702,8 @@ Page({
       data: content,
       success: () => {
         wx.showModal({
-          title: '导出成功',
-          content: `已复制 ${batches.length} 个批次到剪贴板`,
+          title: this.text('exportSuccess'),
+          content: this.text('copiedBatchesToClipboard', { count: batches.length }),
           showCancel: false
         });
       }
