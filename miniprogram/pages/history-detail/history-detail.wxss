@@ -188,7 +188,6 @@
 .action-btn.copy {
   background: #EAF2FF;
   color: #1D6FEA;
-  color: #fff;
 }
 
 .action-btn.delete {

@@ -26,13 +26,20 @@ Page({
     });
   },
 
+  text(key, params = {}) {
+    let value = (this.data.t && this.data.t[key]) || key;
+    Object.keys(params).forEach(name => {
+      value = value.replace(`{${name}}`, params[name]);
+    });
+    return value;
+  },
+
   // 加载批次详情
   loadBatchDetail(batchId) {
     const batch = app.getBatchDetail(batchId);
     
     if (!batch) {
-      const t = this.data.t;
-      wx.showToast({ title: t.batchNotFound || '批次不存在', icon: 'none' });
+      wx.showToast({ title: this.text('batchNotFound'), icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
       return;
     }
@@ -42,6 +49,8 @@ Page({
       ...batch,
       title: this.formatBatchTitle(batch),
       timeText: this.formatBatchTime(batch.createdAt),
+      typeIcon: batch.batchType === 'book' ? '📚' : '📷',
+      typeText: batch.batchType === 'book' ? this.text('bookScan') : this.text('normalScan'),
       items: batch.items.map(item => ({
         ...item,
         timeText: this.formatItemTime(item.createdAt)
@@ -91,7 +100,7 @@ Page({
   formatBatchTitle(batch) {
     const date = new Date(batch.createdAt);
     const timeStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-    return `${timeStr} 扫描记录`;
+    return this.text('scanRecordTitle', { time: timeStr });
   },
 
   // 格式化批次时间
@@ -118,7 +127,7 @@ Page({
     wx.setClipboardData({
       data: this.formatItemForCopy(item),
       success: () => {
-        wx.showToast({ title: this.data.t.copySuccess || '已复制到剪贴板', icon: 'success' });
+        wx.showToast({ title: this.text('copySuccess'), icon: 'success' });
       }
     });
   },
@@ -128,18 +137,18 @@ Page({
     const t = this.data.t;
 
     wx.showModal({
-      title: t.confirmDelete || '确认删除',
-      content: '确定删除这条记录吗？此操作不可恢复。',
+      title: this.text('confirmDelete'),
+      content: this.text('deleteRecordConfirm'),
       success: (res) => {
         if (!res.confirm) return;
 
         const deleted = app.deleteRecordFromBatch(this.data.batch.batchId, recordId);
         if (!deleted) {
-          wx.showToast({ title: t.batchNotFound || '记录不存在', icon: 'none' });
+          wx.showToast({ title: this.text('recordNotFound'), icon: 'none' });
           return;
         }
 
-        wx.showToast({ title: t.deleteSuccess || '删除成功', icon: 'success' });
+        wx.showToast({ title: this.text('deleteSuccess'), icon: 'success' });
 
         const latestBatch = app.getBatchDetail(this.data.batch.batchId);
         if (!latestBatch) {
@@ -170,7 +179,7 @@ Page({
   deleteBatch() {
     const t = this.data.t;
     wx.showModal({
-      title: t.confirmDelete || '确认删除',
+      title: this.text('confirmDelete'),
       content: t.deleteBatchConfirm,
       success: (res) => {
         if (res.confirm) {
@@ -194,7 +203,9 @@ Page({
       url: '/pages/index/index',
       success: () => {
         wx.showToast({
-          title: `已创建新${batch.batchType === 'book' ? '图书' : '普通'}扫描批次`,
+          title: this.text('newBatchCreated', {
+            mode: batch.batchType === 'book' ? this.text('book') : this.text('normal')
+          }),
           icon: 'none'
         });
       }

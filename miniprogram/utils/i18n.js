@@ -270,6 +270,9 @@ const locales = {
     duplicateMoved: '已存在，已移到顶部',
     inputMaxLength: '输入不能超过 {count} 字符',
     invalidIsbnOrBookBarcode: '请输入有效的 ISBN 或图书条码',
+    recordNotFound: '记录不存在',
+    deleteRecordConfirm: '确定删除这条记录吗？此操作不可恢复。',
+    newBatchCreated: '已创建新{mode}扫描批次',
 
     // History
     searchPlaceholder: '搜索历史记录...',
@@ -575,6 +578,9 @@ const locales = {
     duplicateMoved: '已存在，已移到頂部',
     inputMaxLength: '輸入不能超過 {count} 個字元',
     invalidIsbnOrBookBarcode: '請輸入有效的 ISBN 或圖書條碼',
+    recordNotFound: '記錄不存在',
+    deleteRecordConfirm: '確定刪除這條記錄嗎？此操作不可恢復。',
+    newBatchCreated: '已建立新{mode}掃描批次',
 
     // History
     searchPlaceholder: '搜尋歷史記錄...',
@@ -880,6 +886,9 @@ const locales = {
     duplicateMoved: 'Already exists and moved to the top',
     inputMaxLength: 'Input cannot exceed {count} characters',
     invalidIsbnOrBookBarcode: 'Enter a valid ISBN or book barcode',
+    recordNotFound: 'Record not found',
+    deleteRecordConfirm: 'Delete this record? This cannot be undone.',
+    newBatchCreated: 'New {mode} scan batch created',
 
     // History
     searchPlaceholder: 'Search history...',
