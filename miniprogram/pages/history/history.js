@@ -13,6 +13,7 @@ Page({
     searchKeyword: '',
     recentSearches: [],
     modeFilter: 'all',
+    dateFilter: 'all',
     pageIndex: 1,
     pageSize: 50,
     pageSizes: [50, 100, 200, 500],
@@ -23,6 +24,7 @@ Page({
 
   onLoad() {
     this.loadRecentSearches();
+    this.restoreListState();
     this.loadBatches();
   },
 
@@ -31,6 +33,19 @@ Page({
       t: i18n.locales[app.globalData.language || 'zh-CN']
     });
     this.loadBatches();
+    this.restoreScrollPosition();
+  },
+
+  onHide() {
+    this.saveListState();
+  },
+
+  onUnload() {
+    this.saveListState();
+  },
+
+  onPageScroll(e) {
+    this._scrollTop = e.scrollTop;
   },
 
   loadBatches() {
@@ -99,12 +114,76 @@ Page({
     this.applyFilters();
   },
 
+  setDateFilter(e) {
+    this.setData({
+      dateFilter: e.currentTarget.dataset.date,
+      pageIndex: 1
+    });
+    this.applyFilters();
+  },
+
+  saveListState() {
+    wx.setStorageSync('historyListState', {
+      searchKeyword: this.data.searchKeyword,
+      modeFilter: this.data.modeFilter,
+      dateFilter: this.data.dateFilter,
+      pageIndex: this.data.pageIndex,
+      pageSize: this.data.pageSize,
+      scrollTop: this._scrollTop || 0
+    });
+  },
+
+  restoreListState() {
+    const state = wx.getStorageSync('historyListState');
+    if (!state) return;
+
+    this.setData({
+      searchKeyword: state.searchKeyword || '',
+      modeFilter: state.modeFilter || 'all',
+      dateFilter: state.dateFilter || 'all',
+      pageIndex: state.pageIndex || 1,
+      pageSize: state.pageSize || 50
+    });
+    this._restoreScrollTop = state.scrollTop || 0;
+  },
+
+  restoreScrollPosition() {
+    if (!this._restoreScrollTop) return;
+
+    const scrollTop = this._restoreScrollTop;
+    this._restoreScrollTop = 0;
+    setTimeout(() => {
+      wx.pageScrollTo({
+        scrollTop,
+        duration: 0
+      });
+    }, 50);
+  },
+
+  matchDateFilter(batch) {
+    if (this.data.dateFilter === 'all') return true;
+
+    const createdAt = new Date(batch.createdAt);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (this.data.dateFilter === 'today') {
+      return createdAt >= today;
+    }
+
+    const days = this.data.dateFilter === '7days' ? 7 : 30;
+    const start = new Date(today);
+    start.setDate(start.getDate() - (days - 1));
+    return createdAt >= start;
+  },
+
   applyFilters(resetSelection = false) {
     const keyword = this.data.searchKeyword.trim().toLowerCase();
     const modeFilter = this.data.modeFilter;
 
     let filtered = this.data.allBatches.filter(batch => {
       if (modeFilter !== 'all' && batch.batchType !== modeFilter) return false;
+      if (!this.matchDateFilter(batch)) return false;
 
       if (!keyword) return true;
 
@@ -223,6 +302,7 @@ Page({
 
   onBatchTap(e) {
     this.saveRecentSearch(this.data.searchKeyword);
+    this.saveListState();
     wx.navigateTo({
       url: `/pages/history-detail/history-detail?batchId=${e.currentTarget.dataset.id}`
     });

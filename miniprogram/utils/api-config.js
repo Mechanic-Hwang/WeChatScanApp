@@ -111,6 +111,15 @@ function loadApiConfig() {
     if (config) {
       return { ...DEFAULT_API_CONFIG, ...config };
     }
+
+    const configs = wx.getStorageSync('apiConfigs');
+    if (Array.isArray(configs) && configs.length > 0) {
+      const normalizedConfigs = configs.map(normalizeApiConfig);
+      const activeApiConfigId = wx.getStorageSync('activeApiConfigId');
+      return normalizedConfigs.find(item => item.apiConfigId === activeApiConfigId) ||
+        getDefaultApiConfig(normalizedConfigs) ||
+        normalizedConfigs[0];
+    }
   } catch (e) {
     console.error('[ApiConfig] 加载配置失败:', e);
   }
@@ -238,12 +247,14 @@ function resolveApiConfigForScan(scanValue, options = {}) {
   if (matchedRule) {
     return {
       rule: matchedRule,
+      matchedRule,
       apiConfig: getApiConfigById(matchedRule.apiConfigId, configs)
     };
   }
 
   return {
     rule: null,
+    matchedRule: null,
     apiConfig: getDefaultApiConfig(configs)
   };
 }

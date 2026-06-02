@@ -25,6 +25,13 @@
     <view class="filter-chip {{modeFilter === 'book' ? 'active' : ''}}" bindtap="setModeFilter" data-mode="book">图书</view>
   </view>
 
+  <view class="filter-bar" wx:if="{{allBatches.length > 0}}">
+    <view class="filter-chip {{dateFilter === 'all' ? 'active' : ''}}" bindtap="setDateFilter" data-date="all">全部日期</view>
+    <view class="filter-chip {{dateFilter === 'today' ? 'active' : ''}}" bindtap="setDateFilter" data-date="today">今天</view>
+    <view class="filter-chip {{dateFilter === '7days' ? 'active' : ''}}" bindtap="setDateFilter" data-date="7days">近 7 天</view>
+    <view class="filter-chip {{dateFilter === '30days' ? 'active' : ''}}" bindtap="setDateFilter" data-date="30days">近 30 天</view>
+  </view>
+
   <!-- 操作栏 -->
   <view class="action-bar" wx:if="{{allBatches.length > 0}}">
     <view class="action-btn" bindtap="selectAll">

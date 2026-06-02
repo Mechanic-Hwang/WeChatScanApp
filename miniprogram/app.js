@@ -199,8 +199,10 @@ App({
 
   // 检查存储空间限制
   checkStorageLimit() {
-    const MAX_BATCHES = 500; // 最多500个批次
-    const MAX_STORAGE_MB = 10; // 10MB限制
+    const MAX_BATCHES = 500;
+    const MAX_STORAGE_MB = 10;
+    const WARNING_STORAGE_MB = 8;
+    const SAFE_STORAGE_MB = 9;
     
     // 限制批次数量
     if (this.globalData.scanBatches.length > MAX_BATCHES) {
@@ -212,14 +214,25 @@ App({
     
     // 估算存储大小（粗略估计）
     try {
-      const dataStr = JSON.stringify(this.globalData.scanBatches);
-      const sizeInMB = (dataStr.length * 2) / (1024 * 1024); // UTF-16 每个字符2字节
+      let sizeInMB = this.estimateBatchesSizeMB();
+      
+      if (sizeInMB > WARNING_STORAGE_MB && sizeInMB <= MAX_STORAGE_MB && !this.globalData.storageWarningShown) {
+        this.globalData.storageWarningShown = true;
+        wx.showToast({
+          title: '历史数据接近容量上限，请及时清理',
+          icon: 'none',
+          duration: 3000
+        });
+      }
       
       if (sizeInMB > MAX_STORAGE_MB) {
-        // 删除最旧的20%批次
-        const toRemove = Math.ceil(this.globalData.scanBatches.length * 0.2);
-        this.globalData.scanBatches.splice(-toRemove);
-        console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${toRemove}个旧批次`);
+        let removedCount = 0;
+        while (this.globalData.scanBatches.length > 0 && sizeInMB > SAFE_STORAGE_MB) {
+          this.globalData.scanBatches.pop();
+          removedCount += 1;
+          sizeInMB = this.estimateBatchesSizeMB();
+        }
+        console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${removedCount}个旧批次`);
         
         wx.showToast({
           title: '存储空间不足，已自动清理旧记录',
@@ -230,6 +243,11 @@ App({
     } catch (e) {
       console.error('[Storage] 检查存储空间失败:', e);
     }
+  },
+
+  estimateBatchesSizeMB() {
+    const dataStr = JSON.stringify(this.globalData.scanBatches || []);
+    return (dataStr.length * 2) / (1024 * 1024);
   },
 
   // 完成当前批次
@@ -296,12 +314,9 @@ App({
 
   // 查询图书信息
   async queryBookInfo(barcode) {
-    const advancedConfig = apiConfigUtil.loadApiConfig();
-    if (advancedConfig && advancedConfig.enabled && advancedConfig.url) {
-      const result = await apiConfigUtil.executeScanRequest(barcode, {
-        configs: [advancedConfig],
-        rules: apiConfigUtil.loadScanRules()
-      });
+    const advancedConfigs = apiConfigUtil.loadApiConfigs();
+    if (advancedConfigs.some(config => config.enabled && config.url)) {
+      const result = await apiConfigUtil.executeScanRequest(barcode);
       const parsed = result.parsedResult || {};
 
       return {
@@ -315,7 +330,7 @@ App({
         status: parsed.status || parsed['馆藏状态'] || '',
         barcode: parsed.barcode || parsed['条码号'] || barcode,
         customResult: parsed,
-        rawResponse: advancedConfig.showRawResponse ? result.rawResponse : undefined,
+        rawResponse: result.apiConfig && result.apiConfig.showRawResponse ? result.rawResponse : undefined,
         matchedRuleId: result.matchedRule && result.matchedRule.ruleId,
         apiConfigId: result.apiConfig && result.apiConfig.apiConfigId
       };

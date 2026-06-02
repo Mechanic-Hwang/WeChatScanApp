@@ -24,6 +24,10 @@ Page({
     bookFieldOptions: [],
     // 高级API配置
     apiConfig: apiConfigUtil.DEFAULT_API_CONFIG,
+    apiConfigs: [],
+    activeApiConfigId: 'api_book_query',
+    headerItems: [],
+    scanRules: [],
     testValue: '',
     testResult: null,
     showAdvancedConfig: false
@@ -64,8 +68,16 @@ Page({
     });
     
     // 加载高级API配置
-    const advancedConfig = apiConfigUtil.loadApiConfig();
-    this.setData({ apiConfig: advancedConfig });
+    const apiConfigs = apiConfigUtil.loadApiConfigs();
+    const activeApiConfigId = wx.getStorageSync('activeApiConfigId') || (apiConfigs[0] && apiConfigs[0].apiConfigId);
+    const advancedConfig = apiConfigs.find(config => config.apiConfigId === activeApiConfigId) || apiConfigs[0] || apiConfigUtil.DEFAULT_API_CONFIG;
+    this.setData({
+      apiConfigs,
+      activeApiConfigId: advancedConfig.apiConfigId,
+      apiConfig: advancedConfig,
+      headerItems: this.headersToItems(advancedConfig.headers)
+    });
+    this.setData({ scanRules: apiConfigUtil.loadScanRules() });
   },
 
   // URL输入
@@ -284,49 +296,258 @@ Page({
   },
 
   // API配置输入
+  headersToItems(headers = {}) {
+    return Object.keys(headers).map(key => ({ key, value: headers[key] }));
+  },
+
+  itemsToHeaders(items = []) {
+    return items.reduce((headers, item) => {
+      if (item.key) headers[item.key] = item.value || '';
+      return headers;
+    }, {});
+  },
+
+  syncActiveApiConfig(nextConfig = this.data.apiConfig) {
+    const apiConfig = {
+      ...nextConfig,
+      headers: this.itemsToHeaders(this.data.headerItems)
+    };
+    const apiConfigs = this.data.apiConfigs.map(config => (
+      config.apiConfigId === apiConfig.apiConfigId ? apiConfig : config
+    ));
+    this.setData({ apiConfig, apiConfigs });
+    return { apiConfig, apiConfigs };
+  },
+
+  selectApiConfig(e) {
+    const apiConfigId = e.currentTarget.dataset.id;
+    const apiConfig = this.data.apiConfigs.find(config => config.apiConfigId === apiConfigId);
+    if (!apiConfig) return;
+    this.setData({
+      activeApiConfigId: apiConfigId,
+      apiConfig,
+      headerItems: this.headersToItems(apiConfig.headers)
+    });
+    wx.setStorageSync('activeApiConfigId', apiConfigId);
+  },
+
+  addApiConfig() {
+    const apiConfig = {
+      ...apiConfigUtil.DEFAULT_API_CONFIG,
+      apiConfigId: `api_config_${Date.now()}`,
+      name: `接口配置 ${this.data.apiConfigs.length + 1}`,
+      enabled: true,
+      isDefault: this.data.apiConfigs.length === 0
+    };
+    const apiConfigs = [...this.data.apiConfigs, apiConfig];
+    this.setData({
+      apiConfigs,
+      apiConfig,
+      activeApiConfigId: apiConfig.apiConfigId,
+      headerItems: this.headersToItems(apiConfig.headers)
+    });
+    wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
+  },
+
+  deleteApiConfig() {
+    if (this.data.apiConfigs.length <= 1) {
+      wx.showToast({ title: '至少保留一个接口配置', icon: 'none' });
+      return;
+    }
+    const apiConfigName = this.data.apiConfig.name || this.data.apiConfig.apiConfigId;
+    wx.showModal({
+      title: '确认删除',
+      content: `确定删除接口“${apiConfigName}”吗？`,
+      success: (res) => {
+        if (!res.confirm) return;
+        const apiConfigs = this.data.apiConfigs.filter(config => config.apiConfigId !== this.data.apiConfig.apiConfigId);
+        const apiConfig = apiConfigs[0];
+        this.setData({
+          apiConfigs,
+          apiConfig,
+          activeApiConfigId: apiConfig.apiConfigId,
+          headerItems: this.headersToItems(apiConfig.headers)
+        });
+        wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
+      }
+    });
+  },
+
   onApiNameInput(e) {
     const apiConfig = { ...this.data.apiConfig, name: e.detail.value };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
   },
 
   onApiUrlInput(e) {
     const apiConfig = { ...this.data.apiConfig, url: e.detail.value };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
   },
 
   setApiMethod(e) {
     const method = e.currentTarget.dataset.method;
     const apiConfig = { ...this.data.apiConfig, method };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
   },
 
   setRequestType(e) {
     const requestType = e.currentTarget.dataset.type;
     const apiConfig = { ...this.data.apiConfig, requestType };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
   },
 
   setTimeout(e) {
     const timeout = parseInt(e.currentTarget.dataset.timeout);
     const apiConfig = { ...this.data.apiConfig, timeout };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
   },
 
   setResponseType(e) {
     const responseType = e.currentTarget.dataset.type;
     const apiConfig = { ...this.data.apiConfig, responseType };
-    this.setData({ apiConfig });
+    this.syncActiveApiConfig(apiConfig);
+  },
+
+  toggleApiEnabled(e) {
+    this.syncActiveApiConfig({ ...this.data.apiConfig, enabled: e.detail.value });
+  },
+
+  setDefaultApi() {
+    const activeId = this.data.apiConfig.apiConfigId;
+    const apiConfigs = this.data.apiConfigs.map(config => ({
+      ...config,
+      isDefault: config.apiConfigId === activeId
+    }));
+    this.setData({
+      apiConfigs,
+      apiConfig: { ...this.data.apiConfig, isDefault: true }
+    });
+  },
+
+  setEmptyValueMode(e) {
+    this.syncActiveApiConfig({ ...this.data.apiConfig, emptyValueMode: e.currentTarget.dataset.mode });
+  },
+
+  toggleShowRawResponse(e) {
+    this.syncActiveApiConfig({ ...this.data.apiConfig, showRawResponse: e.detail.value });
+  },
+
+  onJsonBodyInput(e) {
+    this.syncActiveApiConfig({ ...this.data.apiConfig, jsonBodyTemplate: e.detail.value });
+  },
+
+  onQueryParamChange(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const queryParams = [...this.data.apiConfig.queryParams];
+    queryParams[index][field] = e.detail.value;
+    this.syncActiveApiConfig({ ...this.data.apiConfig, queryParams });
+  },
+
+  addQueryParam() {
+    const queryParams = [...this.data.apiConfig.queryParams, { key: '', value: '{{scanValue}}' }];
+    this.syncActiveApiConfig({ ...this.data.apiConfig, queryParams });
+  },
+
+  deleteQueryParam(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const queryParams = this.data.apiConfig.queryParams.filter((_, itemIndex) => itemIndex !== index);
+    this.syncActiveApiConfig({ ...this.data.apiConfig, queryParams });
+  },
+
+  onHeaderChange(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const headerItems = [...this.data.headerItems];
+    headerItems[index][field] = e.detail.value;
+    this.setData({ headerItems });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, headers: this.itemsToHeaders(headerItems) });
+  },
+
+  addHeader() {
+    const headerItems = [...this.data.headerItems, { key: '', value: '' }];
+    this.setData({ headerItems });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, headers: this.itemsToHeaders(headerItems) });
+  },
+
+  deleteHeader(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const headerItems = this.data.headerItems.filter((_, itemIndex) => itemIndex !== index);
+    this.setData({ headerItems });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, headers: this.itemsToHeaders(headerItems) });
   },
 
   // 字段映射
+  addScanRule() {
+    const scanRules = [
+      ...this.data.scanRules,
+      {
+        ruleId: `rule_${Date.now()}`,
+        name: `规则 ${this.data.scanRules.length + 1}`,
+        enabled: true,
+        pattern: '',
+        priority: this.data.scanRules.length + 1,
+        apiConfigId: this.data.apiConfig.apiConfigId
+      }
+    ];
+    this.setData({ scanRules });
+  },
+
+  onScanRuleChange(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const scanRules = [...this.data.scanRules];
+    scanRules[index][field] = field === 'priority' ? Number(e.detail.value) : e.detail.value;
+    this.setData({ scanRules });
+  },
+
+  toggleScanRule(e) {
+    const index = e.currentTarget.dataset.index;
+    const scanRules = [...this.data.scanRules];
+    scanRules[index].enabled = e.detail.value;
+    this.setData({ scanRules });
+  },
+
+  bindRuleToActiveApi(e) {
+    const index = e.currentTarget.dataset.index;
+    const scanRules = [...this.data.scanRules];
+    scanRules[index].apiConfigId = this.data.apiConfig.apiConfigId;
+    this.setData({ scanRules });
+  },
+
+  deleteScanRule(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const scanRules = this.data.scanRules.filter((_, itemIndex) => itemIndex !== index);
+    this.setData({ scanRules });
+  },
+
+  saveScanRules() {
+    const errors = [];
+    this.data.scanRules.forEach((rule, index) => {
+      const validation = apiConfigUtil.validateRule(rule);
+      if (!validation.valid) {
+        errors.push(`规则 ${index + 1}: ${validation.error}`);
+      }
+      if (!rule.apiConfigId) {
+        errors.push(`规则 ${index + 1}: 请选择绑定接口`);
+      }
+    });
+
+    if (errors.length > 0) {
+      wx.showModal({
+        title: '规则配置错误',
+        content: errors.join('\n'),
+        showCancel: false
+      });
+      return;
+    }
+
+    apiConfigUtil.saveScanRules(this.data.scanRules);
+    wx.showToast({ title: '规则配置已保存', icon: 'success' });
+  },
+
   onFieldChange(e) {
     const { index, field } = e.currentTarget.dataset;
     const value = e.detail.value;
     const fieldMappings = [...this.data.apiConfig.fieldMappings];
     fieldMappings[index][field] = value;
-    this.setData({ 
-      apiConfig: { ...this.data.apiConfig, fieldMappings }
-    });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, fieldMappings });
   },
 
   onFieldVisibleChange(e) {
@@ -334,17 +555,13 @@ Page({
     const visible = e.detail.value;
     const fieldMappings = [...this.data.apiConfig.fieldMappings];
     fieldMappings[index].visible = visible;
-    this.setData({ 
-      apiConfig: { ...this.data.apiConfig, fieldMappings }
-    });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, fieldMappings });
   },
 
   addFieldMapping() {
     const fieldMappings = [...this.data.apiConfig.fieldMappings];
     fieldMappings.push({ label: '', path: '', visible: true, order: fieldMappings.length + 1 });
-    this.setData({ 
-      apiConfig: { ...this.data.apiConfig, fieldMappings }
-    });
+    this.syncActiveApiConfig({ ...this.data.apiConfig, fieldMappings });
   },
 
   // 测试配置
@@ -370,10 +587,11 @@ Page({
 
   // 保存高级API配置
   saveAdvancedApiConfig() {
+    const synced = this.syncActiveApiConfig();
     const apiConfig = {
-      ...this.data.apiConfig,
-      enabled: true,
-      apiConfigId: this.data.apiConfig.apiConfigId || 'api_book_query'
+      ...synced.apiConfig,
+      enabled: synced.apiConfig.enabled !== false,
+      apiConfigId: synced.apiConfig.apiConfigId || 'api_book_query'
     };
     
     // 验证配置
@@ -388,7 +606,12 @@ Page({
     }
 
     // 保存配置
+    const apiConfigs = synced.apiConfigs.map(config => (
+      config.apiConfigId === apiConfig.apiConfigId ? apiConfig : config
+    ));
     apiConfigUtil.saveApiConfig(apiConfig);
+    apiConfigUtil.saveApiConfigs(apiConfigs);
+    wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
     
     wx.showToast({
       title: '高级配置已保存',
@@ -408,6 +631,9 @@ Page({
           wx.removeStorageSync('inputRules');
           wx.removeStorageSync('copyFormat');
           wx.removeStorageSync('copyRules');
+          wx.removeStorageSync('apiConfig_v2');
+          wx.removeStorageSync('apiConfigs');
+          wx.removeStorageSync('activeApiConfigId');
           wx.removeStorageSync('language');
           
           // 重置全局数据
