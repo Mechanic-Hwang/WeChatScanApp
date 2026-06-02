@@ -190,6 +190,10 @@
       <view class="test-result" wx:if="{{testResult}}">
         <view wx:if="{{testResult.success}}">
           <view class="result-title">✅ {{t.testSuccess}}</view>
+          <view class="result-meta">
+            <text>{{t.apiConfigUsed.replace('{name}', testResult.apiConfigName)}}</text>
+            <text>{{t.detectedResponseType.replace('{type}', testResult.detectedType)}}</text>
+          </view>
           <view class="result-section">
             <text class="result-label">{{t.parsedResult}}</text>
             <view class="result-fields">
@@ -198,6 +202,19 @@
                 <text class="field-value">{{value || t.noData}}</text>
               </view>
             </view>
+          </view>
+          <view class="result-section">
+            <text class="result-label">{{t.finalPreview}}</text>
+            <view class="preview-fields">
+              <view class="preview-field" wx:for="{{testResult.displayFields}}" wx:key="label">
+                <text class="preview-label">{{item.label}}</text>
+                <text class="preview-value">{{item.value || t.noData}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="result-section" wx:if="{{apiConfig.showRawResponse}}">
+            <text class="result-label">{{t.rawResponse}}</text>
+            <scroll-view class="raw-response" scroll-y>{{testResult.rawResponseText}}</scroll-view>
           </view>
         </view>
         <view wx:else>

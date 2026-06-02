@@ -1,5 +1,6 @@
 // app.js - 小程序入口（支持扫描批次）
 const apiConfigUtil = require('./utils/api-config.js');
+const i18n = require('./utils/i18n.js');
 App({
   globalData: {
     // 扫描批次列表
@@ -116,7 +117,10 @@ App({
       batch.updatedAt = new Date().toISOString();
       batch.previewItems = this.buildPreviewItems(batch.items);
       this.saveBatch(batch);
-      wx.showToast({ title: '记录已存在，已移到顶部', icon: 'none' });
+      wx.showToast({
+        title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).duplicateRecordMoved,
+        icon: 'none'
+      });
       return false;
     }
 
@@ -141,7 +145,7 @@ App({
         wx.setStorageSync('scanBatches', this.globalData.scanBatches);
 
         wx.showToast({
-          title: '已存在，已移到顶部',
+          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).duplicateMoved,
           icon: 'none',
           duration: 2000
         });
@@ -219,7 +223,7 @@ App({
       if (sizeInMB > WARNING_STORAGE_MB && sizeInMB <= MAX_STORAGE_MB && !this.globalData.storageWarningShown) {
         this.globalData.storageWarningShown = true;
         wx.showToast({
-          title: '历史数据接近容量上限，请及时清理',
+          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageNearLimit,
           icon: 'none',
           duration: 3000
         });
@@ -235,7 +239,7 @@ App({
         console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${removedCount}个旧批次`);
         
         wx.showToast({
-          title: '存储空间不足，已自动清理旧记录',
+          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageAutoCleaned,
           icon: 'none',
           duration: 3000
         });

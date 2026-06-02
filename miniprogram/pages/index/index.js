@@ -174,6 +174,8 @@ Page({
           record.rawResponse = customResult.rawResponse;
           record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
           record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
+          record.noRuleMatched = customResult.noRuleMatched;
+          record.fallbackToRaw = customResult.fallbackToRaw;
         }
       } catch (error) {
         wx.showToast({
@@ -186,7 +188,10 @@ Page({
       const added = app.addScanRecordToBatch(record);
 
       if (added) {
-        wx.showToast({ title: t.addSuccess, icon: 'success' });
+        wx.showToast({
+          title: record.fallbackToRaw ? t.noRuleMatchedRaw : t.addSuccess,
+          icon: record.fallbackToRaw ? 'none' : 'success'
+        });
       }
       this.loadRecentBatches();
     }
@@ -228,7 +233,7 @@ Page({
 
     if (normalizedValue.length > inputRules.maxLength) {
       wx.showToast({
-        title: `输入不能超过 ${inputRules.maxLength} 字符`,
+        title: t.inputMaxLength.replace('{count}', inputRules.maxLength),
         icon: 'none'
       });
       return;
@@ -236,7 +241,7 @@ Page({
 
     if (currentMode === 'book' && inputRules.isbnRequired && !/^(\d{10}|\d{13}|A\d{9})$/.test(normalizedValue)) {
       wx.showToast({
-        title: '请输入有效的 ISBN 或图书条码',
+        title: t.invalidIsbnOrBookBarcode,
         icon: 'none'
       });
       return;

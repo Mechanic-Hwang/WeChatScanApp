@@ -572,7 +572,9 @@ Page({
   },
 
   async testApiConfig() {
-    const { apiConfig, testValue } = this.data;
+    const synced = this.syncActiveApiConfig();
+    const { apiConfig } = synced;
+    const { testValue } = this.data;
     
     if (!testValue) {
       wx.showToast({ title: this.text('inputTestValue'), icon: 'none' });
@@ -582,6 +584,9 @@ Page({
     wx.showLoading({ title: this.text('testing') });
     
     const result = await apiConfigUtil.testApiConfig(apiConfig, testValue);
+    if (result.success) {
+      result.apiConfigName = apiConfig.name || apiConfig.apiConfigId;
+    }
     
     wx.hideLoading();
     this.setData({ testResult: result });

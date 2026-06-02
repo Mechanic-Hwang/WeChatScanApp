@@ -379,6 +379,25 @@ function parseResponse(apiConfig, responseData) {
   return result;
 }
 
+function buildDisplayFields(apiConfig, parsedResult = {}) {
+  return (apiConfig.fieldMappings || [])
+    .filter(mapping => mapping.visible)
+    .map(mapping => ({
+      label: mapping.label,
+      value: parsedResult[mapping.label]
+    }))
+    .filter(field => field.value !== null || apiConfig.emptyValueMode !== 'hide');
+}
+
+function stringifyRawResponse(response) {
+  if (typeof response === 'string') return response;
+  try {
+    return JSON.stringify(response, null, 2);
+  } catch (e) {
+    return String(response);
+  }
+}
+
 // 测试配置
 async function testApiConfig(apiConfig, testValue) {
   try {
@@ -396,7 +415,9 @@ async function testApiConfig(apiConfig, testValue) {
     return {
       success: true,
       rawResponse: response,
+      rawResponseText: stringifyRawResponse(response),
       parsedResult: parsed,
+      displayFields: buildDisplayFields(configWithType, parsed),
       detectedType: responseType
     };
   } catch (error) {
@@ -415,7 +436,10 @@ async function executeScanRequest(scanValue, options = {}) {
       matchedRule: resolved.rule,
       apiConfig: null,
       rawResponse: null,
-      parsedResult: null
+      parsedResult: { content: scanValue },
+      displayFields: [{ label: 'content', value: scanValue }],
+      noRuleMatched: !resolved.rule,
+      fallbackToRaw: true
     };
   }
 
@@ -431,7 +455,10 @@ async function executeScanRequest(scanValue, options = {}) {
     matchedRule: resolved.rule,
     apiConfig: resolved.apiConfig,
     rawResponse,
-    parsedResult
+    rawResponseText: stringifyRawResponse(rawResponse),
+    parsedResult,
+    displayFields: buildDisplayFields(configWithType, parsedResult),
+    noRuleMatched: !resolved.rule
   };
 }
 
