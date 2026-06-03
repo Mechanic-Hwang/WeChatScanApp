@@ -4,49 +4,44 @@
  */
 /* 模式切换 */
 .mode-switch {
-  padding: 30rpx;
-}
-
-.mode-label {
-  font-size: 28rpx;
-  color: #666666;
-  margin-bottom: 20rpx;
+  padding: 16rpx;
 }
 
 .mode-toggle {
   display: flex;
-  background: #F2F2F2;
-  border-radius: 8rpx;
-  padding: 6rpx;
+  background: #F7F8FA;
+  border-radius: 12rpx;
+  padding: 4rpx;
+  border: 1rpx solid #EEEEEE;
 }
 
 .mode-option {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 24rpx 0;
-  border-radius: 6rpx;
+  justify-content: center;
+  min-height: 80rpx;
+  padding: 0 16rpx;
+  border-radius: 10rpx;
   transition: all 0.3s;
 }
 
 .mode-option.active {
   background: #fff;
-  border: 1rpx solid #E5E5E5;
+  border: 1rpx solid #D8D8D8;
 }
 
 .mode-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  border: 1rpx solid #D8D8D8;
-  font-size: 28rpx;
-  font-weight: 600;
+  width: 40rpx;
+  height: 40rpx;
   color: #576B95;
-  margin-bottom: 8rpx;
+  margin-right: 10rpx;
+  flex-shrink: 0;
 }
 
 .mode-text {
@@ -60,9 +55,7 @@
 }
 
 .mode-option.active .mode-icon {
-  border-color: #07C160;
   color: #07C160;
-  background: #F0FFF7;
 }
 
 /* 扫码区域 */
@@ -70,18 +63,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 60rpx 0;
+  padding: 56rpx 0 52rpx;
 }
 
 .scan-btn {
-  width: 240rpx;
-  height: 240rpx;
+  width: 228rpx;
+  height: 228rpx;
   border-radius: 50%;
   background: #07C160;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border: 12rpx solid #E9FFF2;
   transition: transform 0.2s;
 }
 
@@ -90,17 +84,14 @@
 }
 
 .scan-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.9);
-  font-size: 42rpx;
-  font-weight: 600;
+  width: 78rpx;
+  height: 78rpx;
   color: #fff;
-  margin-bottom: 10rpx;
+  margin-bottom: 14rpx;
 }
 
 .scan-text {
@@ -110,21 +101,156 @@
 }
 
 .scan-tip {
-  margin-top: 30rpx;
+  margin-top: 26rpx;
   font-size: 26rpx;
   color: #8A8A8A;
 }
 
+/* Shared line icons, drawn in CSS to keep the page lightweight and WeUI-like. */
+.scan-mark .scan-corner {
+  position: absolute;
+  width: 34%;
+  height: 34%;
+  border-color: currentColor;
+  border-style: solid;
+  box-sizing: border-box;
+}
+
+.scan-mark .top-left {
+  left: 2rpx;
+  top: 2rpx;
+  border-width: 4rpx 0 0 4rpx;
+}
+
+.scan-mark .top-right {
+  right: 2rpx;
+  top: 2rpx;
+  border-width: 4rpx 4rpx 0 0;
+}
+
+.scan-mark .bottom-left {
+  left: 2rpx;
+  bottom: 2rpx;
+  border-width: 0 0 4rpx 4rpx;
+}
+
+.scan-mark .bottom-right {
+  right: 2rpx;
+  bottom: 2rpx;
+  border-width: 0 4rpx 4rpx 0;
+}
+
+.book-mark {
+  position: relative;
+}
+
+.book-page {
+  position: absolute;
+  top: 7rpx;
+  width: 16rpx;
+  height: 26rpx;
+  border: 4rpx solid currentColor;
+  box-sizing: border-box;
+}
+
+.book-page.left {
+  left: 4rpx;
+  border-radius: 4rpx 0 0 4rpx;
+  border-right-width: 2rpx;
+}
+
+.book-page.right {
+  right: 4rpx;
+  border-radius: 0 4rpx 4rpx 0;
+  border-left-width: 2rpx;
+}
+
+.small {
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.small .book-page {
+  top: 5rpx;
+  width: 13rpx;
+  height: 22rpx;
+  border-width: 3rpx;
+}
+
+.small .book-page.left {
+  left: 3rpx;
+  border-right-width: 1rpx;
+}
+
+.small .book-page.right {
+  right: 3rpx;
+  border-left-width: 1rpx;
+}
+
+.small .scan-corner {
+  border-width: 3rpx 0 0 3rpx;
+}
+
+.small .top-right {
+  border-width: 3rpx 3rpx 0 0;
+}
+
+.small .bottom-left {
+  border-width: 0 0 3rpx 3rpx;
+}
+
+.small .bottom-right {
+  border-width: 0 3rpx 3rpx 0;
+}
+
 /* 输入区域 */
 .input-section {
-  padding: 30rpx;
+  padding: 28rpx;
+}
+
+.input-title-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
 }
 
 .input-label {
   font-size: 28rpx;
   color: #191919;
-  margin-bottom: 16rpx;
   font-weight: 500;
+}
+
+.input-title-icon {
+  position: relative;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+  color: #576B95;
+}
+
+.edit-mark::before {
+  content: '';
+  position: absolute;
+  left: 6rpx;
+  top: 17rpx;
+  width: 22rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: currentColor;
+  transform: rotate(-42deg);
+}
+
+.edit-mark::after {
+  content: '';
+  position: absolute;
+  right: 4rpx;
+  top: 6rpx;
+  width: 7rpx;
+  height: 7rpx;
+  border-radius: 2rpx;
+  border: 3rpx solid currentColor;
+  transform: rotate(-42deg);
+  box-sizing: border-box;
 }
 
 .btn.disabled {
@@ -186,14 +312,13 @@
 }
 
 .record-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  font-size: 26rpx;
-  font-weight: 600;
   margin-right: 20rpx;
 }
 
@@ -229,4 +354,23 @@
 .record-arrow {
   color: #ccc;
   font-size: 32rpx;
+}
+
+.empty-state {
+  padding: 40rpx 0 72rpx;
+}
+
+.empty-state .empty-icon {
+  display: none;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #8A8A8A;
+}
+
+.empty-subtext {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #B2B2B2;
 }
