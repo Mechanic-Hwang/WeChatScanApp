@@ -31,6 +31,7 @@ Page({
     scanRules: [],
     testValue: '',
     testResult: null,
+    advancedConfigVisible: false,
     showAdvancedConfig: false
   },
 
@@ -296,7 +297,20 @@ Page({
 
   // 切换高级配置显示
   toggleAdvancedConfig() {
-    this.setData({ showAdvancedConfig: !this.data.showAdvancedConfig });
+    if (this.data.showAdvancedConfig) {
+      this.setData({ showAdvancedConfig: false });
+      setTimeout(() => {
+        if (!this.data.showAdvancedConfig) {
+          this.setData({ advancedConfigVisible: false });
+        }
+      }, 260);
+      return;
+    }
+
+    this.setData({ advancedConfigVisible: true });
+    setTimeout(() => {
+      this.setData({ showAdvancedConfig: true });
+    }, 20);
   },
 
   // API配置输入

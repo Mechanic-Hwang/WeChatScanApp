@@ -1,7 +1,7 @@
 <!-- pages/settings/settings.wxml -->
 <view class="container">
   <!-- 高级API配置 -->
-  <view class="card">
+  <view class="card dropdown-card">
     <view class="card-header" bindtap="toggleAdvancedConfig">
       <view class="card-title">{{t.advancedApiConfig}}</view>
       <view class="toggle-control {{showAdvancedConfig ? 'expanded' : ''}}">
@@ -9,8 +9,9 @@
       </view>
     </view>
     <view class="card-desc">{{t.advancedApiDesc}}</view>
+    <view class="advanced-content {{showAdvancedConfig ? 'expanded' : 'collapsed'}}" wx:if="{{advancedConfigVisible}}">
 
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.apiConfigList}}</view>
       <view class="config-chip-list">
         <view class="config-chip {{activeApiConfigId === item.apiConfigId ? 'active' : ''}}"
@@ -28,7 +29,7 @@
     </view>
     
     <!-- 基础配置 -->
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.requestConfig}}</view>
 
       <view class="switch-item">
@@ -114,7 +115,7 @@
       </view>
     </view>
 
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.queryParams}}</view>
       <view class="pair-row" wx:for="{{apiConfig.queryParams}}" wx:key="index">
         <input class="pair-input" placeholder="key" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onQueryParamChange"/>
@@ -124,7 +125,7 @@
       <view class="btn btn-secondary mt-20" bindtap="addQueryParam">{{t.addQueryParam}}</view>
     </view>
 
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.headerConfig}}</view>
       <view class="pair-row" wx:for="{{headerItems}}" wx:key="index">
         <input class="pair-input" placeholder="{{t.headerName}}" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onHeaderChange"/>
@@ -134,7 +135,7 @@
       <view class="btn btn-secondary mt-20" bindtap="addHeader">{{t.addHeader}}</view>
     </view>
 
-    <view class="config-section" wx:if="{{showAdvancedConfig && apiConfig.requestType === 'json'}}">
+    <view class="config-section" wx:if="{{apiConfig.requestType === 'json'}}">
       <view class="section-title">JSON Body</view>
       <textarea class="input textarea-input"
                 value="{{apiConfig.jsonBodyTemplate}}"
@@ -145,7 +146,7 @@
     </view>
     
     <!-- 字段映射 -->
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.fieldMapping}}</view>
       <view class="field-list">
         <view class="field-item header">
@@ -176,7 +177,7 @@
     </view>
     
     <!-- 测试区域 -->
-    <view class="config-section" wx:if="{{showAdvancedConfig}}">
+    <view class="config-section">
       <view class="section-title">{{t.testPreview}}</view>
       <view class="input-group">
         <text class="input-label">{{t.testValue}}</text>
@@ -226,7 +227,8 @@
       </view>
     </view>
     
-    <view class="btn btn-primary mt-30" bindtap="saveAdvancedApiConfig" wx:if="{{showAdvancedConfig}}">{{t.saveAdvancedConfig}}</view>
+    <view class="btn btn-primary mt-30" bindtap="saveAdvancedApiConfig">{{t.saveAdvancedConfig}}</view>
+    </view>
   </view>
 
   <view class="card">
