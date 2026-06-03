@@ -105,17 +105,17 @@
 }
 
 .result-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 56rpx;
   height: 56rpx;
   border-radius: 50%;
-  font-size: 26rpx;
-  font-weight: 600;
   margin-right: 20rpx;
   margin-top: 4rpx;
   flex-shrink: 0;
+  color: currentColor;
 }
 
 .result-icon.book {
@@ -126,6 +126,64 @@
 .result-icon.normal {
   background: #F7F8FA;
   color: #576B95;
+}
+
+.result-icon.scan-mark .scan-corner {
+  position: absolute;
+  width: 34%;
+  height: 34%;
+  border-color: currentColor;
+  border-style: solid;
+  box-sizing: border-box;
+}
+
+.result-icon.scan-mark .top-left {
+  left: 12rpx;
+  top: 12rpx;
+  border-width: 3rpx 0 0 3rpx;
+}
+
+.result-icon.scan-mark .top-right {
+  right: 12rpx;
+  top: 12rpx;
+  border-width: 3rpx 3rpx 0 0;
+}
+
+.result-icon.scan-mark .bottom-left {
+  left: 12rpx;
+  bottom: 12rpx;
+  border-width: 0 0 3rpx 3rpx;
+}
+
+.result-icon.scan-mark .bottom-right {
+  right: 12rpx;
+  bottom: 12rpx;
+  border-width: 0 3rpx 3rpx 0;
+}
+
+.book-mark {
+  position: relative;
+}
+
+.book-page {
+  position: absolute;
+  top: 14rpx;
+  width: 15rpx;
+  height: 26rpx;
+  border: 3rpx solid currentColor;
+  box-sizing: border-box;
+}
+
+.book-page.left {
+  left: 12rpx;
+  border-radius: 4rpx 0 0 4rpx;
+  border-right-width: 1rpx;
+}
+
+.book-page.right {
+  right: 12rpx;
+  border-radius: 0 4rpx 4rpx 0;
+  border-left-width: 1rpx;
 }
 
 .result-content {

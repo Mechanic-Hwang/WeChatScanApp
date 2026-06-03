@@ -402,27 +402,39 @@
     <view class="card-title">{{t.dataManagement}}</view>
     <view class="data-actions">
       <view class="action-item" bindtap="clearHistory">
+        <view class="action-symbol delete-symbol">
+          <view class="delete-symbol-lid"></view>
+          <view class="delete-symbol-body"></view>
+        </view>
         <view class="action-content">
           <text class="action-title">{{t.clearHistory}}</text>
           <text class="action-desc">{{t.clearDesc}}</text>
         </view>
-        <text class="action-arrow">></text>
+        <view class="action-arrow"></view>
       </view>
 
       <view class="action-item" bindtap="exportData">
+        <view class="action-symbol export-symbol">
+          <view class="export-symbol-box"></view>
+          <view class="export-symbol-arrow"></view>
+        </view>
         <view class="action-content">
           <text class="action-title">{{t.exportData}}</text>
           <text class="action-desc">{{t.exportDesc}}</text>
         </view>
-        <text class="action-arrow">></text>
+        <view class="action-arrow"></view>
       </view>
 
       <view class="action-item" bindtap="resetAllSettings">
+        <view class="action-symbol reset-symbol">
+          <view class="reset-symbol-ring"></view>
+          <view class="reset-symbol-arrow"></view>
+        </view>
         <view class="action-content">
           <text class="action-title">{{t.resetSettings}}</text>
           <text class="action-desc">{{t.resetSettingsDesc}}</text>
         </view>
-        <text class="action-arrow">></text>
+        <view class="action-arrow"></view>
       </view>
     </view>
   </view>

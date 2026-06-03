@@ -29,7 +29,12 @@
       
       <!-- 普通模式 -->
       <block wx:if="{{item.mode === 'normal'}}">
-        <view class="result-icon normal">码</view>
+        <view class="result-icon normal scan-mark">
+          <view class="scan-corner top-left"></view>
+          <view class="scan-corner top-right"></view>
+          <view class="scan-corner bottom-left"></view>
+          <view class="scan-corner bottom-right"></view>
+        </view>
         <view class="result-content">
           <view class="result-text">{{item.content}}</view>
           <view class="result-time">{{item.timeText}}</view>
@@ -42,7 +47,10 @@
       
       <!-- 图书模式 -->
       <block wx:if="{{item.mode === 'book'}}">
-        <view class="result-icon book">书</view>
+        <view class="result-icon book book-mark">
+          <view class="book-page left"></view>
+          <view class="book-page right"></view>
+        </view>
         <view class="result-content">
           <view class="book-title">{{item.bookInfo.title || t.unknownBookTitle}}</view>
           <view class="book-author" wx:if="{{item.bookInfo.author}}">

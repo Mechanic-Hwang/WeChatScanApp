@@ -2,7 +2,7 @@
 <view class="container">
   <!-- 搜索栏 -->
   <view class="search-bar" wx:if="{{batches.length > 0}}">
-    <text class="search-icon">🔍</text>
+    <view class="search-icon"></view>
     <input class="search-input"
            type="text"
            placeholder="{{t.searchPlaceholder}}"
@@ -15,7 +15,7 @@
   <view class="recent-searches" wx:if="{{recentSearches.length > 0}}">
     <view class="recent-chip" wx:for="{{recentSearches}}" wx:key="*this">
       <text catchtap="useRecentSearch" data-keyword="{{item}}">{{item}}</text>
-      <text class="recent-delete" catchtap="deleteRecentSearch" data-keyword="{{item}}">×</text>
+      <view class="recent-delete" catchtap="deleteRecentSearch" data-keyword="{{item}}"></view>
     </view>
   </view>
 
@@ -92,7 +92,7 @@
       </view>
       
       <!-- 箭头 -->
-      <text class="batch-arrow">></text>
+      <view class="batch-arrow"></view>
     </view>
   </view>
 
