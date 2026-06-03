@@ -10,6 +10,7 @@ Page({
     apiKey: '',
     showKey: false,
     currentLang: 'zh-CN',
+    languageMode: 'system',
     t: i18n.locales['zh-CN'],
     inputRules: {
       trimSpace: true,
@@ -43,6 +44,7 @@ Page({
     const lang = app.globalData.language;
     this.setData({
       currentLang: lang,
+      languageMode: app.globalData.languageMode || 'system',
       t: i18n.locales[lang]
     });
   },
@@ -57,7 +59,7 @@ Page({
 
   // 加载设置
   loadSettings() {
-    const { apiConfig: appApiConfig, language } = app.globalData;
+    const { apiConfig: appApiConfig, language, languageMode } = app.globalData;
     const inputRules = {
       ...this.data.inputRules,
       ...(wx.getStorageSync('inputRules') || {})
@@ -69,6 +71,7 @@ Page({
       apiUrl: appApiConfig.url || '',
       apiKey: appApiConfig.key || '',
       currentLang: language || 'zh-CN',
+      languageMode: languageMode || 'system',
       inputRules,
       copyFormat,
       copyRules,
@@ -179,7 +182,6 @@ Page({
   // 切换语言
   switchLanguage(e) {
     const lang = e.currentTarget.dataset.lang;
-    this.setData({ currentLang: lang });
     app.saveLanguage(lang);
     this.updateLanguage();
     
@@ -642,10 +644,11 @@ Page({
           wx.removeStorageSync('apiConfigs');
           wx.removeStorageSync('activeApiConfigId');
           wx.removeStorageSync('language');
+          wx.removeStorageSync('languageMode');
           
           // 重置全局数据
           app.globalData.apiConfig = { url: '', key: '' };
-          app.globalData.language = 'zh-CN';
+          app.saveLanguage('system');
           
           // 重新加载页面
           this.loadSettings();

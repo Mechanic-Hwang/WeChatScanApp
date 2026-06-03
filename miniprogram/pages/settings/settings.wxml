@@ -272,23 +272,29 @@
   <view class="card">
     <view class="card-title">{{t.languageSetting}}</view>
     <view class="language-list">
-      <view class="language-item {{currentLang === 'zh-CN' ? 'active' : ''}}" 
+      <view class="language-item {{languageMode === 'system' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="system">
+        <text class="lang-name">{{t.langSystem}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'system'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-CN' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="zh-CN">
         <text class="lang-name">{{t.langZhCN}}</text>
-        <text class="lang-check" wx:if="{{currentLang === 'zh-CN'}}">✓</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-CN'}}">✓</text>
       </view>
-      <view class="language-item {{currentLang === 'zh-TW' ? 'active' : ''}}" 
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-TW' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="zh-TW">
         <text class="lang-name">{{t.langZhTW}}</text>
-        <text class="lang-check" wx:if="{{currentLang === 'zh-TW'}}">✓</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-TW'}}">✓</text>
       </view>
-      <view class="language-item {{currentLang === 'en' ? 'active' : ''}}" 
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'en' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
             data-lang="en">
         <text class="lang-name">{{t.langEn}}</text>
-        <text class="lang-check" wx:if="{{currentLang === 'en'}}">✓</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'en'}}">✓</text>
       </view>
     </view>
   </view>

@@ -15,12 +15,43 @@ App({
       key: ''
     },
     // 语言设置
-    language: 'zh-CN'
+    // Language mode is "system" by default so the UI follows WeChat language.
+    language: 'zh-CN',
+    languageMode: 'system'
   },
 
   onLaunch() {
     this.loadConfig();
     console.log('扫码助手小程序启动');
+  },
+
+  // Keep system language mode fresh when the Mini Program returns to foreground.
+  onShow() {
+    this.syncSystemLanguage();
+  },
+
+  normalizeWechatLanguage(lang = '') {
+    const value = String(lang).replace('_', '-').toLowerCase();
+    if (value.startsWith('zh')) {
+      return value.includes('tw') || value.includes('hk') || value.includes('hant') ? 'zh-TW' : 'zh-CN';
+    }
+    return 'en';
+  },
+
+  getWechatLanguage() {
+    try {
+      const appBaseInfo = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
+      const systemInfo = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {};
+      return appBaseInfo.language || systemInfo.language || 'zh-CN';
+    } catch (e) {
+      console.error('Failed to read WeChat language:', e);
+      return 'zh-CN';
+    }
+  },
+
+  syncSystemLanguage() {
+    if (this.globalData.languageMode !== 'system') return;
+    this.globalData.language = this.normalizeWechatLanguage(this.getWechatLanguage());
   },
 
   // 加载配置
@@ -53,6 +84,16 @@ App({
         } else {
           this.globalData.language = 'en';
         }
+      }
+
+      const savedLanguage = wx.getStorageSync('language');
+      const languageMode = wx.getStorageSync('languageMode') || 'system';
+      this.globalData.languageMode = languageMode;
+      if (languageMode === 'manual' && savedLanguage) {
+        this.globalData.language = savedLanguage;
+      } else {
+        this.globalData.languageMode = 'system';
+        this.syncSystemLanguage();
       }
     } catch (e) {
       console.error('加载配置失败:', e);
@@ -313,7 +354,17 @@ App({
 
   // 保存语言设置
   saveLanguage(lang) {
+    if (lang === 'system') {
+      this.globalData.languageMode = 'system';
+      wx.setStorageSync('languageMode', 'system');
+      wx.removeStorageSync('language');
+      this.syncSystemLanguage();
+      return;
+    }
+
+    this.globalData.languageMode = 'manual';
     this.globalData.language = lang;
+    wx.setStorageSync('languageMode', 'manual');
     wx.setStorageSync('language', lang);
   },
 

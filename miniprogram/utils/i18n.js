@@ -15,6 +15,7 @@ const locales = {
     langZhCN: '简体中文',
     langZhTW: '繁體中文',
     langEn: 'English',
+    langSystem: '跟随微信语言',
     
     // TabBar
     tabHome: '首页',
@@ -325,6 +326,7 @@ const locales = {
     langZhCN: '簡體中文',
     langZhTW: '繁體中文',
     langEn: 'English',
+    langSystem: '跟隨微信語言',
     
     // TabBar
     tabHome: '首頁',
@@ -635,6 +637,7 @@ const locales = {
     langZhCN: 'Simplified Chinese',
     langZhTW: 'Traditional Chinese',
     langEn: 'English',
+    langSystem: 'Follow WeChat Language',
     
     // TabBar
     tabHome: 'Home',
