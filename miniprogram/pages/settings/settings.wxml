@@ -3,7 +3,7 @@
   <!-- 高级API配置 -->
   <view class="card">
     <view class="card-header" bindtap="toggleAdvancedConfig">
-      <view class="card-title">🔧 {{t.advancedApiConfig}}</view>
+      <view class="card-title">{{t.advancedApiConfig}}</view>
       <view class="toggle-control {{showAdvancedConfig ? 'expanded' : ''}}">
         <text class="toggle-icon"></text>
       </view>
@@ -230,7 +230,7 @@
   </view>
 
   <view class="card">
-    <view class="card-title">🧭 {{t.routeRules}}</view>
+    <view class="card-title">{{t.routeRules}}</view>
     <view class="card-desc">{{t.routeRulesDesc}}</view>
 
     <view class="rule-card" wx:for="{{scanRules}}" wx:key="ruleId">
@@ -270,7 +270,7 @@
 
   <!-- 语言设置 -->
   <view class="card">
-    <view class="card-title">🌐 {{t.languageSetting}}</view>
+    <view class="card-title">{{t.languageSetting}}</view>
     <view class="language-list">
       <view class="language-item {{currentLang === 'zh-CN' ? 'active' : ''}}" 
             bindtap="switchLanguage" 
@@ -295,7 +295,7 @@
 
   <!-- 输入规则配置 -->
   <view class="card">
-    <view class="card-title">⚙️ {{t.inputRules}}</view>
+    <view class="card-title">{{t.inputRules}}</view>
     <view class="card-desc">{{t.inputRulesDesc}}</view>
 
     <view class="switch-item">
@@ -338,7 +338,7 @@
 
   <!-- 复制规则配置 -->
   <view class="card">
-    <view class="card-title">📋 {{t.copyRules}}</view>
+    <view class="card-title">{{t.copyRules}}</view>
     <view class="card-desc">{{t.copyRulesDesc}}</view>
 
     <view class="input-group">
@@ -393,10 +393,9 @@
 
   <!-- 数据管理 -->
   <view class="card">
-    <view class="card-title">💾 {{t.dataManagement}}</view>
+    <view class="card-title">{{t.dataManagement}}</view>
     <view class="data-actions">
       <view class="action-item" bindtap="clearHistory">
-        <text class="action-icon">🗑️</text>
         <view class="action-content">
           <text class="action-title">{{t.clearHistory}}</text>
           <text class="action-desc">{{t.clearDesc}}</text>
@@ -405,7 +404,6 @@
       </view>
 
       <view class="action-item" bindtap="exportData">
-        <text class="action-icon">📤</text>
         <view class="action-content">
           <text class="action-title">{{t.exportData}}</text>
           <text class="action-desc">{{t.exportDesc}}</text>
@@ -414,7 +412,6 @@
       </view>
 
       <view class="action-item" bindtap="resetAllSettings">
-        <text class="action-icon">🔄</text>
         <view class="action-content">
           <text class="action-title">{{t.resetSettings}}</text>
           <text class="action-desc">{{t.resetSettingsDesc}}</text>
@@ -426,7 +423,7 @@
 
   <!-- 使用说明 -->
   <view class="card">
-    <view class="card-title">📖 {{t.helpTitle}}</view>
+    <view class="card-title">{{t.helpTitle}}</view>
     <view class="help-content">
       <view class="help-item">
         <text class="help-title">{{t.normalModeHelp}}</text>
@@ -445,7 +442,7 @@
 
   <!-- 关于 -->
   <view class="card">
-    <view class="card-title">ℹ️ {{t.about}}</view>
+    <view class="card-title">{{t.about}}</view>
     <view class="about-info">
       <text class="app-name">{{t.appName}}</text>
       <text class="app-version">{{t.version}}</text>

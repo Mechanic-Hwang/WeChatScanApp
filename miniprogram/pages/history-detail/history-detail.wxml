@@ -3,7 +3,7 @@
   <!-- 批次头部信息 -->
   <view class="batch-header-card">
     <view class="batch-type-tag {{batch.batchType}}">
-      {{batch.typeIcon}} {{batch.typeText}}
+      {{batch.typeText}}
     </view>
     <view class="batch-title">{{batch.title}}</view>
     <view class="batch-meta">
@@ -29,7 +29,7 @@
       
       <!-- 普通模式 -->
       <block wx:if="{{item.mode === 'normal'}}">
-        <view class="result-icon">📷</view>
+        <view class="result-icon normal">码</view>
         <view class="result-content">
           <view class="result-text">{{item.content}}</view>
           <view class="result-time">{{item.timeText}}</view>
@@ -42,7 +42,7 @@
       
       <!-- 图书模式 -->
       <block wx:if="{{item.mode === 'book'}}">
-        <view class="result-icon">📚</view>
+        <view class="result-icon book">书</view>
         <view class="result-content">
           <view class="book-title">{{item.bookInfo.title || t.unknownBookTitle}}</view>
           <view class="book-author" wx:if="{{item.bookInfo.author}}">
@@ -70,22 +70,33 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{batch.items.length === 0}}">
-    <text class="empty-icon">📭</text>
+    <view class="empty-icon"></view>
     <text>{{t.emptyBatch}}</text>
   </view>
 
   <!-- 底部操作栏 -->
   <view class="bottom-action-bar">
     <view class="action-btn scan" bindtap="scanAgain">
-      <text class="btn-icon">📷</text>
+      <view class="btn-icon scan-icon-small">
+        <view class="scan-corner top-left"></view>
+        <view class="scan-corner top-right"></view>
+        <view class="scan-corner bottom-left"></view>
+        <view class="scan-corner bottom-right"></view>
+      </view>
       <text>{{t.scanAgain}}</text>
     </view>
     <view class="action-btn copy" bindtap="copyBatch">
-      <text class="btn-icon">📋</text>
+      <view class="btn-icon copy-icon">
+        <view class="copy-icon-back"></view>
+        <view class="copy-icon-front"></view>
+      </view>
       <text>{{t.copyAll}}</text>
     </view>
     <view class="action-btn delete" bindtap="deleteBatch">
-      <text class="btn-icon">🗑️</text>
+      <view class="btn-icon delete-icon">
+        <view class="delete-icon-lid"></view>
+        <view class="delete-icon-body"></view>
+      </view>
       <text>{{t.delete}}</text>
     </view>
   </view>

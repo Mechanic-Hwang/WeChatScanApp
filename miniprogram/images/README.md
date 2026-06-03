@@ -7,11 +7,11 @@
 | 文件名 | 用途 | 状态 |
 |--------|------|------|
 | home.png | 首页未选中 | 灰色 #999999 |
-| home-active.png | 首页选中 | 主蓝 #1D6FEA |
+| home-active.png | 首页选中 | 微信绿 #07C160 |
 | history.png | 历史未选中 | 灰色 #999999 |
-| history-active.png | 历史选中 | 主蓝 #1D6FEA |
+| history-active.png | 历史选中 | 微信绿 #07C160 |
 | settings.png | 设置未选中 | 灰色 #999999 |
-| settings-active.png | 设置选中 | 主蓝 #1D6FEA |
+| settings-active.png | 设置选中 | 微信绿 #07C160 |
 
 ## 图标规范
 

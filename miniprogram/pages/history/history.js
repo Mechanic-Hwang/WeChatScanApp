@@ -61,7 +61,6 @@ Page({
       ...batch,
       timeText: this.formatBatchTime(batch.createdAt),
       title: this.formatBatchTitle(batch),
-      typeIcon: batch.batchType === 'book' ? '📚' : '📷',
       typeText: batch.batchType === 'book' ? this.text('book') : this.text('normal'),
       selected: false
     }));

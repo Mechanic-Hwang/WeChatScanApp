@@ -128,11 +128,6 @@
   border-bottom: none;
 }
 
-.action-icon {
-  font-size: 40rpx;
-  margin-right: 20rpx;
-}
-
 .action-content {
   flex: 1;
 }

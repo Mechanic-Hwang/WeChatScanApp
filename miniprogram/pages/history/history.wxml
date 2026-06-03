@@ -71,7 +71,7 @@
         <!-- 头部信息 -->
         <view class="batch-header">
           <view class="batch-type-tag {{item.batchType}}">
-            {{item.typeIcon}} {{item.typeText}}
+            {{item.typeText}}
           </view>
           <text class="batch-time">{{item.timeText}}</text>
         </view>
@@ -104,14 +104,14 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{allBatches.length === 0}}">
-    <text class="empty-icon">📭</text>
+    <view class="empty-icon"></view>
     <text class="empty-title">{{t.noHistory}}</text>
     <text class="empty-subtitle">{{t.emptyHistoryTip}}</text>
     <view class="btn btn-primary mt-30" bindtap="goToScan">{{t.goToScan}}</view>
   </view>
 
   <view class="empty-state" wx:if="{{allBatches.length > 0 && batches.length === 0}}">
-    <text class="empty-icon">🔎</text>
+    <view class="empty-icon"></view>
     <text class="empty-title">{{t.noMatchedResults}}</text>
     <text class="empty-subtitle">{{t.noMatchedResultsTip}}</text>
   </view>
@@ -123,11 +123,17 @@
     </view>
     <view class="action-buttons">
       <view class="action-btn copy" bindtap="copySelected">
-        <text class="btn-icon">📋</text>
+        <view class="btn-icon copy-icon">
+          <view class="copy-icon-back"></view>
+          <view class="copy-icon-front"></view>
+        </view>
         <text>{{t.copy}}</text>
       </view>
       <view class="action-btn delete" bindtap="deleteSelected">
-        <text class="btn-icon">🗑️</text>
+        <view class="btn-icon delete-icon">
+          <view class="delete-icon-lid"></view>
+          <view class="delete-icon-body"></view>
+        </view>
         <text>{{t.delete}}</text>
       </view>
     </view>

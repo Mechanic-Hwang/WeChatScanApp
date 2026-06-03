@@ -303,7 +303,57 @@
 }
 
 .btn-icon {
-  font-size: 48rpx;
-  line-height: 1;
+  position: relative;
+  width: 52rpx;
+  height: 52rpx;
   margin-right: 10rpx;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* CSS icons keep the bottom action bar consistent with Mini Program controls. */
+.copy-icon-back,
+.copy-icon-front {
+  position: absolute;
+  border: 4rpx solid currentColor;
+  border-radius: 4rpx;
+  box-sizing: border-box;
+}
+
+.copy-icon-back {
+  width: 26rpx;
+  height: 30rpx;
+  left: 10rpx;
+  top: 8rpx;
+  opacity: 0.65;
+}
+
+.copy-icon-front {
+  width: 28rpx;
+  height: 32rpx;
+  left: 18rpx;
+  top: 14rpx;
+  background: transparent;
+}
+
+.delete-icon-lid {
+  position: absolute;
+  left: 12rpx;
+  top: 10rpx;
+  width: 28rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: currentColor;
+}
+
+.delete-icon-body {
+  position: absolute;
+  left: 14rpx;
+  top: 18rpx;
+  width: 24rpx;
+  height: 26rpx;
+  border: 4rpx solid currentColor;
+  border-top: none;
+  border-radius: 0 0 5rpx 5rpx;
+  box-sizing: border-box;
 }

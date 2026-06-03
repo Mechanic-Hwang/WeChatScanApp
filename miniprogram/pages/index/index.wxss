@@ -32,11 +32,20 @@
 
 .mode-option.active {
   background: #fff;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  border: 1rpx solid #E5E5E5;
 }
 
 .mode-icon {
-  font-size: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 1rpx solid #D8D8D8;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #576B95;
   margin-bottom: 8rpx;
 }
 
@@ -48,6 +57,12 @@
 .mode-option.active .mode-text {
   color: #07C160;
   font-weight: 500;
+}
+
+.mode-option.active .mode-icon {
+  border-color: #07C160;
+  color: #07C160;
+  background: #F0FFF7;
 }
 
 /* 扫码区域 */
@@ -67,7 +82,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 34rpx rgba(7, 193, 96, 0.24);
   transition: transform 0.2s;
 }
 
@@ -76,7 +90,16 @@
 }
 
 .scan-icon {
-  font-size: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.9);
+  font-size: 42rpx;
+  font-weight: 600;
+  color: #fff;
   margin-bottom: 10rpx;
 }
 
@@ -163,8 +186,25 @@
 }
 
 .record-icon {
-  font-size: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  font-size: 26rpx;
+  font-weight: 600;
   margin-right: 20rpx;
+}
+
+.record-icon.book {
+  background: #F0FFF7;
+  color: #07C160;
+}
+
+.record-icon.normal {
+  background: #F7F8FA;
+  color: #576B95;
 }
 
 .record-content {

@@ -3,7 +3,7 @@
 
 const ICON_SIZE = 81;
 const COLOR_GRAY = '#999999';
-const COLOR_BLUE = '#1D6FEA';
+const COLOR_GREEN = '#07C160';
 
 // 绘制首页图标
 function drawHomeIcon(ctx, color) {
@@ -112,7 +112,7 @@ function generateAllIcons() {
     // 生成蓝色选中版本
     const canvasBlue = wx.createOffscreenCanvas({ type: '2d', width: ICON_SIZE, height: ICON_SIZE });
     const ctxBlue = canvasBlue.getContext('2d');
-    icon.draw(ctxBlue, COLOR_BLUE);
+    icon.draw(ctxBlue, COLOR_GREEN);
     
     // 导出并保存
     // 注意：实际导出需要 wx.canvasToTempFilePath

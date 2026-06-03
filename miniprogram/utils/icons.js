@@ -37,15 +37,15 @@ function svgToBase64(svg) {
 const icons = {
   home: {
     default: svgToBase64(homeSVG('#999999')),
-    active: svgToBase64(homeSVG('#1D6FEA'))
+    active: svgToBase64(homeSVG('#07C160'))
   },
   history: {
     default: svgToBase64(historySVG('#999999')),
-    active: svgToBase64(historySVG('#1D6FEA'))
+    active: svgToBase64(historySVG('#07C160'))
   },
   settings: {
     default: svgToBase64(settingsSVG('#999999')),
-    active: svgToBase64(settingsSVG('#1D6FEA'))
+    active: svgToBase64(settingsSVG('#07C160'))
   }
 };
 

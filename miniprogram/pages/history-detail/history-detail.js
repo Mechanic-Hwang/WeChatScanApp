@@ -49,7 +49,6 @@ Page({
       ...batch,
       title: this.formatBatchTitle(batch),
       timeText: this.formatBatchTime(batch.createdAt),
-      typeIcon: batch.batchType === 'book' ? '📚' : '📷',
       typeText: batch.batchType === 'book' ? this.text('bookScan') : this.text('normalScan'),
       items: batch.items.map(item => ({
         ...item,
