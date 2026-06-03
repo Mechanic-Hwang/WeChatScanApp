@@ -1,27 +1,63 @@
-/* pages/settings/settings.wxss */
+/* pages/settings/settings.wxss
+ * Settings uses a WeUI cell-like layout: grouped white panels, thin dividers,
+ * restrained radius, green selected state, and blue-gray secondary actions.
+ */
+/* Group panel: behaves like a WeUI cell group rather than a decorative card. */
 .card {
   background: #fff;
-  border-radius: 20rpx;
-  padding: 30rpx;
+  border-radius: 16rpx;
+  padding: 0 32rpx;
   margin-bottom: 24rpx;
-  border: 1rpx solid #E6F0FF;
-  box-shadow: 0 4rpx 18rpx rgba(29, 111, 234, 0.06);
+  border: 1rpx solid #EEEEEE;
+  box-shadow: none;
 }
 
 .card-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
-  color: #1F2329;
-  margin-bottom: 12rpx;
+  color: #191919;
+  margin-bottom: 0;
 }
 
 .card-desc {
   font-size: 26rpx;
-  color: #999;
-  margin-bottom: 24rpx;
+  color: #8A8A8A;
+  margin: 0 0 24rpx;
+  line-height: 1.5;
 }
 
-/* 密码输入框 */
+/* Expand/collapse header: simple tappable cell with a chevron indicator. */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 104rpx;
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+.toggle-control {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chevron is CSS-only to keep the dropdown control compact and consistent. */
+.toggle-icon {
+  width: 18rpx;
+  height: 18rpx;
+  border-right: 3rpx solid #B2B2B2;
+  border-bottom: 3rpx solid #B2B2B2;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.toggle-control.expanded .toggle-icon {
+  transform: rotate(225deg);
+}
+
+/* Password input keeps the visibility action inside the input touch area. */
 .password-input {
   position: relative;
 }
@@ -39,14 +75,14 @@
   padding: 10rpx;
 }
 
-/* 测试区域 */
+/* Legacy test section divider. */
 .test-section {
   margin-top: 20rpx;
   padding-top: 20rpx;
   border-top: 1rpx solid #f0f0f0;
 }
 
-/* 语言列表 */
+/* Language list uses full-width rows with subtle dividers. */
 .language-list {
   margin-top: 10rpx;
 }
@@ -56,7 +92,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #EEEEEE;
 }
 
 .language-item:last-child {
@@ -64,7 +100,7 @@
 }
 
 .language-item.active {
-  color: #1D6FEA;
+  color: #07C160;
 }
 
 .lang-name {
@@ -76,7 +112,7 @@
   font-weight: bold;
 }
 
-/* 数据操作 */
+/* Data actions are list cells; red is reserved for destructive flows. */
 .data-actions {
   margin-top: 10rpx;
 }
@@ -85,7 +121,7 @@
   display: flex;
   align-items: center;
   padding: 24rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #EEEEEE;
 }
 
 .action-item:last-child {
@@ -104,14 +140,14 @@
 .action-title {
   display: block;
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
   margin-bottom: 8rpx;
 }
 
 .action-desc {
   display: block;
   font-size: 24rpx;
-  color: #999;
+  color: #8A8A8A;
 }
 
 .action-arrow {
@@ -119,13 +155,13 @@
   font-size: 32rpx;
 }
 
-/* 开关项 - 文字左对齐，开关右对齐 */
+/* Switch rows: label on the left, native switch aligned right. */
 .switch-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #EEEEEE;
 }
 
 .switch-item:last-child {
@@ -134,10 +170,10 @@
 
 .switch-label {
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
 }
 
-/* 开关列表 */
+/* Switch list spacing. */
 .switch-list {
   margin-top: 10rpx;
 }
@@ -147,7 +183,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #EEEEEE;
 }
 
 .switch-item:last-child {
@@ -161,17 +197,17 @@
 .switch-name {
   display: block;
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
 }
 
 .switch-desc {
   display: block;
   font-size: 24rpx;
-  color: #999;
+  color: #8A8A8A;
   margin-top: 4rpx;
 }
 
-/* 单选组 */
+/* Segmented/radio controls: neutral base, green selected state. */
 .radio-group {
   margin-top: 10rpx;
 }
@@ -187,8 +223,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20rpx;
-  background: #F7FAFF;
-  border-radius: 12rpx;
+  background: #F7F8FA;
+  border-radius: 8rpx;
   margin-bottom: 16rpx;
   border: 2rpx solid transparent;
 }
@@ -201,22 +237,23 @@
 }
 
 .radio-item.active {
-  border-color: #1D6FEA;
-  background: #EAF2FF;
+  border-color: #07C160;
+  background: #F0FFF7;
+  color: #07C160;
 }
 
 .radio-name {
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
 }
 
 .radio-desc {
   font-size: 24rpx;
-  color: #999;
+  color: #8A8A8A;
   margin-top: 4rpx;
 }
 
-/* 关于 */
+/* About block uses the same text scale and color system. */
 .about-info {
   text-align: center;
   padding: 30rpx 0;
@@ -226,35 +263,35 @@
   display: block;
   font-size: 40rpx;
   font-weight: 600;
-  color: #1F2329;
+  color: #191919;
   margin-bottom: 12rpx;
 }
 
 .app-version {
   display: block;
   font-size: 26rpx;
-  color: #999;
+  color: #8A8A8A;
   margin-bottom: 16rpx;
 }
 
 .app-desc {
   display: block;
   font-size: 26rpx;
-  color: #4E5969;
+  color: #666666;
 }
 
 .input-tip {
   display: block;
-  color: #86909C;
+  color: #8A8A8A;
   font-size: 24rpx;
   line-height: 1.5;
   margin-top: 12rpx;
 }
 
 .field-option-list {
-  background: #F7FAFF;
-  border: 1rpx solid #E6F0FF;
-  border-radius: 12rpx;
+  background: #fff;
+  border: 1rpx solid #EEEEEE;
+  border-radius: 8rpx;
   margin-top: 12rpx;
   padding: 0 20rpx;
 }
@@ -264,8 +301,8 @@
   align-items: center;
   justify-content: space-between;
   min-height: 88rpx;
-  border-bottom: 1rpx solid #E6F0FF;
-  color: #1F2329;
+  border-bottom: 1rpx solid #EEEEEE;
+  color: #191919;
   font-size: 28rpx;
 }
 
@@ -281,18 +318,18 @@
 }
 
 .config-chip {
-  background: #F7FAFF;
-  border: 1rpx solid #D8E6FF;
-  border-radius: 10rpx;
-  color: #4E5969;
+  background: #F7F8FA;
+  border: 1rpx solid #D8D8D8;
+  border-radius: 8rpx;
+  color: #666666;
   font-size: 24rpx;
   padding: 10rpx 18rpx;
 }
 
 .config-chip.active {
-  background: #EAF2FF;
-  border-color: #1D6FEA;
-  color: #1D6FEA;
+  background: #F0FFF7;
+  border-color: #07C160;
+  color: #07C160;
 }
 
 .inline-actions {
@@ -302,9 +339,9 @@
 
 .inline-actions .btn {
   flex: 1;
-  height: 72rpx;
-  border-radius: 12rpx;
-  font-size: 26rpx;
+  height: 80rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
 }
 
 .pair-row {
@@ -316,12 +353,12 @@
 
 .pair-input {
   flex: 1;
-  height: 72rpx;
-  border: 1rpx solid #D8E6FF;
-  border-radius: 10rpx;
+  height: 88rpx;
+  border: 1rpx solid #D8D8D8;
+  border-radius: 8rpx;
   background: #fff;
-  color: #1F2329;
-  font-size: 26rpx;
+  color: #191919;
+  font-size: 28rpx;
   padding: 0 16rpx;
   box-sizing: border-box;
 }
@@ -333,7 +370,7 @@
 }
 
 .textarea-input {
-  min-height: 180rpx;
+  min-height: 176rpx;
   height: auto;
   line-height: 1.5;
   padding-top: 20rpx;
@@ -341,23 +378,23 @@
 }
 
 .rule-card {
-  background: #F7FAFF;
-  border: 1rpx solid #E6F0FF;
-  border-radius: 12rpx;
-  padding: 20rpx;
+  background: #fff;
+  border: 1rpx solid #EEEEEE;
+  border-radius: 8rpx;
+  padding: 24rpx;
   margin-bottom: 20rpx;
 }
 
 .test-result {
   margin-top: 20rpx;
-  background: #F7FAFF;
-  border: 1rpx solid #E6F0FF;
-  border-radius: 12rpx;
-  padding: 20rpx;
+  background: #F7F8FA;
+  border: 1rpx solid #EEEEEE;
+  border-radius: 8rpx;
+  padding: 24rpx;
 }
 
 .result-title {
-  color: #1F2329;
+  color: #191919;
   font-size: 28rpx;
   font-weight: 600;
   margin-bottom: 14rpx;
@@ -367,7 +404,7 @@
   display: flex;
   flex-direction: column;
   gap: 8rpx;
-  color: #4E5969;
+  color: #666666;
   font-size: 24rpx;
   margin-bottom: 16rpx;
 }
@@ -377,7 +414,7 @@
 }
 
 .result-label {
-  color: #1D6FEA;
+  color: #576B95;
   display: block;
   font-size: 24rpx;
   font-weight: 600;
@@ -389,7 +426,7 @@
   display: flex;
   gap: 16rpx;
   padding: 10rpx 0;
-  border-bottom: 1rpx solid #E6F0FF;
+  border-bottom: 1rpx solid #EEEEEE;
 }
 
 .result-field:last-child,
@@ -399,14 +436,14 @@
 
 .field-name,
 .preview-label {
-  color: #4E5969;
+  color: #666666;
   flex: 0 0 180rpx;
   font-size: 24rpx;
 }
 
 .field-value,
 .preview-value {
-  color: #1F2329;
+  color: #191919;
   flex: 1;
   font-size: 24rpx;
   word-break: break-all;
@@ -417,9 +454,9 @@
   max-height: 260rpx;
   width: 100%;
   background: #fff;
-  border: 1rpx solid #D8E6FF;
-  border-radius: 10rpx;
-  color: #1F2329;
+  border: 1rpx solid #D8D8D8;
+  border-radius: 8rpx;
+  color: #191919;
   font-size: 22rpx;
   line-height: 1.5;
   padding: 16rpx;

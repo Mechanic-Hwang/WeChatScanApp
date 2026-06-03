@@ -1,4 +1,7 @@
-/* pages/index/index.wxss */
+/* pages/index/index.wxss
+ * Home follows WeUI visual rhythm: green primary scan action,
+ * neutral segmented mode switch, and readable 15pt-ish list text.
+ */
 /* 模式切换 */
 .mode-switch {
   padding: 30rpx;
@@ -6,14 +9,14 @@
 
 .mode-label {
   font-size: 28rpx;
-  color: #4E5969;
+  color: #666666;
   margin-bottom: 20rpx;
 }
 
 .mode-toggle {
   display: flex;
-  background: #EAF2FF;
-  border-radius: 16rpx;
+  background: #F2F2F2;
+  border-radius: 8rpx;
   padding: 6rpx;
 }
 
@@ -23,13 +26,13 @@
   flex-direction: column;
   align-items: center;
   padding: 24rpx 0;
-  border-radius: 12rpx;
+  border-radius: 6rpx;
   transition: all 0.3s;
 }
 
 .mode-option.active {
   background: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(29, 111, 234, 0.12);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
 .mode-icon {
@@ -39,11 +42,11 @@
 
 .mode-text {
   font-size: 26rpx;
-  color: #4E5969;
+  color: #666666;
 }
 
 .mode-option.active .mode-text {
-  color: #1D6FEA;
+  color: #07C160;
   font-weight: 500;
 }
 
@@ -59,12 +62,12 @@
   width: 240rpx;
   height: 240rpx;
   border-radius: 50%;
-  background: #1D6FEA;
+  background: #07C160;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 34rpx rgba(29, 111, 234, 0.24);
+  box-shadow: 0 12rpx 34rpx rgba(7, 193, 96, 0.24);
   transition: transform 0.2s;
 }
 
@@ -86,7 +89,7 @@
 .scan-tip {
   margin-top: 30rpx;
   font-size: 26rpx;
-  color: #86909C;
+  color: #8A8A8A;
 }
 
 /* 输入区域 */
@@ -96,7 +99,7 @@
 
 .input-label {
   font-size: 28rpx;
-  color: #1F2329;
+  color: #191919;
   margin-bottom: 16rpx;
   font-weight: 500;
 }
@@ -136,12 +139,12 @@
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2329;
+  color: #191919;
 }
 
 .view-all {
   font-size: 26rpx;
-  color: #1D6FEA;
+  color: #576B95;
 }
 
 .record-list {
@@ -171,7 +174,7 @@
 
 .record-title {
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -179,7 +182,7 @@
 
 .record-meta {
   font-size: 24rpx;
-  color: #86909C;
+  color: #8A8A8A;
   margin-top: 8rpx;
 }
 

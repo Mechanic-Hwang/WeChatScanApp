@@ -1,14 +1,17 @@
-/* pages/history/history.wxss */
+/* pages/history/history.wxss
+ * History uses WeUI-like filter chips, white record cells, subtle dividers,
+ * and a fixed bottom action bar with larger icons for thumb use.
+ */
 /* 搜索栏 */
 .search-bar {
   display: flex;
   align-items: center;
   background: #fff;
-  border: 2rpx solid #D8E6FF;
-  border-radius: 16rpx;
+  border: 1rpx solid #D8D8D8;
+  border-radius: 8rpx;
   margin: 20rpx;
   padding: 20rpx 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(29, 111, 234, 0.06);
+  box-shadow: none;
 }
 
 .search-icon {
@@ -20,7 +23,7 @@
 .search-input {
   flex: 1;
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
   background: transparent;
   border: none;
 }
@@ -45,9 +48,9 @@
 .page-size,
 .page-btn {
   background: #fff;
-  border: 2rpx solid #D8E6FF;
-  border-radius: 10rpx;
-  color: #4e5969;
+  border: 1rpx solid #D8D8D8;
+  border-radius: 8rpx;
+  color: #666666;
   font-size: 24rpx;
   padding: 10rpx 18rpx;
 }
@@ -59,9 +62,9 @@
 
 .filter-chip.active,
 .page-size.active {
-  background: #EAF2FF;
-  border-color: #1D6FEA;
-  color: #1D6FEA;
+  background: #F0FFF7;
+  border-color: #07C160;
+  color: #07C160;
 }
 
 .page-size-label,
@@ -90,17 +93,17 @@
   display: flex;
   align-items: flex-start;
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 16rpx;
-  border: 1rpx solid #E6F0FF;
-  box-shadow: 0 2rpx 10rpx rgba(29, 111, 234, 0.05);
+  border: 1rpx solid #EEEEEE;
+  box-shadow: none;
   transition: all 0.2s;
 }
 
 .batch-item.selected {
-  background: #EAF2FF;
-  border: 2rpx solid #1D6FEA;
+  background: #F0FFF7;
+  border: 1rpx solid #07C160;
 }
 
 .batch-item:active {
@@ -126,8 +129,8 @@
 }
 
 .checkbox.checked {
-  background: #1D6FEA;
-  border-color: #1D6FEA;
+  background: #07C160;
+  border-color: #07C160;
   color: #fff;
   font-size: 24rpx;
 }
@@ -153,13 +156,13 @@
 }
 
 .batch-type-tag.book {
-  background: #EDF6FF;
-  color: #0B78D0;
+  background: #F0FFF7;
+  color: #07C160;
 }
 
 .batch-type-tag.normal {
-  background: #EAF2FF;
-  color: #1D6FEA;
+  background: #F7F8FA;
+  color: #576B95;
 }
 
 .batch-time {
@@ -170,14 +173,14 @@
 .batch-title {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1F2329;
+  color: #191919;
   margin-bottom: 16rpx;
 }
 
 /* 预览内容 */
 .batch-preview {
-  background: #F7FAFF;
-  border-radius: 12rpx;
+  background: #F7F8FA;
+  border-radius: 8rpx;
   padding: 16rpx;
   margin-bottom: 16rpx;
 }
@@ -200,7 +203,7 @@
 
 .preview-text {
   font-size: 26rpx;
-  color: #4E5969;
+  color: #666666;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -210,7 +213,7 @@
 /* 数量 */
 .batch-count {
   font-size: 26rpx;
-  color: #1D6FEA;
+  color: #576B95;
   font-weight: 500;
 }
 
@@ -234,9 +237,9 @@
   padding: 12rpx 24rpx;
   border-radius: 8rpx;
   font-size: 26rpx;
-  background: #EAF2FF;
-  color: #1D6FEA;
-  border: 1rpx solid #1D6FEA;
+  background: #F7F8FA;
+  color: #576B95;
+  border: 1rpx solid #D8D8D8;
 }
 
 .action-bar .action-btn.danger {
@@ -252,12 +255,14 @@
   left: 0;
   right: 0;
   background: #fff;
-  padding: 20rpx 30rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-  box-shadow: 0 -4rpx 20rpx rgba(29, 111, 234, 0.08);
+  padding: 18rpx 24rpx;
+  padding-bottom: calc(18rpx + env(safe-area-inset-bottom));
+  border-top: 1rpx solid #E5E5E5;
+  box-shadow: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20rpx;
 }
 
 .action-info {
@@ -266,25 +271,29 @@
 
 .selected-text {
   font-size: 30rpx;
-  color: #1F2329;
+  color: #191919;
   font-weight: 500;
 }
 
 .action-buttons {
   display: flex;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
-  padding: 16rpx 32rpx;
-  border-radius: 12rpx;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 0 30rpx;
+  border-radius: 10rpx;
   font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .action-btn.copy {
-  background: #1D6FEA;
+  background: #07C160;
   color: #fff;
 }
 
@@ -294,5 +303,7 @@
 }
 
 .btn-icon {
-  margin-right: 8rpx;
+  font-size: 48rpx;
+  line-height: 1;
+  margin-right: 10rpx;
 }

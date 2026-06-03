@@ -4,7 +4,9 @@
   <view class="card">
     <view class="card-header" bindtap="toggleAdvancedConfig">
       <view class="card-title">🔧 {{t.advancedApiConfig}}</view>
-      <text class="toggle-icon">{{showAdvancedConfig ? '▼' : '▶'}}</text>
+      <view class="toggle-control {{showAdvancedConfig ? 'expanded' : ''}}">
+        <text class="toggle-icon"></text>
+      </view>
     </view>
     <view class="card-desc">{{t.advancedApiDesc}}</view>
 

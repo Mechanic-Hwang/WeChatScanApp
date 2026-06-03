@@ -7,14 +7,14 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#1D6FEA",
+    "navigationBarBackgroundColor": "#07C160",
     "navigationBarTitleText": "扫码简录",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#F4F8FF"
+    "backgroundColor": "#F7F8FA"
   },
   "tabBar": {
     "color": "#86909C",
-    "selectedColor": "#1D6FEA",
+    "selectedColor": "#07C160",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
