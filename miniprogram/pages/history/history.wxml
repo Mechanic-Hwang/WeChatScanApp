@@ -104,10 +104,17 @@
 
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{allBatches.length === 0}}">
-    <view class="empty-icon"></view>
     <text class="empty-title">{{t.noHistory}}</text>
     <text class="empty-subtitle">{{t.emptyHistoryTip}}</text>
-    <view class="btn btn-primary mt-30" bindtap="goToScan">{{t.goToScan}}</view>
+    <view class="empty-scan-btn" bindtap="goToScan">
+      <view class="empty-scan-icon">
+        <view class="scan-corner top-left"></view>
+        <view class="scan-corner top-right"></view>
+        <view class="scan-corner bottom-left"></view>
+        <view class="scan-corner bottom-right"></view>
+      </view>
+      <text>{{t.goToScan}}</text>
+    </view>
   </view>
 
   <view class="empty-state" wx:if="{{allBatches.length > 0 && batches.length === 0}}">

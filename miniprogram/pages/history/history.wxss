@@ -137,6 +137,87 @@
   pointer-events: none;
 }
 
+.empty-state {
+  min-height: 520rpx;
+  padding: 160rpx 48rpx 120rpx;
+  box-sizing: border-box;
+}
+
+.empty-state .empty-icon {
+  display: none;
+}
+
+.empty-title {
+  color: #8A8A8A;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.empty-subtitle {
+  color: #B2B2B2;
+  font-size: 26rpx;
+  margin-top: 10rpx;
+  text-align: center;
+}
+
+.empty-scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 208rpx;
+  height: 88rpx;
+  margin-top: 34rpx;
+  padding: 0 34rpx;
+  border-radius: 8rpx;
+  background: #07C160;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.empty-scan-icon {
+  position: relative;
+  width: 42rpx;
+  height: 42rpx;
+  margin-right: 12rpx;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.empty-scan-icon .scan-corner {
+  position: absolute;
+  width: 34%;
+  height: 34%;
+  border-color: currentColor;
+  border-style: solid;
+  box-sizing: border-box;
+}
+
+.empty-scan-icon .top-left {
+  left: 2rpx;
+  top: 2rpx;
+  border-width: 3rpx 0 0 3rpx;
+}
+
+.empty-scan-icon .top-right {
+  right: 2rpx;
+  top: 2rpx;
+  border-width: 3rpx 3rpx 0 0;
+}
+
+.empty-scan-icon .bottom-left {
+  left: 2rpx;
+  bottom: 2rpx;
+  border-width: 0 0 3rpx 3rpx;
+}
+
+.empty-scan-icon .bottom-right {
+  right: 2rpx;
+  bottom: 2rpx;
+  border-width: 0 3rpx 3rpx 0;
+}
+
 /* 批次列表 */
 .batch-list {
   padding: 0 20rpx 120rpx;
