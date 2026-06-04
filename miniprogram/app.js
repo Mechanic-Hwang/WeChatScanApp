@@ -378,18 +378,21 @@ App({
     if (advancedConfigs.some(config => config.enabled && config.url)) {
       const result = await apiConfigUtil.executeScanRequest(barcode);
       const parsed = result.parsedResult || {};
+      const standard = result.standardResult || {};
 
       return {
-        title: parsed.title || parsed['书名'] || parsed.Title || barcode,
-        author: parsed.author || parsed['作者'] || parsed.Author || '',
-        isbn: parsed.isbn || parsed.ISBN || '',
-        publisher: parsed.publisher || parsed['出版社'] || '',
-        place: parsed.place || parsed['出版地'] || '',
-        year: parsed.year || parsed['出版年'] || '',
-        callNumber: parsed.callNumber || parsed['索书号'] || '',
-        status: parsed.status || parsed['馆藏状态'] || '',
-        barcode: parsed.barcode || parsed['条码号'] || barcode,
+        title: standard.title || parsed.title || parsed['书名'] || parsed.Title || barcode,
+        author: standard.author || parsed.author || parsed['作者'] || parsed.Author || '',
+        isbn: standard.isbn || parsed.isbn || parsed.ISBN || '',
+        publisher: standard.publisher || parsed.publisher || parsed['出版社'] || '',
+        place: standard.place || parsed.place || parsed['出版地'] || '',
+        year: standard.year || parsed.year || parsed['出版年'] || '',
+        callNumber: standard.callNumber || parsed.callNumber || parsed['索书号'] || '',
+        status: standard.status || parsed.status || parsed['馆藏状态'] || '',
+        barcode: standard.barcode || parsed.barcode || parsed['条码号'] || barcode,
         customResult: parsed,
+        standardResult: standard,
+        displayFields: result.displayFields || [],
         rawResponse: result.apiConfig && result.apiConfig.showRawResponse ? result.rawResponse : undefined,
         matchedRuleId: result.matchedRule && result.matchedRule.ruleId,
         apiConfigId: result.apiConfig && result.apiConfig.apiConfigId

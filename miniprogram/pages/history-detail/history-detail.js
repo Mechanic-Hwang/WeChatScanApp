@@ -50,14 +50,40 @@ Page({
       title: this.formatBatchTitle(batch),
       timeText: this.formatBatchTime(batch.createdAt),
       typeText: batch.batchType === 'book' ? this.text('bookScan') : this.text('normalScan'),
-      items: batch.items.map(item => ({
-        ...item,
-        timeText: this.formatItemTime(item.createdAt)
-      }))
+      items: batch.items.map(item => this.formatDetailItem(item))
     };
 
     this.setData({ batch: formattedBatch, pageIndex: 1 });
     this.applyPagination();
+  },
+
+  formatDetailItem(item) {
+    const bookInfo = item.bookInfo || {};
+    const displayFields = item.displayFields || bookInfo.displayFields || this.objectToFields(item.customResult || bookInfo.customResult);
+    return {
+      ...item,
+      apiDisplayFields: displayFields,
+      apiConfigId: item.apiConfigId || bookInfo.apiConfigId,
+      matchedRuleId: item.matchedRuleId || bookInfo.matchedRuleId,
+      rawResponseText: item.rawResponseText || this.stringifyRawResponse(item.rawResponse || bookInfo.rawResponse),
+      timeText: this.formatItemTime(item.createdAt)
+    };
+  },
+
+  objectToFields(data = {}) {
+    return Object.keys(data || {})
+      .map(key => ({ label: key, value: data[key] }))
+      .filter(field => field.value !== null && field.value !== undefined && field.value !== '');
+  },
+
+  stringifyRawResponse(response) {
+    if (!response) return '';
+    if (typeof response === 'string') return response;
+    try {
+      return JSON.stringify(response, null, 2);
+    } catch (e) {
+      return String(response);
+    }
   },
 
   applyPagination() {

@@ -127,10 +127,35 @@ function loadApiConfig() {
 }
 
 function normalizeApiConfig(config, index = 0) {
+  const fieldMappings = (config.fieldMappings || DEFAULT_API_CONFIG.fieldMappings || [])
+    .map(normalizeFieldMapping);
+
   return {
     ...DEFAULT_API_CONFIG,
     ...config,
-    apiConfigId: config.apiConfigId || config.id || `api_config_${index + 1}`
+    apiConfigId: config.apiConfigId || config.id || `api_config_${index + 1}`,
+    fieldMappings
+  };
+}
+
+function inferTargetField(mapping = {}) {
+  const value = String(mapping.targetField || mapping.path || mapping.label || '').toLowerCase();
+  if (value.includes('title') || value.includes('书名') || value.includes('題名')) return 'title';
+  if (value.includes('author') || value.includes('作者') || value.includes('責任')) return 'author';
+  if (value.includes('isbn')) return 'isbn';
+  if (value.includes('publisher') || value.includes('出版社')) return 'publisher';
+  if (value.includes('place') || value.includes('出版地')) return 'place';
+  if (value.includes('year') || value.includes('date') || value.includes('出版年')) return 'year';
+  if (value.includes('callnumber') || value.includes('call_number') || value.includes('索书号') || value.includes('索書號')) return 'callNumber';
+  if (value.includes('barcode') || value.includes('条码') || value.includes('條碼')) return 'barcode';
+  if (value.includes('status') || value.includes('馆藏') || value.includes('館藏')) return 'status';
+  return '';
+}
+
+function normalizeFieldMapping(mapping = {}) {
+  return {
+    ...mapping,
+    targetField: mapping.targetField || inferTargetField(mapping)
   };
 }
 
@@ -389,6 +414,27 @@ function buildDisplayFields(apiConfig, parsedResult = {}) {
     .filter(field => field.value !== null || apiConfig.emptyValueMode !== 'hide');
 }
 
+function buildStandardResult(apiConfig, parsedResult = {}) {
+  return (apiConfig.fieldMappings || []).reduce((standard, mapping) => {
+    const targetField = mapping.targetField || inferTargetField(mapping);
+    if (!targetField) return standard;
+    const value = parsedResult[mapping.label];
+    if (value !== null && value !== undefined && value !== '') {
+      standard[targetField] = value;
+    }
+    return standard;
+  }, {});
+}
+
+function buildParsedFields(parsedResult = {}) {
+  return Object.keys(parsedResult)
+    .map(key => ({
+      label: key,
+      value: parsedResult[key]
+    }))
+    .filter(field => field.value !== null && field.value !== undefined);
+}
+
 function stringifyRawResponse(response) {
   if (typeof response === 'string') return response;
   try {
@@ -411,12 +457,15 @@ async function testApiConfig(apiConfig, testValue) {
     
     const configWithType = { ...apiConfig, responseType };
     const parsed = parseResponse(configWithType, response);
+    const standardResult = buildStandardResult(configWithType, parsed);
     
     return {
       success: true,
       rawResponse: response,
       rawResponseText: stringifyRawResponse(response),
       parsedResult: parsed,
+      standardResult,
+      parsedFields: buildParsedFields(parsed),
       displayFields: buildDisplayFields(configWithType, parsed),
       detectedType: responseType
     };
@@ -437,6 +486,8 @@ async function executeScanRequest(scanValue, options = {}) {
       apiConfig: null,
       rawResponse: null,
       parsedResult: { content: scanValue },
+      standardResult: { content: scanValue },
+      parsedFields: [{ label: 'content', value: scanValue }],
       displayFields: [{ label: 'content', value: scanValue }],
       noRuleMatched: !resolved.rule,
       fallbackToRaw: true
@@ -450,6 +501,7 @@ async function executeScanRequest(scanValue, options = {}) {
   }
   const configWithType = { ...resolved.apiConfig, responseType };
   const parsedResult = parseResponse(configWithType, rawResponse);
+  const standardResult = buildStandardResult(configWithType, parsedResult);
 
   return {
     matchedRule: resolved.rule,
@@ -457,6 +509,8 @@ async function executeScanRequest(scanValue, options = {}) {
     rawResponse,
     rawResponseText: stringifyRawResponse(rawResponse),
     parsedResult,
+    standardResult,
+    parsedFields: buildParsedFields(parsedResult),
     displayFields: buildDisplayFields(configWithType, parsedResult),
     noRuleMatched: !resolved.rule
   };

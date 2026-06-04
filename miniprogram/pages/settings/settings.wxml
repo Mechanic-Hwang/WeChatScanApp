@@ -200,9 +200,9 @@
           <view class="result-section">
             <text class="result-label">{{t.parsedResult}}</text>
             <view class="result-fields">
-              <view class="result-field" wx:for="{{testResult.parsedResult}}" wx:key="label" wx:for-item="value">
+              <view class="result-field" wx:for="{{testResult.parsedFields}}" wx:key="label">
                 <text class="field-name">{{item.label}}：</text>
-                <text class="field-value">{{value || t.noData}}</text>
+                <text class="field-value">{{item.value || t.noData}}</text>
               </view>
             </view>
           </view>
@@ -326,9 +326,13 @@
       <switch checked="{{inputRules.allowNewline}}" bindchange="toggleAllowNewline"/>
     </view>
 
-    <view class="switch-item">
+    <view class="switch-item" wx:if="{{!inputRules.allowNewline}}">
       <text class="switch-label">{{t.enterSubmit}}</text>
       <switch checked="{{inputRules.enterSubmit}}" bindchange="toggleEnterSubmit"/>
+    </view>
+
+    <view class="switch-note" wx:else>
+      <text>{{t.enterSubmitDisabledInMultiline}}</text>
     </view>
 
     <view class="input-group mt-20">

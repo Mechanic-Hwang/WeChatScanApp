@@ -183,7 +183,10 @@ Page({
         const customResult = await app.queryCustomScan(content);
         if (customResult && customResult.parsedResult) {
           record.customResult = customResult.parsedResult;
+          record.standardResult = customResult.standardResult;
+          record.displayFields = customResult.displayFields || customResult.parsedFields || [];
           record.rawResponse = customResult.rawResponse;
+          record.rawResponseText = customResult.rawResponseText;
           record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
           record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
           record.noRuleMatched = customResult.noRuleMatched;

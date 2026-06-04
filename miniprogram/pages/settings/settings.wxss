@@ -343,6 +343,16 @@
   margin-top: 4rpx;
 }
 
+.switch-note {
+  margin: 18rpx 0 4rpx;
+  padding: 18rpx 22rpx;
+  color: #576B95;
+  font-size: 24rpx;
+  line-height: 1.5;
+  background: #F7F8FA;
+  border-radius: 8rpx;
+}
+
 /* Segmented/radio controls: neutral base, green selected state. */
 .radio-group {
   margin-top: 10rpx;

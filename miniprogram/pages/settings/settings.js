@@ -212,7 +212,11 @@ Page({
   },
 
   toggleAllowNewline(e) {
-    const inputRules = { ...this.data.inputRules, allowNewline: e.detail.value };
+    const inputRules = {
+      ...this.data.inputRules,
+      allowNewline: e.detail.value,
+      enterSubmit: e.detail.value ? false : this.data.inputRules.enterSubmit
+    };
     this.setData({ inputRules });
     wx.setStorageSync('inputRules', inputRules);
   },
@@ -337,6 +341,26 @@ Page({
     return { apiConfig, apiConfigs };
   },
 
+  getExistingApiIds(apiConfigs = this.data.apiConfigs) {
+    return apiConfigs
+      .map(config => config.apiConfigId)
+      .filter(Boolean);
+  },
+
+  collectApiConfigErrors(apiConfigs) {
+    const errors = [];
+    apiConfigs.forEach((config, index) => {
+      if (config.enabled === false && !config.url) return;
+
+      const validation = apiConfigUtil.validateConfig(config);
+      if (!validation.valid) {
+        const name = config.name || config.apiConfigId || this.text('apiConfigName', { number: index + 1 });
+        errors.push(`${name}\n${validation.errors.join('\n')}`);
+      }
+    });
+    return errors;
+  },
+
   selectApiConfig(e) {
     const apiConfigId = e.currentTarget.dataset.id;
     const apiConfig = this.data.apiConfigs.find(config => config.apiConfigId === apiConfigId);
@@ -372,6 +396,17 @@ Page({
       wx.showToast({ title: this.text('keepOneApiConfig'), icon: 'none' });
       return;
     }
+    const apiConfigId = this.data.apiConfig.apiConfigId;
+    const boundRules = this.data.scanRules.filter(rule => rule.apiConfigId === apiConfigId);
+    if (boundRules.length > 0) {
+      wx.showModal({
+        title: this.text('ruleConfigError'),
+        content: this.text('apiBoundRulesBlockDelete', { count: boundRules.length }),
+        showCancel: false
+      });
+      return;
+    }
+
     const apiConfigName = this.data.apiConfig.name || this.data.apiConfig.apiConfigId;
     wx.showModal({
       title: this.text('confirmDeleteApi'),
@@ -537,6 +572,7 @@ Page({
 
   saveScanRules() {
     const errors = [];
+    const existingApiIds = this.getExistingApiIds();
     this.data.scanRules.forEach((rule, index) => {
       const validation = apiConfigUtil.validateRule(rule);
       if (!validation.valid) {
@@ -544,6 +580,8 @@ Page({
       }
       if (!rule.apiConfigId) {
         errors.push(this.text('selectBoundApi', { number: index + 1 }));
+      } else if (!existingApiIds.includes(rule.apiConfigId)) {
+        errors.push(this.text('ruleApiMissing', { number: index + 1 }));
       }
     });
 
@@ -618,20 +656,33 @@ Page({
     };
     
     // 验证配置
-    const validation = apiConfigUtil.validateConfig(apiConfig);
-    if (!validation.valid) {
+    const apiConfigs = synced.apiConfigs.map(config => (
+      config.apiConfigId === apiConfig.apiConfigId ? apiConfig : config
+    ));
+    const configErrors = this.collectApiConfigErrors(apiConfigs);
+    if (configErrors.length > 0) {
       wx.showModal({
         title: this.text('configError'),
-        content: validation.errors.join('\n'),
+        content: configErrors.join('\n\n'),
         showCancel: false
       });
       return;
     }
 
     // 保存配置
-    const apiConfigs = synced.apiConfigs.map(config => (
-      config.apiConfigId === apiConfig.apiConfigId ? apiConfig : config
+    const existingApiIds = this.getExistingApiIds(apiConfigs);
+    const invalidRuleIndex = this.data.scanRules.findIndex(rule => (
+      rule.apiConfigId && !existingApiIds.includes(rule.apiConfigId)
     ));
+    if (invalidRuleIndex >= 0) {
+      wx.showModal({
+        title: this.text('ruleConfigError'),
+        content: this.text('ruleApiMissing', { number: invalidRuleIndex + 1 }),
+        showCancel: false
+      });
+      return;
+    }
+
     apiConfigUtil.saveApiConfig(apiConfig);
     apiConfigUtil.saveApiConfigs(apiConfigs);
     wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
