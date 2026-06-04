@@ -1,6 +1,8 @@
 // app.js - 小程序入口（支持扫描批次）
 const apiConfigUtil = require('./utils/api-config.js');
 const i18n = require('./utils/i18n.js');
+const MAX_RECORD_STORAGE_BYTES = 200 * 1024;
+const MAX_BATCH_STORAGE_BYTES = 2 * 1024 * 1024;
 App({
   globalData: {
     // 扫描批次列表
@@ -54,12 +56,55 @@ App({
     this.globalData.language = this.normalizeWechatLanguage(this.getWechatLanguage());
   },
 
+  safeArray(value) {
+    return Array.isArray(value) ? value : [];
+  },
+
+  isValidDate(value) {
+    if (!value) return false;
+    return !Number.isNaN(new Date(value).getTime());
+  },
+
+  normalizeRecord(record = {}) {
+    const content = record.content === undefined || record.content === null ? '' : String(record.content);
+    return {
+      ...record,
+      id: record.id || this.generateId('record'),
+      mode: record.mode === 'book' ? 'book' : 'normal',
+      content,
+      createdAt: this.isValidDate(record.createdAt) ? record.createdAt : new Date().toISOString()
+    };
+  },
+
+  normalizeBatch(batch = {}) {
+    const items = this.safeArray(batch.items).map(item => this.normalizeRecord(item));
+    const createdAt = this.isValidDate(batch.createdAt) ? batch.createdAt : new Date().toISOString();
+    const updatedAt = this.isValidDate(batch.updatedAt) ? batch.updatedAt : createdAt;
+    return {
+      ...batch,
+      batchId: batch.batchId || this.generateId('batch'),
+      batchType: batch.batchType === 'book' ? 'book' : 'normal',
+      createdAt,
+      updatedAt,
+      itemCount: items.length,
+      previewItems: this.buildPreviewItems(items),
+      items,
+      selected: !!batch.selected
+    };
+  },
+
+  normalizeBatches(batches) {
+    return this.safeArray(batches)
+      .filter(batch => batch && typeof batch === 'object')
+      .map(batch => this.normalizeBatch(batch));
+  },
+
   // 加载配置
   loadConfig() {
     try {
       const scanBatches = wx.getStorageSync('scanBatches');
       if (scanBatches) {
-        this.globalData.scanBatches = scanBatches;
+        this.globalData.scanBatches = this.normalizeBatches(scanBatches);
       }
       
       const apiConfig = wx.getStorageSync('apiConfig');
@@ -141,17 +186,21 @@ App({
       return false;
     }
 
+    batch.items = this.safeArray(batch.items);
+    const normalizedRecord = this.normalizeRecord(record);
+
     const getDedupKey = (item) => {
       if (item.mode === 'book') {
         return item.barcode || (item.bookInfo && item.bookInfo.barcode) || item.content;
       }
       return item.content;
     };
-    const recordKey = getDedupKey(record);
+    const recordKey = getDedupKey(normalizedRecord);
+    const t = i18n.locales[this.globalData.language] || i18n.locales['zh-CN'];
 
     // 检查当前批次是否已存在
     const existsInBatch = batch.items.findIndex(
-      item => item.mode === record.mode && getDedupKey(item) === recordKey
+      item => item.mode === normalizedRecord.mode && getDedupKey(item) === recordKey
     );
     
     if (existsInBatch !== -1) {
@@ -163,7 +212,7 @@ App({
       batch.previewItems = this.buildPreviewItems(batch.items);
       this.saveBatch(batch);
       wx.showToast({
-        title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).duplicateRecordMoved,
+        title: t.duplicateRecordMoved,
         icon: 'none'
       });
       return false;
@@ -172,10 +221,11 @@ App({
     // 检查其他批次是否已存在。命中后不新增，只把原记录和原批次移到顶部。
     for (let batchIndex = 0; batchIndex < this.globalData.scanBatches.length; batchIndex += 1) {
       const existingBatch = this.globalData.scanBatches[batchIndex];
+      existingBatch.items = this.safeArray(existingBatch.items);
       if (existingBatch.batchId === batch.batchId) continue;
 
       const existsInOtherBatch = existingBatch.items.findIndex(
-        item => item.mode === record.mode && getDedupKey(item) === recordKey
+        item => item.mode === normalizedRecord.mode && getDedupKey(item) === recordKey
       );
       
       if (existsInOtherBatch !== -1) {
@@ -187,10 +237,10 @@ App({
 
         this.globalData.scanBatches.splice(batchIndex, 1);
         this.globalData.scanBatches.unshift(existingBatch);
-        wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+        this.saveScanBatchesSafely();
 
         wx.showToast({
-          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).duplicateMoved,
+          title: t.duplicateMoved,
           icon: 'none',
           duration: 2000
         });
@@ -199,9 +249,30 @@ App({
     }
 
     // 添加记录
-    record.id = this.generateId('record');
-    record.createdAt = new Date().toISOString();
-    batch.items.unshift(record);
+    if (this.estimateObjectSizeBytes(normalizedRecord) > MAX_RECORD_STORAGE_BYTES) {
+      wx.showToast({
+        title: t.recordTooLarge,
+        icon: 'none',
+        duration: 3000
+      });
+      return false;
+    }
+
+    const nextBatchSize = this.estimateObjectSizeBytes({
+      ...batch,
+      items: [normalizedRecord, ...batch.items]
+    });
+    if (nextBatchSize > MAX_BATCH_STORAGE_BYTES) {
+      wx.showToast({
+        title: t.batchTooLarge,
+        icon: 'none',
+        duration: 3000
+      });
+      return false;
+    }
+
+    normalizedRecord.createdAt = new Date().toISOString();
+    batch.items.unshift(normalizedRecord);
     batch.itemCount = batch.items.length;
     batch.updatedAt = new Date().toISOString();
     
@@ -214,14 +285,15 @@ App({
   },
 
   buildPreviewItems(items) {
-    return items.slice(0, 3).map(item => {
+    return this.safeArray(items).slice(0, 3).map(item => {
       if (item.mode === 'book' && item.bookInfo) {
         const t = i18n.locales[this.globalData.language] || i18n.locales['zh-CN'];
         return `${item.bookInfo.title || item.content} / ${item.bookInfo.author || t.unknownAuthor}`;
       }
-      return item.content.length > 30
-        ? item.content.substring(0, 30) + '...'
-        : item.content;
+      const content = item.content === undefined || item.content === null ? '' : String(item.content);
+      return content.length > 30
+        ? content.substring(0, 30) + '...'
+        : content;
     });
   },
 
@@ -244,7 +316,7 @@ App({
     this.checkStorageLimit();
     
     // 保存到本地存储
-    wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+    this.saveScanBatchesSafely();
   },
 
   // 检查存储空间限制
@@ -333,7 +405,37 @@ App({
     this.globalData.scanBatches = this.globalData.scanBatches.filter(
       batch => !batchIds.includes(batch.batchId)
     );
-    wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+    this.saveScanBatchesSafely();
+  },
+
+  saveScanBatchesSafely() {
+    try {
+      wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+      return true;
+    } catch (e) {
+      console.error('[Storage] 保存历史失败，尝试清理旧记录后重试:', e);
+      if (this.globalData.scanBatches.length > 0) {
+        this.globalData.scanBatches.pop();
+      }
+
+      try {
+        wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+        wx.showToast({
+          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageAutoCleaned,
+          icon: 'none',
+          duration: 3000
+        });
+        return true;
+      } catch (retryError) {
+        console.error('[Storage] 重试保存历史失败:', retryError);
+        wx.showToast({
+          title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageSaveFailed,
+          icon: 'none',
+          duration: 3000
+        });
+        return false;
+      }
+    }
   },
 
   deleteRecordFromBatch(batchId, recordId) {
@@ -341,8 +443,9 @@ App({
     if (batchIndex === -1) return false;
 
     const batch = this.globalData.scanBatches[batchIndex];
-    const nextItems = batch.items.filter(item => item.id !== recordId);
-    if (nextItems.length === batch.items.length) return false;
+    const items = this.safeArray(batch.items);
+    const nextItems = items.filter(item => item.id !== recordId);
+    if (nextItems.length === items.length) return false;
 
     batch.items = nextItems;
     batch.itemCount = nextItems.length;
@@ -355,7 +458,7 @@ App({
       this.globalData.scanBatches[batchIndex] = batch;
     }
 
-    wx.setStorageSync('scanBatches', this.globalData.scanBatches);
+    this.saveScanBatchesSafely();
     return true;
   },
 

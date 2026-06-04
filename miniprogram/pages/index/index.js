@@ -131,6 +131,7 @@ Page({
 
   // 处理扫码结果
   async handleScanResult(content) {
+    content = content === undefined || content === null ? '' : String(content);
     const { currentMode } = this.data;
     
     // 确保有活跃批次
@@ -240,7 +241,7 @@ Page({
 
     const { inputValue, currentMode, t } = this.data;
     const inputRules = this.loadInputRules();
-    let normalizedValue = inputValue;
+    let normalizedValue = inputValue === undefined || inputValue === null ? '' : String(inputValue);
 
     if (inputRules.trimSpace !== false) {
       normalizedValue = normalizedValue.trim();

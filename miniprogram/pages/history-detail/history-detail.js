@@ -130,6 +130,7 @@ Page({
   // 格式化批次标题
   formatBatchTitle(batch) {
     const date = new Date(batch.createdAt);
+    if (Number.isNaN(date.getTime())) return this.text('scanRecordTitle', { time: '' });
     const timeStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     return this.text('scanRecordTitle', { time: timeStr });
   },
@@ -137,12 +138,14 @@ Page({
   // 格式化批次时间
   formatBatchTime(isoString) {
     const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) return '';
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   },
 
   // 格式化项目时间
   formatItemTime(isoString) {
     const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) return '';
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
   },
 
@@ -155,10 +158,19 @@ Page({
     const item = (this._items || []).find(record => record.id === recordId);
     if (!item) return;
 
+    const content = this.formatItemForCopy(item);
+    if (copyRulesUtil.isClipboardContentTooLarge(content)) {
+      wx.showToast({ title: this.text('clipboardContentTooLarge'), icon: 'none' });
+      return;
+    }
+
     wx.setClipboardData({
-      data: this.formatItemForCopy(item),
+      data: content,
       success: () => {
         wx.showToast({ title: this.text('copySuccess'), icon: 'success' });
+      },
+      fail: () => {
+        wx.showToast({ title: this.text('copyFail'), icon: 'none' });
       }
     });
   },
@@ -210,6 +222,9 @@ Page({
       data: content,
       success: () => {
         wx.showToast({ title: t.copySuccess, icon: 'success' });
+      },
+      fail: () => {
+        wx.showToast({ title: this.text('copyFail'), icon: 'none' });
       }
     });
   },

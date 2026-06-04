@@ -738,7 +738,7 @@ Page({
       success: (res) => {
         if (res.confirm) {
           app.globalData.scanBatches = [];
-          wx.setStorageSync('scanBatches', []);
+          app.saveScanBatchesSafely();
           wx.showToast({ title: this.text('clearDone'), icon: 'success' });
         }
       }
@@ -788,6 +788,9 @@ Page({
           content: this.text('copiedBatchesToClipboard', { count: batches.length }),
           showCancel: false
         });
+      },
+      fail: () => {
+        wx.showToast({ title: this.text('copyFail'), icon: 'none' });
       }
     });
   }

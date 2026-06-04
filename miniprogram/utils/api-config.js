@@ -115,7 +115,10 @@ function loadApiConfig() {
 
     const configs = wx.getStorageSync('apiConfigs');
     if (Array.isArray(configs) && configs.length > 0) {
-      const normalizedConfigs = configs.map(normalizeApiConfig);
+      const normalizedConfigs = configs
+        .filter(item => item && typeof item === 'object')
+        .map(normalizeApiConfig);
+      if (normalizedConfigs.length === 0) return { ...DEFAULT_API_CONFIG };
       const activeApiConfigId = wx.getStorageSync('activeApiConfigId');
       return normalizedConfigs.find(item => item.apiConfigId === activeApiConfigId) ||
         getDefaultApiConfig(normalizedConfigs) ||
@@ -127,14 +130,19 @@ function loadApiConfig() {
   return { ...DEFAULT_API_CONFIG };
 }
 
-function normalizeApiConfig(config, index = 0) {
-  const fieldMappings = (config.fieldMappings || DEFAULT_API_CONFIG.fieldMappings || [])
+function normalizeApiConfig(config = {}, index = 0) {
+  const safeConfig = config && typeof config === 'object' ? config : {};
+  const fieldMappings = (Array.isArray(safeConfig.fieldMappings) ? safeConfig.fieldMappings : DEFAULT_API_CONFIG.fieldMappings)
     .map(normalizeFieldMapping);
+  const queryParams = Array.isArray(safeConfig.queryParams) ? safeConfig.queryParams : DEFAULT_API_CONFIG.queryParams;
+  const headers = safeConfig.headers && typeof safeConfig.headers === 'object' ? safeConfig.headers : DEFAULT_API_CONFIG.headers;
 
   return {
     ...DEFAULT_API_CONFIG,
-    ...config,
-    apiConfigId: config.apiConfigId || config.id || `api_config_${index + 1}`,
+    ...safeConfig,
+    apiConfigId: safeConfig.apiConfigId || safeConfig.id || `api_config_${index + 1}`,
+    queryParams,
+    headers,
     fieldMappings
   };
 }
@@ -164,7 +172,9 @@ function loadApiConfigs() {
   try {
     const configs = wx.getStorageSync('apiConfigs');
     if (Array.isArray(configs) && configs.length > 0) {
-      return configs.map(normalizeApiConfig);
+      return configs
+        .filter(config => config && typeof config === 'object')
+        .map(normalizeApiConfig);
     }
 
     const singleConfig = wx.getStorageSync('apiConfig_v2');
@@ -179,7 +189,7 @@ function loadApiConfigs() {
 
 function saveApiConfigs(configs) {
   try {
-    wx.setStorageSync('apiConfigs', configs.map(normalizeApiConfig));
+    wx.setStorageSync('apiConfigs', (Array.isArray(configs) ? configs : []).map(normalizeApiConfig));
     return true;
   } catch (e) {
     console.error('[ApiConfig] 保存多接口配置失败:', e);
@@ -287,7 +297,8 @@ function resolveApiConfigForScan(scanValue, options = {}) {
 
 // 构建请求配置
 function buildRequest(apiConfig, scanValue) {
-  const { url, method, requestType, timeout, headers, queryParams, jsonBodyTemplate } = apiConfig;
+  const normalizedConfig = normalizeApiConfig(apiConfig);
+  const { url, method, requestType, timeout, headers, queryParams, jsonBodyTemplate } = normalizedConfig;
   
   // 替换URL中的变量
   const finalUrl = replaceVariables(url, scanValue);
@@ -302,7 +313,7 @@ function buildRequest(apiConfig, scanValue) {
   if (method === 'GET' || requestType === 'query') {
     // 构建Query参数
     const params = {};
-    queryParams.forEach(param => {
+    (Array.isArray(queryParams) ? queryParams : []).forEach(param => {
       if (param.key) {
         params[param.key] = replaceVariables(param.value, scanValue);
       }
@@ -362,7 +373,8 @@ function parseJsonPath(data, path) {
 
 // 解析返回结果
 function parseResponse(apiConfig, responseData) {
-  const { fieldMappings, emptyValueMode, responseType } = apiConfig;
+  const normalizedConfig = normalizeApiConfig(apiConfig);
+  const { fieldMappings, emptyValueMode, responseType } = normalizedConfig;
   const result = {};
   
   // 如果是XML格式，先解析XML
@@ -371,7 +383,7 @@ function parseResponse(apiConfig, responseData) {
     data = parseXML(responseData);
   }
   
-  fieldMappings.forEach(mapping => {
+  (Array.isArray(fieldMappings) ? fieldMappings : []).forEach(mapping => {
     if (!mapping.visible) return;
     
     let value;
@@ -468,7 +480,7 @@ async function testApiConfig(apiConfig, testValue) {
     return {
       success: true,
       rawResponse: response,
-      rawResponseText: stringifyRawResponse(response),
+      rawResponseText: truncateRawResponse(stringifyRawResponse(response)),
       parsedResult: parsed,
       standardResult,
       parsedFields: buildParsedFields(parsed),
@@ -528,23 +540,24 @@ async function executeScanRequest(scanValue, options = {}) {
 // 验证配置
 function validateConfig(config) {
   const errors = [];
+  const normalizedConfig = normalizeApiConfig(config);
   
-  if (!config.url) {
+  if (!normalizedConfig.url) {
     errors.push('API地址不能为空');
-  } else if (!config.url.startsWith('http://') && !config.url.startsWith('https://')) {
+  } else if (!normalizedConfig.url.startsWith('http://') && !normalizedConfig.url.startsWith('https://')) {
     errors.push('API地址必须以 http:// 或 https:// 开头');
   }
   
-  if (config.method === 'POST' && config.requestType === 'json') {
+  if (normalizedConfig.method === 'POST' && normalizedConfig.requestType === 'json') {
     try {
-      JSON.parse(config.jsonBodyTemplate || '{}');
+      JSON.parse(normalizedConfig.jsonBodyTemplate || '{}');
     } catch (e) {
       errors.push('JSON模板格式错误');
     }
   }
   
   // 验证字段映射
-  config.fieldMappings.forEach((mapping, index) => {
+  normalizedConfig.fieldMappings.forEach((mapping, index) => {
     if (!mapping.label) {
       errors.push(`字段映射第${index + 1}项：显示名称不能为空`);
     }

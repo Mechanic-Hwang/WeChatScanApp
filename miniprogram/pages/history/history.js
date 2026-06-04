@@ -279,7 +279,7 @@ Page({
       success: (res) => {
         if (res.confirm) {
           app.globalData.scanBatches = [];
-          wx.setStorageSync('scanBatches', []);
+          app.saveScanBatchesSafely();
           this.setData({
             batches: [],
             allBatches: [],
@@ -297,6 +297,7 @@ Page({
 
   formatBatchTime(isoString) {
     const date = new Date(isoString);
+    if (Number.isNaN(date.getTime())) return '';
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today);
@@ -319,6 +320,7 @@ Page({
 
   formatBatchTitle(batch) {
     const date = new Date(batch.createdAt);
+    if (Number.isNaN(date.getTime())) return this.text('scanRecordTitle', { time: '' });
     const timeStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     return this.text('scanRecordTitle', { time: timeStr });
   },
@@ -388,6 +390,9 @@ Page({
       data: content,
       success: () => {
         wx.showToast({ title: t.copySuccess, icon: 'success' });
+      },
+      fail: () => {
+        wx.showToast({ title: this.text('copyFail'), icon: 'none' });
       }
     });
   },
