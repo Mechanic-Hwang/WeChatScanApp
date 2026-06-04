@@ -755,21 +755,30 @@ Page({
     }
 
     let content = '';
-    batches.forEach((batch, index) => {
+    let stoppedBySize = false;
+    batches.some((batch, index) => {
       if (index > 0) content += '\n\n';
       content += `${this.text('exportBatchTitle', {
         number: index + 1,
         time: new Date(batch.createdAt).toLocaleString()
       })}\n`;
-      batch.items.forEach(item => {
+      (batch.items || []).some(item => {
         const time = new Date(item.createdAt).toLocaleString();
         if (item.mode === 'book' && item.bookInfo) {
           content += `[${time}] ${this.text('exportBookLabel')}: ${item.bookInfo.title} - ${item.content}\n`;
         } else {
           content += `[${time}] ${item.content}\n`;
         }
+        stoppedBySize = copyRulesUtil.isClipboardContentTooLarge(content);
+        return stoppedBySize;
       });
+      return stoppedBySize;
     });
+
+    if (stoppedBySize || copyRulesUtil.isClipboardContentTooLarge(content)) {
+      wx.showToast({ title: this.text('clipboardContentTooLarge'), icon: 'none' });
+      return;
+    }
 
     wx.setClipboardData({
       data: content,

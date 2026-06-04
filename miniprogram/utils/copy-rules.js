@@ -15,6 +15,7 @@ const DEFAULT_COPY_RULES = {
     publisher: false
   }
 };
+const MAX_CLIPBOARD_CHARS = 500000;
 
 const BOOK_FIELD_LABELS = {
   title: '书名',
@@ -172,8 +173,13 @@ function formatBatches(batches, rules = loadCopyRules()) {
     .join(getSeparator(normalizedRules.separator));
 }
 
+function isClipboardContentTooLarge(content) {
+  return String(content || '').length > MAX_CLIPBOARD_CHARS;
+}
+
 module.exports = {
   DEFAULT_COPY_RULES,
+  MAX_CLIPBOARD_CHARS,
   BOOK_FIELD_LABELS,
   normalizeCopyRules,
   loadCopyRules,
@@ -181,5 +187,6 @@ module.exports = {
   formatRecord,
   formatRecords,
   formatBatch,
-  formatBatches
+  formatBatches,
+  isClipboardContentTooLarge
 };

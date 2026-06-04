@@ -45,12 +45,17 @@ Page({
     }
 
     // 格式化数据
+    this._items = (batch.items || []).map(item => this.formatDetailItem(item));
     const formattedBatch = {
-      ...batch,
+      batchId: batch.batchId,
+      batchType: batch.batchType,
+      createdAt: batch.createdAt,
+      updatedAt: batch.updatedAt,
+      itemCount: batch.itemCount || this._items.length,
+      previewItems: batch.previewItems || [],
       title: this.formatBatchTitle(batch),
       timeText: this.formatBatchTime(batch.createdAt),
-      typeText: batch.batchType === 'book' ? this.text('bookScan') : this.text('normalScan'),
-      items: batch.items.map(item => this.formatDetailItem(item))
+      typeText: batch.batchType === 'book' ? this.text('bookScan') : this.text('normalScan')
     };
 
     this.setData({ batch: formattedBatch, pageIndex: 1 });
@@ -90,14 +95,15 @@ Page({
     const batch = this.data.batch;
     if (!batch) return;
 
-    const totalPages = Math.max(1, Math.ceil(batch.items.length / this.data.pageSize));
+    const items = this._items || [];
+    const totalPages = Math.max(1, Math.ceil(items.length / this.data.pageSize));
     const pageIndex = Math.min(this.data.pageIndex, totalPages);
     const start = (pageIndex - 1) * this.data.pageSize;
 
     this.setData({
       pageIndex,
       totalPages,
-      pagedItems: batch.items.slice(start, start + this.data.pageSize)
+      pagedItems: items.slice(start, start + this.data.pageSize)
     });
   },
 
@@ -146,7 +152,7 @@ Page({
 
   copyRecord(e) {
     const recordId = e.currentTarget.dataset.id;
-    const item = this.data.batch.items.find(record => record.id === recordId);
+    const item = (this._items || []).find(record => record.id === recordId);
     if (!item) return;
 
     wx.setClipboardData({
@@ -190,7 +196,15 @@ Page({
   copyBatch() {
     const { batch } = this.data;
     const t = this.data.t;
-    const content = copyRulesUtil.formatBatch(batch);
+    const sourceBatch = app.getBatchDetail(batch.batchId);
+    const content = copyRulesUtil.formatBatch({
+      ...(sourceBatch || batch),
+      title: batch.title
+    });
+    if (copyRulesUtil.isClipboardContentTooLarge(content)) {
+      wx.showToast({ title: this.text('clipboardContentTooLarge'), icon: 'none' });
+      return;
+    }
 
     wx.setClipboardData({
       data: content,

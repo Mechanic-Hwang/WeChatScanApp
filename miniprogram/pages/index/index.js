@@ -185,8 +185,10 @@ Page({
           record.customResult = customResult.parsedResult;
           record.standardResult = customResult.standardResult;
           record.displayFields = customResult.displayFields || customResult.parsedFields || [];
-          record.rawResponse = customResult.rawResponse;
-          record.rawResponseText = customResult.rawResponseText;
+          if (customResult.rawResponseText) {
+            record.rawResponse = customResult.rawResponse;
+            record.rawResponseText = customResult.rawResponseText;
+          }
           record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
           record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
           record.noRuleMatched = customResult.noRuleMatched;

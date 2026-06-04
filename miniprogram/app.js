@@ -101,9 +101,13 @@ App({
   },
 
   // 创建新批次
+  generateId(prefix = 'id') {
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  },
+
   createNewBatch(mode) {
     const batch = {
-      batchId: Date.now().toString(),
+      batchId: this.generateId('batch'),
       batchType: mode,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -195,7 +199,7 @@ App({
     }
 
     // 添加记录
-    record.id = Date.now().toString();
+    record.id = this.generateId('record');
     record.createdAt = new Date().toISOString();
     batch.items.unshift(record);
     batch.itemCount = batch.items.length;
@@ -273,11 +277,14 @@ App({
       
       if (sizeInMB > MAX_STORAGE_MB) {
         let removedCount = 0;
-        while (this.globalData.scanBatches.length > 0 && sizeInMB > SAFE_STORAGE_MB) {
-          this.globalData.scanBatches.pop();
+        let totalBytes = this.estimateBatchesSizeBytes();
+        const safeBytes = SAFE_STORAGE_MB * 1024 * 1024;
+        while (this.globalData.scanBatches.length > 0 && totalBytes > safeBytes) {
+          const removedBatch = this.globalData.scanBatches.pop();
           removedCount += 1;
-          sizeInMB = this.estimateBatchesSizeMB();
+          totalBytes -= this.estimateObjectSizeBytes(removedBatch);
         }
+        sizeInMB = totalBytes / (1024 * 1024);
         console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${removedCount}个旧批次`);
         
         wx.showToast({
@@ -292,8 +299,21 @@ App({
   },
 
   estimateBatchesSizeMB() {
-    const dataStr = JSON.stringify(this.globalData.scanBatches || []);
-    return (dataStr.length * 2) / (1024 * 1024);
+    return this.estimateBatchesSizeBytes() / (1024 * 1024);
+  },
+
+  estimateBatchesSizeBytes() {
+    return (this.globalData.scanBatches || []).reduce((total, batch) => (
+      total + this.estimateObjectSizeBytes(batch)
+    ), 0);
+  },
+
+  estimateObjectSizeBytes(value) {
+    try {
+      return JSON.stringify(value || {}).length * 2;
+    } catch (e) {
+      return 0;
+    }
   },
 
   // 完成当前批次

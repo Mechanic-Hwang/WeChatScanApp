@@ -130,6 +130,7 @@ const locales = {
     // 提示信息
     copySuccess: '已复制到剪贴板',
     copyFail: '复制失败，请重试',
+    clipboardContentTooLarge: '内容过大，请缩小复制或导出范围',
     deleteSuccess: '删除成功',
     saveSuccess: '保存成功',
     inputApiUrl: '请输入API地址',
@@ -447,6 +448,7 @@ const locales = {
     // 提示信息
     copySuccess: '已複製到剪貼簿',
     copyFail: '複製失敗，請重試',
+    clipboardContentTooLarge: '內容過大，請縮小複製或匯出範圍',
     deleteSuccess: '刪除成功',
     saveSuccess: '儲存成功',
     inputApiUrl: '請輸入API位址',
@@ -764,6 +766,7 @@ const locales = {
     // Messages
     copySuccess: 'Copied to clipboard',
     copyFail: 'Copy failed, please try again',
+    clipboardContentTooLarge: 'Content is too large. Reduce the copy or export range.',
     deleteSuccess: 'Deleted successfully',
     saveSuccess: 'Saved successfully',
     inputApiUrl: 'Please enter API URL',

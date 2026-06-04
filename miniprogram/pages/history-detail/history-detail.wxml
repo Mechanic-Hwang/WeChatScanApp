@@ -12,7 +12,7 @@
     </view>
   </view>
 
-  <view class="page-size-bar" wx:if="{{batch.items.length > 0}}">
+  <view class="page-size-bar" wx:if="{{batch.itemCount > 0}}">
     <text class="page-size-label">{{t.perPage}}</text>
     <view class="page-size {{pageSize === item ? 'active' : ''}}"
           wx:for="{{pageSizes}}"
@@ -94,14 +94,14 @@
     </view>
   </view>
 
-  <view class="pagination" wx:if="{{batch.items.length > 0}}">
+  <view class="pagination" wx:if="{{batch.itemCount > 0}}">
     <view class="page-btn {{pageIndex <= 1 ? 'disabled' : ''}}" bindtap="prevPage">{{t.prevPage}}</view>
     <text class="page-info">{{pageIndex}} / {{totalPages}} · {{t.itemCountFull.replace('{count}', batch.itemCount)}}</text>
     <view class="page-btn {{pageIndex >= totalPages ? 'disabled' : ''}}" bindtap="nextPage">{{t.nextPage}}</view>
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{batch.items.length === 0}}">
+  <view class="empty-state" wx:if="{{batch.itemCount === 0}}">
     <view class="empty-icon"></view>
     <text>{{t.emptyBatch}}</text>
   </view>

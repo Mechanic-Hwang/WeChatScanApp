@@ -57,19 +57,28 @@ Page({
   },
 
   loadBatches() {
-    const batches = app.globalData.scanBatches.map(batch => ({
-      ...batch,
-      timeText: this.formatBatchTime(batch.createdAt),
-      title: this.formatBatchTitle(batch),
-      typeText: batch.batchType === 'book' ? this.text('book') : this.text('normal'),
-      selected: false
-    }));
+    const batches = app.globalData.scanBatches.map(batch => this.buildBatchSummary(batch));
 
     this.setData({
       allBatches: batches,
       isAllSelected: false
     });
     this.applyFilters(true);
+  },
+
+  buildBatchSummary(batch) {
+    return {
+      batchId: batch.batchId,
+      batchType: batch.batchType,
+      createdAt: batch.createdAt,
+      updatedAt: batch.updatedAt,
+      itemCount: batch.itemCount || (batch.items ? batch.items.length : 0),
+      previewItems: batch.previewItems || [],
+      timeText: this.formatBatchTime(batch.createdAt),
+      title: this.formatBatchTitle(batch),
+      typeText: batch.batchType === 'book' ? this.text('book') : this.text('normal'),
+      selected: false
+    };
   },
 
   loadRecentSearches() {
@@ -198,7 +207,8 @@ Page({
 
       if (batch.title && batch.title.toLowerCase().includes(keyword)) return true;
       if (batch.previewItems && batch.previewItems.some(item => String(item).toLowerCase().includes(keyword))) return true;
-      if (batch.items && batch.items.some(item =>
+      const fullBatch = app.getBatchDetail(batch.batchId);
+      if (fullBatch && fullBatch.items && fullBatch.items.some(item =>
         String(item.content || '').toLowerCase().includes(keyword) ||
         (item.bookInfo && String(item.bookInfo.title || '').toLowerCase().includes(keyword))
       )) return true;
@@ -357,12 +367,22 @@ Page({
   },
 
   copySelected() {
-    const selectedBatches = this.data.filteredBatches.filter(batch => batch.selected).slice(0, 500);
+    const selectedIds = this.data.filteredBatches
+      .filter(batch => batch.selected)
+      .map(batch => batch.batchId)
+      .slice(0, 500);
+    const selectedBatches = selectedIds
+      .map(batchId => app.getBatchDetail(batchId))
+      .filter(Boolean);
 
     if (selectedBatches.length === 0) return;
 
     const t = this.data.t || {};
     const content = copyRulesUtil.formatBatches(selectedBatches);
+    if (copyRulesUtil.isClipboardContentTooLarge(content)) {
+      wx.showToast({ title: this.text('clipboardContentTooLarge'), icon: 'none' });
+      return;
+    }
 
     wx.setClipboardData({
       data: content,

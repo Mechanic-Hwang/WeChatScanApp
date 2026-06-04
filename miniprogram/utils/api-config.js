@@ -103,6 +103,7 @@ const DEFAULT_API_CONFIG = {
 };
 
 const DEFAULT_SCAN_RULES = [];
+const MAX_RAW_RESPONSE_CHARS = 20000;
 
 // 加载API配置
 function loadApiConfig() {
@@ -444,6 +445,11 @@ function stringifyRawResponse(response) {
   }
 }
 
+function truncateRawResponse(text) {
+  if (!text || text.length <= MAX_RAW_RESPONSE_CHARS) return text;
+  return `${text.slice(0, MAX_RAW_RESPONSE_CHARS)}\n...`;
+}
+
 // 测试配置
 async function testApiConfig(apiConfig, testValue) {
   try {
@@ -503,11 +509,14 @@ async function executeScanRequest(scanValue, options = {}) {
   const parsedResult = parseResponse(configWithType, rawResponse);
   const standardResult = buildStandardResult(configWithType, parsedResult);
 
+  const shouldKeepRawResponse = !!resolved.apiConfig.showRawResponse;
+  const rawResponseText = shouldKeepRawResponse ? truncateRawResponse(stringifyRawResponse(rawResponse)) : '';
+
   return {
     matchedRule: resolved.rule,
     apiConfig: resolved.apiConfig,
-    rawResponse,
-    rawResponseText: stringifyRawResponse(rawResponse),
+    rawResponse: shouldKeepRawResponse ? rawResponse : undefined,
+    rawResponseText,
     parsedResult,
     standardResult,
     parsedFields: buildParsedFields(parsedResult),
