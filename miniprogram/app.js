@@ -80,7 +80,7 @@ App({
     const items = this.safeArray(batch.items).map(item => this.normalizeRecord(item));
     const createdAt = this.isValidDate(batch.createdAt) ? batch.createdAt : new Date().toISOString();
     const updatedAt = this.isValidDate(batch.updatedAt) ? batch.updatedAt : createdAt;
-    return {
+    const normalizedBatch = {
       ...batch,
       batchId: batch.batchId || this.generateId('batch'),
       batchType: batch.batchType === 'book' ? 'book' : 'normal',
@@ -91,6 +91,8 @@ App({
       items,
       selected: !!batch.selected
     };
+    this.setBatchSizeCache(normalizedBatch);
+    return normalizedBatch;
   },
 
   normalizeBatches(batches) {
@@ -234,6 +236,8 @@ App({
         existingBatch.items.unshift(existingItem);
         existingBatch.updatedAt = new Date().toISOString();
         existingBatch.previewItems = this.buildPreviewItems(existingBatch.items);
+        existingBatch.itemCount = existingBatch.items.length;
+        this.setBatchSizeCache(existingBatch);
 
         this.globalData.scanBatches.splice(batchIndex, 1);
         this.globalData.scanBatches.unshift(existingBatch);
@@ -299,6 +303,7 @@ App({
 
   // 保存批次
   saveBatch(batch) {
+    this.setBatchSizeCache(batch);
     // 检查是否已存在
     const existingIndex = this.globalData.scanBatches.findIndex(
       b => b.batchId === batch.batchId
@@ -380,7 +385,34 @@ App({
     ), 0);
   },
 
+  setBatchSizeCache(batch) {
+    if (!batch || typeof batch !== 'object') return 0;
+    const sizeBytes = this.calculateObjectSizeBytes(batch);
+    try {
+      Object.defineProperty(batch, '_sizeBytes', {
+        value: sizeBytes,
+        enumerable: false,
+        configurable: true,
+        writable: true
+      });
+    } catch (e) {
+      batch._sizeBytes = sizeBytes;
+    }
+    return sizeBytes;
+  },
+
+  calculateObjectSizeBytes(value) {
+    try {
+      return JSON.stringify(value || {}).length * 2;
+    } catch (e) {
+      return 0;
+    }
+  },
+
   estimateObjectSizeBytes(value) {
+    if (value && typeof value === 'object' && typeof value._sizeBytes === 'number') {
+      return value._sizeBytes;
+    }
     try {
       return JSON.stringify(value || {}).length * 2;
     } catch (e) {
@@ -451,6 +483,7 @@ App({
     batch.itemCount = nextItems.length;
     batch.updatedAt = new Date().toISOString();
     batch.previewItems = this.buildPreviewItems(nextItems);
+    this.setBatchSizeCache(batch);
 
     if (nextItems.length === 0) {
       this.globalData.scanBatches.splice(batchIndex, 1);

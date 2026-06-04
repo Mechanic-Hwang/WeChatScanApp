@@ -37,10 +37,12 @@ Page({
   },
 
   onHide() {
+    clearTimeout(this._searchTimer);
     this.saveListState();
   },
 
   onUnload() {
+    clearTimeout(this._searchTimer);
     this.saveListState();
   },
 
@@ -57,6 +59,7 @@ Page({
   },
 
   loadBatches() {
+    this._searchIndex = {};
     const batches = app.globalData.scanBatches.map(batch => this.buildBatchSummary(batch));
 
     this.setData({
@@ -67,18 +70,43 @@ Page({
   },
 
   buildBatchSummary(batch) {
+    const previewItems = batch.previewItems || [];
+    if (this._searchIndex) {
+      this._searchIndex[batch.batchId] = this.buildBatchSearchText(batch, previewItems);
+    }
     return {
       batchId: batch.batchId,
       batchType: batch.batchType,
       createdAt: batch.createdAt,
       updatedAt: batch.updatedAt,
       itemCount: batch.itemCount || (batch.items ? batch.items.length : 0),
-      previewItems: batch.previewItems || [],
+      previewItems,
       timeText: this.formatBatchTime(batch.createdAt),
       title: this.formatBatchTitle(batch),
       typeText: batch.batchType === 'book' ? this.text('book') : this.text('normal'),
       selected: false
     };
+  },
+
+  buildBatchSearchText(batch, previewItems = []) {
+    const parts = [
+      batch.batchId,
+      batch.batchType,
+      ...previewItems
+    ];
+    (batch.items || []).forEach(item => {
+      parts.push(item.content);
+      if (item.bookInfo) {
+        parts.push(item.bookInfo.title, item.bookInfo.author, item.bookInfo.barcode, item.bookInfo.callNumber);
+      }
+      if (item.customResult) {
+        Object.keys(item.customResult).forEach(key => parts.push(item.customResult[key]));
+      }
+    });
+    return parts
+      .filter(value => value !== undefined && value !== null && value !== '')
+      .map(value => String(value).toLowerCase())
+      .join('\n');
   },
 
   loadRecentSearches() {
@@ -104,10 +132,15 @@ Page({
       searchKeyword: e.detail.value,
       pageIndex: 1
     });
-    this.applyFilters();
+    clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => {
+      this.applyFilters();
+    }, 180);
   },
 
   onSearchConfirm() {
+    clearTimeout(this._searchTimer);
+    this.applyFilters();
     this.saveRecentSearch(this.data.searchKeyword);
   },
 
@@ -205,13 +238,7 @@ Page({
 
       if (!keyword) return true;
 
-      if (batch.title && batch.title.toLowerCase().includes(keyword)) return true;
-      if (batch.previewItems && batch.previewItems.some(item => String(item).toLowerCase().includes(keyword))) return true;
-      const fullBatch = app.getBatchDetail(batch.batchId);
-      if (fullBatch && fullBatch.items && fullBatch.items.some(item =>
-        String(item.content || '').toLowerCase().includes(keyword) ||
-        (item.bookInfo && String(item.bookInfo.title || '').toLowerCase().includes(keyword))
-      )) return true;
+      if (this._searchIndex && this._searchIndex[batch.batchId] && this._searchIndex[batch.batchId].includes(keyword)) return true;
 
       return false;
     });

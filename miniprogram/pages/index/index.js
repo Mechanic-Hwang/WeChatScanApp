@@ -59,7 +59,11 @@ Page({
   loadRecentBatches() {
     const batches = app.globalData.scanBatches.slice(0, 3).map(batch => {
       return {
-        ...batch,
+        batchId: batch.batchId,
+        batchType: batch.batchType,
+        itemCount: batch.itemCount || (batch.items ? batch.items.length : 0),
+        previewItems: batch.previewItems || [],
+        createdAt: batch.createdAt,
         time: this.formatTime(batch.createdAt),
         title: this.formatBatchTitle(batch)
       };
