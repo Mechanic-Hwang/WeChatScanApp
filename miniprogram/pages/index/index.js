@@ -16,6 +16,7 @@ Page({
       enterSubmit: true
     },
     recentBatches: [],
+    currentBatchHasRecords: false,
     t: i18n.locales[app.globalData.language || 'zh-CN']
   },
 
@@ -23,6 +24,7 @@ Page({
     this.setData({
       currentMode: app.globalData.currentMode,
       inputRules: this.loadInputRules(),
+      currentBatchHasRecords: this.hasCurrentBatchRecords(),
       t: i18n.locales[app.globalData.language || 'zh-CN']
     });
   },
@@ -32,8 +34,18 @@ Page({
     // 刷新语言
     this.setData({
       inputRules: this.loadInputRules(),
+      currentBatchHasRecords: this.hasCurrentBatchRecords(),
       t: i18n.locales[app.globalData.language || 'zh-CN']
     });
+  },
+
+  hasCurrentBatchRecords() {
+    const batch = app.globalData.currentBatch;
+    return !!(batch && batch.items && batch.items.length > 0);
+  },
+
+  syncCurrentBatchState() {
+    this.setData({ currentBatchHasRecords: this.hasCurrentBatchRecords() });
   },
 
   loadInputRules() {
@@ -104,9 +116,6 @@ Page({
 
   // 开始扫码
   startScan() {
-    // 获取或创建批次
-    const batch = app.getOrCreateBatch(this.data.currentMode);
-    
     wx.scanCode({
       scanType: ['qrCode', 'barCode'],
       success: (res) => {
@@ -150,6 +159,7 @@ Page({
         if (added) {
           wx.showToast({ title: t.addSuccess, icon: 'success' });
         }
+        this.syncCurrentBatchState();
         this.loadRecentBatches();
       } catch (error) {
         wx.hideLoading();
@@ -195,6 +205,7 @@ Page({
           icon: record.fallbackToRaw ? 'none' : 'success'
         });
       }
+      this.syncCurrentBatchState();
       this.loadRecentBatches();
     }
   },
@@ -270,8 +281,12 @@ Page({
   // 完成本次扫描
   finishScan() {
     const t = this.data.t;
-    app.finishCurrentBatch();
-    wx.showToast({ title: t.scanRecordSaved, icon: 'success' });
+    const saved = app.finishCurrentBatch();
+    wx.showToast({
+      title: saved ? t.scanRecordSaved : t.noRecords,
+      icon: saved ? 'success' : 'none'
+    });
+    this.syncCurrentBatchState();
     this.loadRecentBatches();
   },
 

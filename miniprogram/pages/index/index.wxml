@@ -64,7 +64,7 @@
   </view>
 
   <!-- 完成扫描按钮 -->
-  <view class="finish-section" wx:if="{{recentBatches.length > 0}}">
+  <view class="finish-section" wx:if="{{currentBatchHasRecords}}">
     <view class="btn btn-secondary" bindtap="finishScan">{{t.finishScan}}</view>
   </view>
 

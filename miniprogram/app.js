@@ -298,10 +298,14 @@ App({
 
   // 完成当前批次
   finishCurrentBatch() {
-    if (this.globalData.currentBatch) {
-      this.saveBatch(this.globalData.currentBatch);
+    const batch = this.globalData.currentBatch;
+    if (batch && batch.items && batch.items.length > 0) {
+      this.saveBatch(batch);
       this.globalData.currentBatch = null;
+      return true;
     }
+    this.globalData.currentBatch = null;
+    return false;
   },
 
   // 删除批次
