@@ -65,15 +65,22 @@ Page({
   formatDetailItem(item) {
     const bookInfo = item.bookInfo || {};
     const displayFields = item.displayFields || bookInfo.displayFields || this.objectToFields(item.customResult || bookInfo.customResult);
+    const apiConfigId = item.apiConfigId || bookInfo.apiConfigId;
+    const matchedRuleId = item.matchedRuleId || bookInfo.matchedRuleId;
+    const queryFailed = item.queryFailed || bookInfo.queryFailed;
+    const rawResponseText = item.rawResponseText || this.stringifyRawResponse(item.rawResponse || bookInfo.rawResponse);
+    // 没有配置 URL 时，扫描记录只会保存原始内容，不应展示 API Result 区块。
+    const showApiResult = !!(apiConfigId || matchedRuleId || queryFailed || rawResponseText);
     return {
       ...item,
-      apiDisplayFields: displayFields,
-      apiConfigId: item.apiConfigId || bookInfo.apiConfigId,
-      matchedRuleId: item.matchedRuleId || bookInfo.matchedRuleId,
-      queryFailed: item.queryFailed || bookInfo.queryFailed,
+      apiDisplayFields: showApiResult ? displayFields : [],
+      apiConfigId,
+      matchedRuleId,
+      queryFailed,
       errorMessage: item.errorMessage || bookInfo.errorMessage,
       fallbackToRaw: item.fallbackToRaw || bookInfo.fallbackToRaw,
-      rawResponseText: item.rawResponseText || this.stringifyRawResponse(item.rawResponse || bookInfo.rawResponse),
+      rawResponseText,
+      showApiResult,
       timeText: this.formatItemTime(item.createdAt)
     };
   },

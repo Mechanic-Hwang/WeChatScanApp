@@ -38,7 +38,7 @@
         <view class="result-content">
           <view class="result-text">{{item.content}}</view>
           <view class="result-time">{{item.timeText}}</view>
-          <view class="api-result" wx:if="{{item.apiDisplayFields.length || item.apiConfigId || item.matchedRuleId || item.queryFailed}}">
+          <view class="api-result" wx:if="{{item.showApiResult}}">
             <view class="api-result-title">{{t.interfaceResult}}</view>
             <view class="error-message" wx:if="{{item.queryFailed}}">{{item.errorMessage || t.queryFailed}}</view>
             <view class="api-meta" wx:if="{{item.apiConfigId || item.matchedRuleId}}">
@@ -74,7 +74,7 @@
             {{t.bookCallNumber}}：{{item.bookInfo.callNumber}}
           </view>
           <view class="result-time">{{item.timeText}}</view>
-          <view class="api-result" wx:if="{{item.apiDisplayFields.length || item.apiConfigId || item.matchedRuleId || item.queryFailed}}">
+          <view class="api-result" wx:if="{{item.showApiResult}}">
             <view class="api-result-title">{{t.interfaceResult}}</view>
             <view class="error-message" wx:if="{{item.queryFailed}}">{{item.errorMessage || t.queryFailed}}</view>
             <view class="api-meta" wx:if="{{item.apiConfigId || item.matchedRuleId}}">
