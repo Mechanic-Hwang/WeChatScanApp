@@ -305,8 +305,7 @@ Page({
       content: this.text('clearAllHistoryConfirm', { count: this.data.allBatches.length }),
       success: (res) => {
         if (res.confirm) {
-          app.globalData.scanBatches = [];
-          app.saveScanBatchesSafely();
+          app.clearScanBatches();
           this.setData({
             batches: [],
             allBatches: [],

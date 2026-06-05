@@ -26,6 +26,8 @@ Page({
     activeApiConfigId: 'api_book_query',
     headerItems: [],
     scanRules: [],
+    scanValuePlaceholder: '{{scanValue}}',
+    jsonBodyPlaceholder: '{"item_barcode":"{{scanValue}}"}',
     testValue: '',
     testResult: null,
     advancedConfigVisible: false,
@@ -680,16 +682,24 @@ Page({
           wx.removeStorageSync('apiConfig_v2');
           wx.removeStorageSync('apiConfigs');
           wx.removeStorageSync('activeApiConfigId');
+          wx.removeStorageSync('scanRules');
           wx.removeStorageSync('language');
           wx.removeStorageSync('languageMode');
           
           // 重置全局数据
           app.globalData.apiConfig = { url: '', key: '' };
           app.saveLanguage('system');
+          const apiConfigs = apiConfigUtil.loadApiConfigs();
+          const apiConfig = apiConfigs[0] || apiConfigUtil.DEFAULT_API_CONFIG;
+          const scanRules = apiConfigUtil.loadScanRules();
           
           // 重新加载页面
           this.loadSettings();
           this.setData({
+            apiConfigs,
+            apiConfig,
+            activeApiConfigId: apiConfig.apiConfigId,
+            scanRules,
             inputRules: { trimSpace: true, uppercase: false, isbnRequired: false, allowNewline: false, maxLength: 500, enterSubmit: true },
             copyFormat: 'detail',
             copyRules: copyRulesUtil.DEFAULT_COPY_RULES,
@@ -709,8 +719,7 @@ Page({
       content: this.text('clearConfirm'),
       success: (res) => {
         if (res.confirm) {
-          app.globalData.scanBatches = [];
-          app.saveScanBatchesSafely();
+          app.clearScanBatches();
           wx.showToast({ title: this.text('clearDone'), icon: 'success' });
         }
       }

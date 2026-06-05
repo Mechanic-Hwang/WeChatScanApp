@@ -142,6 +142,11 @@ miniprogram/
 
 ## 版本历史
 
+### v1.2.2
+- Clear the active in-memory batch when users delete batches, delete the last record in a batch, or clear all history.
+- Restore default settings now also resets scan rules and refreshes the advanced API/rule state shown on the Settings page.
+- Settings API template placeholders now display literal `{{scanValue}}` examples instead of being parsed as WXML bindings.
+
 ### v1.2.1
 - Restore the latest active batch after app restart when it is still within the 1-hour batch window.
 - Keep disabled API configs out of scan rule routing so disabled endpoints are not requested.

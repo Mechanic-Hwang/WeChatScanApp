@@ -119,7 +119,7 @@
       <view class="section-title">{{t.queryParams}}</view>
       <view class="pair-row" wx:for="{{apiConfig.queryParams}}" wx:key="index">
         <input class="pair-input" placeholder="key" value="{{item.key}}" data-index="{{index}}" data-field="key" bindinput="onQueryParamChange"/>
-        <input class="pair-input" placeholder="{{scanValue}}" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="onQueryParamChange"/>
+        <input class="pair-input" placeholder="{{scanValuePlaceholder}}" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="onQueryParamChange"/>
         <text class="pair-delete" bindtap="deleteQueryParam" data-index="{{index}}">{{t.delete}}</text>
       </view>
       <view class="btn btn-secondary mt-20" bindtap="addQueryParam">{{t.addQueryParam}}</view>
@@ -140,7 +140,7 @@
       <textarea class="input textarea-input"
                 value="{{apiConfig.jsonBodyTemplate}}"
                 bindinput="onJsonBodyInput"
-                placeholder='{"barcode":"{{scanValue}}"}'
+                placeholder="{{jsonBodyPlaceholder}}"
                 auto-height/>
       <text class="input-tip">{{t.scanValueTip}}</text>
     </view>

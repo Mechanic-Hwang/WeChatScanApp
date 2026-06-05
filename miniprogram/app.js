@@ -483,10 +483,21 @@ App({
 
   // 删除批次
   deleteBatches(batchIds) {
+    const ids = Array.isArray(batchIds) ? batchIds : [];
     this.globalData.scanBatches = this.globalData.scanBatches.filter(
-      batch => !batchIds.includes(batch.batchId)
+      batch => !ids.includes(batch.batchId)
     );
+    if (this.globalData.currentBatch && ids.includes(this.globalData.currentBatch.batchId)) {
+      this.globalData.currentBatch = null;
+    }
     this.saveScanBatchesSafely();
+  },
+
+  clearScanBatches() {
+    this.globalData.scanBatches = [];
+    this.globalData.currentBatch = null;
+    this.globalData.lastBatchAutoCreatedByGap = false;
+    return this.saveScanBatchesSafely();
   },
 
   saveScanBatchesSafely() {
@@ -536,8 +547,14 @@ App({
 
     if (nextItems.length === 0) {
       this.globalData.scanBatches.splice(batchIndex, 1);
+      if (this.globalData.currentBatch && this.globalData.currentBatch.batchId === batchId) {
+        this.globalData.currentBatch = null;
+      }
     } else {
       this.globalData.scanBatches[batchIndex] = batch;
+      if (this.globalData.currentBatch && this.globalData.currentBatch.batchId === batchId) {
+        this.globalData.currentBatch = batch;
+      }
     }
 
     this.saveScanBatchesSafely();
