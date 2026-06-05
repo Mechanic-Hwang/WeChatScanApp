@@ -249,15 +249,18 @@ Page({
     const t = this.data.t;
     let title = t.addSuccess;
     let icon = 'success';
-    if (saveResult.autoCreatedByGap) {
-      title = t.batchGapAutoCreated;
-      icon = 'none';
-    } else if (scanResult.queryFailed) {
+    if (scanResult.queryFailed) {
       title = t.queryFailedRawSaved || scanResult.errorMessage || t.queryFailed;
       icon = 'none';
     } else if (scanResult.fallbackToRaw || scanResult.noRuleMatched) {
       title = t.noRuleMatchedRaw;
       icon = 'none';
+    } else if (saveResult.autoCreatedByGap) {
+      title = t.batchGapAutoCreated;
+      icon = 'none';
+    }
+    if (saveResult.autoCreatedByGap && title !== t.batchGapAutoCreated) {
+      title = `${t.batchGapAutoCreated}；${title}`;
     }
     wx.showToast({ title, icon, duration: 2500 });
   },

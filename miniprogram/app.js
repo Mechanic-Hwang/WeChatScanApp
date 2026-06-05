@@ -271,6 +271,9 @@ App({
 
         this.globalData.scanBatches.splice(batchIndex, 1);
         this.globalData.scanBatches.unshift(existingBatch);
+        if (batch.items.length === 0) {
+          this.globalData.currentBatch = existingBatch;
+        }
         this.saveScanBatchesSafely();
 
         wx.showToast({

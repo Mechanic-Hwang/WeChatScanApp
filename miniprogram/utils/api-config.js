@@ -300,10 +300,11 @@ function resolveApiConfigForScan(scanValue, options = {}) {
   const matchedRule = matchScanRule(scanValue, rules);
 
   if (matchedRule) {
+    const matchedApiConfig = getApiConfigById(matchedRule.apiConfigId, configs);
     return {
       rule: matchedRule,
       matchedRule,
-      apiConfig: getApiConfigById(matchedRule.apiConfigId, configs),
+      apiConfig: matchedApiConfig && matchedApiConfig.enabled !== false ? matchedApiConfig : null,
       captureGroups: matchedRule.captureGroups || [],
       namedGroups: matchedRule.namedGroups || {}
     };
