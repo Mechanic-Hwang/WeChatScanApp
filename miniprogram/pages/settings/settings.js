@@ -42,7 +42,9 @@ Page({
     inputRulesVisible: false,
     showInputRules: false,
     copyRulesVisible: false,
-    showCopyRules: false
+    showCopyRules: false,
+    languageVisible: false,
+    showLanguage: false
   },
 
   onLoad() {
@@ -243,6 +245,10 @@ Page({
 
   toggleCopyRulesConfig() {
     this.toggleDropdownSection('copyRulesVisible', 'showCopyRules');
+  },
+
+  toggleLanguageConfig() {
+    this.toggleDropdownSection('languageVisible', 'showLanguage');
   },
 
   toggleDropdownSection(visibleKey, showKey) {
