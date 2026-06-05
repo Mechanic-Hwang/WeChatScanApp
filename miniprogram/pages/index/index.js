@@ -427,8 +427,12 @@ Page({
   // 查看批次详情
   viewBatchDetail(e) {
     const batchId = e.currentTarget.dataset.id;
+    wx.showLoading({ title: this.data.t.loading });
     wx.navigateTo({
-      url: `/pages/history-detail/history-detail?batchId=${batchId}`
+      url: `/pages/history-detail/history-detail?batchId=${batchId}`,
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   }
 });

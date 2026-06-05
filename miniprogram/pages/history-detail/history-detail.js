@@ -5,6 +5,7 @@ const copyRulesUtil = require('../../utils/copy-rules.js');
 
 Page({
   data: {
+    isLoading: true,
     batch: null,
     pagedItems: [],
     pageIndex: 1,
@@ -36,9 +37,12 @@ Page({
 
   // 加载批次详情
   loadBatchDetail(batchId) {
+    this.setData({ isLoading: true });
     const batch = app.getBatchDetail(batchId);
     
     if (!batch) {
+      wx.hideLoading();
+      this.setData({ isLoading: false });
       wx.showToast({ title: this.text('batchNotFound'), icon: 'none' });
       setTimeout(() => wx.navigateBack(), 1500);
       return;
@@ -60,6 +64,8 @@ Page({
 
     this.setData({ batch: formattedBatch, pageIndex: 1 });
     this.applyPagination();
+    this.setData({ isLoading: false });
+    wx.hideLoading();
   },
 
   formatDetailItem(item) {

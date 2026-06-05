@@ -354,8 +354,12 @@ Page({
   onBatchTap(e) {
     this.saveRecentSearch(this.data.searchKeyword);
     this.saveListState();
+    wx.showLoading({ title: this.text('loading') });
     wx.navigateTo({
-      url: `/pages/history-detail/history-detail?batchId=${e.currentTarget.dataset.id}`
+      url: `/pages/history-detail/history-detail?batchId=${e.currentTarget.dataset.id}`,
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   },
 

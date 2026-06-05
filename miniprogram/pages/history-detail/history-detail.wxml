@@ -1,5 +1,11 @@
 <!-- pages/history-detail/history-detail.wxml -->
 <view class="container">
+  <view class="detail-loading" wx:if="{{isLoading}}">
+    <view class="loading-spinner"></view>
+    <text>{{t.loading}}</text>
+  </view>
+
+  <block wx:else>
   <!-- 批次头部信息 -->
   <view class="batch-header-card">
     <view class="batch-type-tag {{batch.batchType}}">
@@ -134,4 +140,5 @@
       <text>{{t.delete}}</text>
     </view>
   </view>
+  </block>
 </view>
