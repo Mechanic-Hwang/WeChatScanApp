@@ -3,6 +3,11 @@ const app = getApp();
 const i18n = require('../../utils/i18n.js');
 const apiConfigUtil = require('../../utils/api-config.js');
 const copyRulesUtil = require('../../utils/copy-rules.js');
+const FEEDBACK_URL = 'https://wj.qq.com/s2/26936825/bfe9/';
+const FEEDBACK_MINI_PROGRAM = {
+  appId: 'wxebadf544ddae62cb',
+  path: 'pages/webview/index?sid=26936825&hash=bfe9&navigateBackMiniProgram=true'
+};
 
 Page({
   data: {
@@ -786,6 +791,45 @@ Page({
       },
       fail: () => {
         wx.showToast({ title: this.text('copyFail'), icon: 'none' });
+      }
+    });
+  },
+
+  openFeedback() {
+    wx.showModal({
+      title: this.text('feedbackTitle'),
+      content: this.text('feedbackConfirmContent'),
+      confirmText: this.text('feedbackOpen'),
+      cancelText: this.text('cancel'),
+      success: (res) => {
+        if (!res.confirm) return;
+
+        wx.navigateToMiniProgram({
+          ...FEEDBACK_MINI_PROGRAM,
+          fail: () => {
+            this.copyFeedbackLink();
+          }
+        });
+      }
+    });
+  },
+
+  copyFeedbackLink() {
+    wx.setClipboardData({
+      data: FEEDBACK_URL,
+      success: () => {
+        wx.showModal({
+          title: this.text('feedbackOpenFailedTitle'),
+          content: this.text('feedbackCopiedOpenBrowser'),
+          showCancel: false
+        });
+      },
+      fail: () => {
+        wx.showModal({
+          title: this.text('feedbackOpenFailedTitle'),
+          content: `${this.text('feedbackOpenBrowserManually')}\n${FEEDBACK_URL}`,
+          showCancel: false
+        });
       }
     });
   }

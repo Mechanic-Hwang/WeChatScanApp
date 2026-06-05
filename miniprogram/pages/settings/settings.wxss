@@ -268,6 +268,53 @@
   box-sizing: border-box;
 }
 
+.feedback-symbol {
+  background: #F0FFF7;
+  color: #07C160;
+}
+
+.feedback-symbol-bubble {
+  position: absolute;
+  left: 13rpx;
+  top: 14rpx;
+  width: 30rpx;
+  height: 24rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+}
+
+.feedback-symbol-bubble::after {
+  content: '';
+  position: absolute;
+  left: 7rpx;
+  bottom: -9rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-left: 3rpx solid currentColor;
+  border-bottom: 3rpx solid currentColor;
+  transform: rotate(-35deg);
+  background: #F0FFF7;
+  box-sizing: border-box;
+}
+
+.feedback-symbol-dot {
+  position: absolute;
+  top: 25rpx;
+  width: 5rpx;
+  height: 5rpx;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.feedback-symbol-dot.dot-one {
+  left: 23rpx;
+}
+
+.feedback-symbol-dot.dot-two {
+  left: 32rpx;
+}
+
 .action-title {
   display: block;
   font-size: 30rpx;

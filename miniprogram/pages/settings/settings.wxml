@@ -445,6 +445,25 @@
     </view>
   </view>
 
+  <!-- 意见反馈 -->
+  <view class="card">
+    <view class="card-title">{{t.feedbackSection}}</view>
+    <view class="data-actions">
+      <view class="action-item" bindtap="openFeedback">
+        <view class="action-symbol feedback-symbol">
+          <view class="feedback-symbol-bubble"></view>
+          <view class="feedback-symbol-dot dot-one"></view>
+          <view class="feedback-symbol-dot dot-two"></view>
+        </view>
+        <view class="action-content">
+          <text class="action-title">{{t.feedbackTitle}}</text>
+          <text class="action-desc">{{t.feedbackDesc}}</text>
+        </view>
+        <view class="action-arrow"></view>
+      </view>
+    </view>
+  </view>
+
   <!-- 使用说明 -->
   <view class="card">
     <view class="card-title">{{t.helpTitle}}</view>
