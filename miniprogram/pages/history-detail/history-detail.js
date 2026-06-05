@@ -284,6 +284,7 @@ Page({
     app.createNewBatch(batch.batchType);
     
     // 返回首页
+    wx.showLoading({ title: this.text('loading') });
     wx.switchTab({
       url: '/pages/index/index',
       success: () => {
@@ -293,6 +294,9 @@ Page({
           }),
           icon: 'none'
         });
+      },
+      complete: () => {
+        wx.hideLoading();
       }
     });
   },

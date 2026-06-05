@@ -412,16 +412,24 @@ Page({
 
   // 查看全部历史
   viewAllHistory() {
+    wx.showLoading({ title: this.data.t.loading });
     wx.switchTab({
-      url: '/pages/history/history'
+      url: '/pages/history/history',
+      fail: () => {
+        wx.hideLoading();
+      }
     });
   },
 
   expandRecentBatches() {
-    this.setData({
-      recentBatchDisplayCount: this.data.recentBatchDisplayCount + this.data.recentBatchStep
-    });
-    this.loadRecentBatches();
+    wx.showLoading({ title: this.data.t.loading });
+    setTimeout(() => {
+      this.setData({
+        recentBatchDisplayCount: this.data.recentBatchDisplayCount + this.data.recentBatchStep
+      });
+      this.loadRecentBatches();
+      wx.hideLoading();
+    }, 250);
   },
 
   // 查看批次详情

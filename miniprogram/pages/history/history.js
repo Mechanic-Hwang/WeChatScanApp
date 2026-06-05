@@ -34,6 +34,7 @@ Page({
     });
     this.loadBatches();
     this.restoreScrollPosition();
+    setTimeout(() => wx.hideLoading(), 180);
   },
 
   onHide() {
@@ -428,8 +429,12 @@ Page({
   },
 
   goToScan() {
+    wx.showLoading({ title: this.text('loading') });
     wx.switchTab({
-      url: '/pages/index/index'
+      url: '/pages/index/index',
+      complete: () => {
+        wx.hideLoading();
+      }
     });
   }
 });
