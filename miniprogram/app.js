@@ -3,6 +3,14 @@ const apiConfigUtil = require('./utils/api-config.js');
 const i18n = require('./utils/i18n.js');
 const MAX_RECORD_STORAGE_BYTES = 200 * 1024;
 const MAX_BATCH_STORAGE_BYTES = 2 * 1024 * 1024;
+const STORAGE_LIMITS = {
+  maxBatches: 500,
+  maxStorageMB: 10,
+  warningStorageMB: 8,
+  safeStorageMB: 9,
+  maxRecordBytes: MAX_RECORD_STORAGE_BYTES,
+  maxBatchBytes: MAX_BATCH_STORAGE_BYTES
+};
 App({
   globalData: {
     // 扫描批次列表
@@ -12,10 +20,8 @@ App({
     // 当前模式：'normal' 或 'book'
     currentMode: 'normal',
     // API配置
-    apiConfig: {
-      url: '',
-      key: ''
-    },
+    apiConfig: { url: '', key: '' },
+    storageLimits: STORAGE_LIMITS,
     // 语言设置
     // Language mode is "system" by default so the UI follows WeChat language.
     language: 'zh-CN',
@@ -326,24 +332,26 @@ App({
 
   // 检查存储空间限制
   checkStorageLimit() {
-    const MAX_BATCHES = 500;
-    const MAX_STORAGE_MB = 10;
-    const WARNING_STORAGE_MB = 8;
-    const SAFE_STORAGE_MB = 9;
+    const {
+      maxBatches,
+      maxStorageMB,
+      warningStorageMB,
+      safeStorageMB
+    } = STORAGE_LIMITS;
     
     // 限制批次数量
-    if (this.globalData.scanBatches.length > MAX_BATCHES) {
+    if (this.globalData.scanBatches.length > maxBatches) {
       // 删除最旧的批次
-      const toRemove = this.globalData.scanBatches.length - MAX_BATCHES;
+      const toRemove = this.globalData.scanBatches.length - maxBatches;
       this.globalData.scanBatches.splice(-toRemove);
-      console.log(`[Storage] 超出${MAX_BATCHES}批次限制，已清理${toRemove}个旧批次`);
+      console.log(`[Storage] 超出${maxBatches}批次限制，已清理${toRemove}个旧批次`);
     }
     
     // 估算存储大小（粗略估计）
     try {
       let sizeInMB = this.estimateBatchesSizeMB();
       
-      if (sizeInMB > WARNING_STORAGE_MB && sizeInMB <= MAX_STORAGE_MB && !this.globalData.storageWarningShown) {
+      if (sizeInMB > warningStorageMB && sizeInMB <= maxStorageMB && !this.globalData.storageWarningShown) {
         this.globalData.storageWarningShown = true;
         wx.showToast({
           title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageNearLimit,
@@ -352,17 +360,17 @@ App({
         });
       }
       
-      if (sizeInMB > MAX_STORAGE_MB) {
+      if (sizeInMB > maxStorageMB) {
         let removedCount = 0;
         let totalBytes = this.estimateBatchesSizeBytes();
-        const safeBytes = SAFE_STORAGE_MB * 1024 * 1024;
+        const safeBytes = safeStorageMB * 1024 * 1024;
         while (this.globalData.scanBatches.length > 0 && totalBytes > safeBytes) {
           const removedBatch = this.globalData.scanBatches.pop();
           removedCount += 1;
           totalBytes -= this.estimateObjectSizeBytes(removedBatch);
         }
         sizeInMB = totalBytes / (1024 * 1024);
-        console.log(`[Storage] 超出${MAX_STORAGE_MB}MB限制，已清理${removedCount}个旧批次`);
+        console.log(`[Storage] 超出${maxStorageMB}MB限制，已清理${removedCount}个旧批次`);
         
         wx.showToast({
           title: (i18n.locales[this.globalData.language] || i18n.locales['zh-CN']).storageAutoCleaned,
@@ -528,96 +536,40 @@ App({
     wx.setStorageSync('language', lang);
   },
 
-  // 查询图书信息
-  async queryBookInfo(barcode) {
-    const advancedConfigs = apiConfigUtil.loadApiConfigs();
-    if (advancedConfigs.some(config => config.enabled && config.url)) {
-      const result = await apiConfigUtil.executeScanRequest(barcode);
-      const parsed = result.parsedResult || {};
-      const standard = result.standardResult || {};
+  resolveScanRoute(scanValue) {
+    return apiConfigUtil.resolveApiConfigForScan(scanValue);
+  },
 
+  async queryCustomScan(scanValue, options = {}) {
+    try {
+      const result = await apiConfigUtil.executeScanRequest(scanValue, options);
       return {
-        title: standard.title || parsed.title || parsed['书名'] || parsed.Title || barcode,
-        author: standard.author || parsed.author || parsed['作者'] || parsed.Author || '',
-        isbn: standard.isbn || parsed.isbn || parsed.ISBN || '',
-        publisher: standard.publisher || parsed.publisher || parsed['出版社'] || '',
-        place: standard.place || parsed.place || parsed['出版地'] || '',
-        year: standard.year || parsed.year || parsed['出版年'] || '',
-        callNumber: standard.callNumber || parsed.callNumber || parsed['索书号'] || '',
-        status: standard.status || parsed.status || parsed['馆藏状态'] || '',
-        barcode: standard.barcode || parsed.barcode || parsed['条码号'] || barcode,
-        customResult: parsed,
-        standardResult: standard,
-        displayFields: result.displayFields || [],
-        rawResponse: result.apiConfig && result.apiConfig.showRawResponse ? result.rawResponse : undefined,
-        matchedRuleId: result.matchedRule && result.matchedRule.ruleId,
-        apiConfigId: result.apiConfig && result.apiConfig.apiConfigId
+        ...result,
+        queryFailed: false,
+        errorMessage: ''
+      };
+    } catch (error) {
+      const resolved = apiConfigUtil.resolveApiConfigForScan(scanValue, options);
+      if (options.throwOnError) {
+        throw error;
+      }
+      return {
+        matchedRule: resolved.matchedRule,
+        captureGroups: resolved.captureGroups || [],
+        namedGroups: resolved.namedGroups || {},
+        apiConfig: resolved.apiConfig || null,
+        rawResponse: null,
+        parsedResult: { content: scanValue },
+        standardResult: { content: scanValue },
+        parsedFields: [{ label: 'content', value: scanValue }],
+        displayFields: [{ label: 'content', value: scanValue }],
+        noRuleMatched: !resolved.matchedRule,
+        fallbackToRaw: true,
+        queryFailed: true,
+        errorMessage: error.message || '查询失败'
       };
     }
-
-    const { url, key } = this.globalData.apiConfig;
-    
-    if (!url) {
-      throw new Error('请先配置API地址');
-    }
-
-    try {
-      const response = await new Promise((resolve, reject) => {
-        wx.request({
-          url: url,
-          method: 'GET',
-          data: { 
-            barcode: barcode,
-            apikey: key 
-          },
-          header: {
-            'Content-Type': 'application/json'
-          },
-          success: resolve,
-          fail: reject
-        });
-      });
-
-      if (response.statusCode === 200) {
-        return this.parseBookData(response.data);
-      } else {
-        throw new Error('查询失败');
-      }
-    } catch (error) {
-      console.error('图书查询错误:', error);
-      throw error;
-    }
   },
 
-  // 解析图书数据
-  parseBookData(data) {
-    if (typeof data === 'string' && data.includes('<?xml')) {
-      return this.parseAlmaXml(data);
-    }
-    return data;
-  },
-
-  async queryCustomScan(scanValue) {
-    return apiConfigUtil.executeScanRequest(scanValue);
-  },
-
-  // 解析Alma XML
-  parseAlmaXml(xmlString) {
-    const getValue = (xml, tag) => {
-      const match = xml.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`));
-      return match ? match[1] : '';
-    };
-
-    return {
-      title: getValue(xmlString, 'title'),
-      author: getValue(xmlString, 'author'),
-      isbn: getValue(xmlString, 'isbn'),
-      publisher: getValue(xmlString, 'publisher_const'),
-      place: getValue(xmlString, 'place_of_publication'),
-      year: getValue(xmlString, 'date_of_publication'),
-      callNumber: getValue(xmlString, 'permanent_call_number'),
-      barcode: getValue(xmlString, 'barcode'),
-      status: getValue(xmlString, 'base_status')
-    };
-  }
+  // 图书模式在首页基于 queryCustomScan 的标准字段组装展示数据。
 });

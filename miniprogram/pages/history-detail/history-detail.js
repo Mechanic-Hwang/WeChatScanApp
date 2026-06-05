@@ -70,6 +70,9 @@ Page({
       apiDisplayFields: displayFields,
       apiConfigId: item.apiConfigId || bookInfo.apiConfigId,
       matchedRuleId: item.matchedRuleId || bookInfo.matchedRuleId,
+      queryFailed: item.queryFailed || bookInfo.queryFailed,
+      errorMessage: item.errorMessage || bookInfo.errorMessage,
+      fallbackToRaw: item.fallbackToRaw || bookInfo.fallbackToRaw,
       rawResponseText: item.rawResponseText || this.stringifyRawResponse(item.rawResponse || bookInfo.rawResponse),
       timeText: this.formatItemTime(item.createdAt)
     };

@@ -65,6 +65,9 @@ Page({
       ...this.data.inputRules,
       ...(wx.getStorageSync('inputRules') || {})
     };
+    if (inputRules.allowNewline) {
+      inputRules.enterSubmit = false;
+    }
     const copyFormat = wx.getStorageSync('copyFormat') || this.data.copyFormat;
     const copyRules = copyRulesUtil.loadCopyRules();
     
@@ -222,7 +225,10 @@ Page({
   },
 
   toggleEnterSubmit(e) {
-    const inputRules = { ...this.data.inputRules, enterSubmit: e.detail.value };
+    const inputRules = {
+      ...this.data.inputRules,
+      enterSubmit: this.data.inputRules.allowNewline ? false : e.detail.value
+    };
     this.setData({ inputRules });
     wx.setStorageSync('inputRules', inputRules);
   },
@@ -349,7 +355,25 @@ Page({
 
   collectApiConfigErrors(apiConfigs) {
     const errors = [];
+    const ids = [];
+    let enabledCount = 0;
+    let defaultCount = 0;
+    let enabledDefaultCount = 0;
+
     apiConfigs.forEach((config, index) => {
+      const id = config.apiConfigId || config.id;
+      if (id) {
+        if (ids.includes(id)) {
+          errors.push(`接口ID重复：${id}`);
+        }
+        ids.push(id);
+      }
+      if (config.enabled !== false) enabledCount += 1;
+      if (config.isDefault) {
+        defaultCount += 1;
+        if (config.enabled !== false) enabledDefaultCount += 1;
+      }
+
       if (config.enabled === false && !config.url) return;
 
       const validation = apiConfigUtil.validateConfig(config);
@@ -358,6 +382,15 @@ Page({
         errors.push(`${name}\n${validation.errors.join('\n')}`);
       }
     });
+    if (enabledCount === 0) {
+      errors.push('至少需要启用一个接口，或关闭规则后保存原始内容');
+    }
+    if (defaultCount !== 1) {
+      errors.push('必须且只能设置一个默认接口');
+    }
+    if (enabledDefaultCount !== 1) {
+      errors.push('默认接口必须处于启用状态');
+    }
     return errors;
   },
 
@@ -413,7 +446,14 @@ Page({
       content: this.text('deleteApiConfirm', { name: apiConfigName }),
       success: (res) => {
         if (!res.confirm) return;
-        const apiConfigs = this.data.apiConfigs.filter(config => config.apiConfigId !== this.data.apiConfig.apiConfigId);
+        let apiConfigs = this.data.apiConfigs.filter(config => config.apiConfigId !== this.data.apiConfig.apiConfigId);
+        if (!apiConfigs.some(config => config.isDefault)) {
+          apiConfigs = apiConfigs.map((config, index) => ({
+            ...config,
+            enabled: index === 0 ? true : config.enabled,
+            isDefault: index === 0
+          }));
+        }
         const apiConfig = apiConfigs[0];
         this.setData({
           apiConfigs,
@@ -422,6 +462,7 @@ Page({
           headerItems: this.headersToItems(apiConfig.headers)
         });
         wx.setStorageSync('activeApiConfigId', apiConfig.apiConfigId);
+        apiConfigUtil.saveApiConfigs(apiConfigs);
       }
     });
   },
@@ -461,18 +502,24 @@ Page({
   },
 
   toggleApiEnabled(e) {
-    this.syncActiveApiConfig({ ...this.data.apiConfig, enabled: e.detail.value });
+    const nextEnabled = e.detail.value;
+    if (!nextEnabled && this.data.apiConfig.isDefault) {
+      wx.showToast({ title: this.text('defaultApiMustBeEnabled'), icon: 'none' });
+      return;
+    }
+    this.syncActiveApiConfig({ ...this.data.apiConfig, enabled: nextEnabled });
   },
 
   setDefaultApi() {
     const activeId = this.data.apiConfig.apiConfigId;
     const apiConfigs = this.data.apiConfigs.map(config => ({
       ...config,
+      enabled: config.apiConfigId === activeId ? true : config.enabled,
       isDefault: config.apiConfigId === activeId
     }));
     this.setData({
       apiConfigs,
-      apiConfig: { ...this.data.apiConfig, isDefault: true }
+      apiConfig: { ...this.data.apiConfig, enabled: true, isDefault: true }
     });
   },
 
@@ -573,7 +620,17 @@ Page({
   saveScanRules() {
     const errors = [];
     const existingApiIds = this.getExistingApiIds();
+    const enabledApiIds = this.data.apiConfigs
+      .filter(config => config.enabled !== false)
+      .map(config => config.apiConfigId);
+    const ruleIds = [];
     this.data.scanRules.forEach((rule, index) => {
+      if (rule.ruleId) {
+        if (ruleIds.includes(rule.ruleId)) {
+          errors.push(`规则 ${index + 1}: 规则ID重复`);
+        }
+        ruleIds.push(rule.ruleId);
+      }
       const validation = apiConfigUtil.validateRule(rule);
       if (!validation.valid) {
         errors.push(this.text('ruleError', { number: index + 1, error: validation.error }));
@@ -582,6 +639,8 @@ Page({
         errors.push(this.text('selectBoundApi', { number: index + 1 }));
       } else if (!existingApiIds.includes(rule.apiConfigId)) {
         errors.push(this.text('ruleApiMissing', { number: index + 1 }));
+      } else if (!enabledApiIds.includes(rule.apiConfigId)) {
+        errors.push(this.text('ruleApiDisabled', { number: index + 1 }));
       }
     });
 
@@ -627,7 +686,6 @@ Page({
 
   async testApiConfig() {
     const synced = this.syncActiveApiConfig();
-    const { apiConfig } = synced;
     const { testValue } = this.data;
     
     if (!testValue) {
@@ -637,10 +695,14 @@ Page({
 
     wx.showLoading({ title: this.text('testing') });
     
-    const result = await apiConfigUtil.testApiConfig(apiConfig, testValue);
-    if (result.success) {
-      result.apiConfigName = apiConfig.name || apiConfig.apiConfigId;
-    }
+    const result = await app.queryCustomScan(testValue, {
+      configs: synced.apiConfigs,
+      rules: this.data.scanRules
+    });
+    result.success = !result.queryFailed;
+    result.error = result.errorMessage;
+    result.apiConfigName = result.apiConfig && (result.apiConfig.name || result.apiConfig.apiConfigId);
+    result.detectedType = result.apiConfig && result.apiConfig.responseType;
     
     wx.hideLoading();
     this.setData({ testResult: result });

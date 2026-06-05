@@ -49,10 +49,14 @@ Page({
   },
 
   loadInputRules() {
-    return {
+    const rules = {
       ...this.data.inputRules,
       ...(wx.getStorageSync('inputRules') || {})
     };
+    if (rules.allowNewline) {
+      rules.enterSubmit = false;
+    }
+    return rules;
   },
 
   // 加载最近批次
@@ -126,11 +130,28 @@ Page({
         this.handleScanResult(res.result);
       },
       fail: (err) => {
-        if (err.errMsg !== 'scanCode:fail cancel') {
-          wx.showToast({ title: this.data.t.scanFailed, icon: 'none' });
+        const message = this.getScanFailMessage(err);
+        if (message) {
+          wx.showToast({ title: message, icon: 'none', duration: 2500 });
         }
       }
     });
+  },
+
+  getScanFailMessage(err = {}) {
+    const errMsg = String(err.errMsg || '').toLowerCase();
+    const t = this.data.t;
+    if (errMsg.includes('cancel')) return '';
+    if (errMsg.includes('auth') || errMsg.includes('permission') || errMsg.includes('authorize')) {
+      return t.scanPermissionDenied || t.scanFailed;
+    }
+    if (errMsg.includes('recognize') || errMsg.includes('decode') || errMsg.includes('no code')) {
+      return t.scanRecognizeFailed || t.scanFailed;
+    }
+    if (errMsg.includes('system') || errMsg.includes('camera')) {
+      return t.scanSystemError || t.scanFailed;
+    }
+    return t.scanFailed;
   },
 
   // 处理扫码结果
@@ -147,61 +168,73 @@ Page({
       this.setData({ isLoading: true });
       wx.showLoading({ title: t.querying });
 
-      try {
-        const bookInfo = await app.queryBookInfo(content);
-        wx.hideLoading();
-        this.setData({ isLoading: false });
+      const scanResult = await app.queryCustomScan(content);
+      const bookInfo = this.buildBookInfo(content, scanResult);
+      wx.hideLoading();
+      this.setData({ isLoading: false });
 
-        // 添加到当前批次
-        const added = app.addScanRecordToBatch({
-          mode: 'book',
-          content: content,
-          barcode: bookInfo.barcode || content,
-          title: bookInfo.title || content,
-          bookInfo: bookInfo
-        });
+      const added = app.addScanRecordToBatch({
+        mode: 'book',
+        content: content,
+        barcode: bookInfo.barcode || content,
+        title: bookInfo.title || content,
+        bookInfo,
+        customResult: scanResult.parsedResult,
+        standardResult: scanResult.standardResult,
+        displayFields: scanResult.displayFields || scanResult.parsedFields || [],
+        rawResponse: scanResult.rawResponse,
+        rawResponseText: scanResult.rawResponseText,
+        apiConfigId: scanResult.apiConfig && scanResult.apiConfig.apiConfigId,
+        matchedRuleId: scanResult.matchedRule && scanResult.matchedRule.ruleId,
+        noRuleMatched: scanResult.noRuleMatched,
+        fallbackToRaw: scanResult.fallbackToRaw,
+        queryFailed: scanResult.queryFailed,
+        errorMessage: scanResult.errorMessage
+      });
 
-        if (added) {
-          wx.showToast({ title: t.addSuccess, icon: 'success' });
-        }
-        this.syncCurrentBatchState();
-        this.loadRecentBatches();
-      } catch (error) {
-        wx.hideLoading();
-        this.setData({ isLoading: false });
+      if (scanResult.queryFailed) {
         wx.showModal({
           title: t.queryFailed,
-          content: error.message || t.cannotGetBookInfo,
+          content: scanResult.errorMessage || t.cannotGetBookInfo,
           showCancel: false
         });
       }
+      if (added) {
+        wx.showToast({
+          title: scanResult.queryFailed ? t.queryFailed : t.addSuccess,
+          icon: scanResult.queryFailed ? 'none' : 'success'
+        });
+      }
+      this.syncCurrentBatchState();
+      this.loadRecentBatches();
     } else {
       // 普通模式
       const record = {
         mode: 'normal',
         content: content,
-        title: content.length > 20 ? content.substring(0, 20) + '...' : content,
-        type: this.detectCodeType(content)
+        title: content.length > 20 ? content.substring(0, 20) + '...' : content
       };
 
-      try {
-        const customResult = await app.queryCustomScan(content);
-        if (customResult && customResult.parsedResult) {
-          record.customResult = customResult.parsedResult;
-          record.standardResult = customResult.standardResult;
-          record.displayFields = customResult.displayFields || customResult.parsedFields || [];
-          if (customResult.rawResponseText) {
-            record.rawResponse = customResult.rawResponse;
-            record.rawResponseText = customResult.rawResponseText;
-          }
-          record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
-          record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
-          record.noRuleMatched = customResult.noRuleMatched;
-          record.fallbackToRaw = customResult.fallbackToRaw;
+      const customResult = await app.queryCustomScan(content);
+      record.type = this.getRecordType(content, customResult);
+      if (customResult && customResult.parsedResult) {
+        record.customResult = customResult.parsedResult;
+        record.standardResult = customResult.standardResult;
+        record.displayFields = customResult.displayFields || customResult.parsedFields || [];
+        if (customResult.rawResponseText) {
+          record.rawResponse = customResult.rawResponse;
+          record.rawResponseText = customResult.rawResponseText;
         }
-      } catch (error) {
+        record.apiConfigId = customResult.apiConfig && customResult.apiConfig.apiConfigId;
+        record.matchedRuleId = customResult.matchedRule && customResult.matchedRule.ruleId;
+        record.noRuleMatched = customResult.noRuleMatched;
+        record.fallbackToRaw = customResult.fallbackToRaw;
+        record.queryFailed = customResult.queryFailed;
+        record.errorMessage = customResult.errorMessage;
+      }
+      if (record.queryFailed) {
         wx.showToast({
-          title: error.message || t.queryFailed,
+          title: record.errorMessage || t.queryFailed,
           icon: 'none',
           duration: 2000
         });
@@ -218,6 +251,38 @@ Page({
       this.syncCurrentBatchState();
       this.loadRecentBatches();
     }
+  },
+
+  buildBookInfo(content, scanResult = {}) {
+    const parsed = scanResult.parsedResult || {};
+    const standard = scanResult.standardResult || {};
+    return {
+      title: standard.title || parsed.title || parsed['书名'] || parsed.Title || content,
+      author: standard.author || parsed.author || parsed['作者'] || parsed.Author || '',
+      isbn: standard.isbn || parsed.isbn || parsed.ISBN || '',
+      publisher: standard.publisher || parsed.publisher || parsed['出版社'] || '',
+      place: standard.place || parsed.place || parsed['出版地'] || '',
+      year: standard.year || parsed.year || parsed['出版年'] || '',
+      callNumber: standard.callNumber || parsed.callNumber || parsed['索书号'] || '',
+      status: standard.status || parsed.status || parsed['馆藏状态'] || '',
+      barcode: standard.barcode || parsed.barcode || parsed['条码号'] || content,
+      customResult: parsed,
+      standardResult: standard,
+      displayFields: scanResult.displayFields || [],
+      rawResponse: scanResult.rawResponse,
+      rawResponseText: scanResult.rawResponseText,
+      matchedRuleId: scanResult.matchedRule && scanResult.matchedRule.ruleId,
+      apiConfigId: scanResult.apiConfig && scanResult.apiConfig.apiConfigId,
+      queryFailed: scanResult.queryFailed,
+      errorMessage: scanResult.errorMessage,
+      fallbackToRaw: scanResult.fallbackToRaw,
+      noRuleMatched: scanResult.noRuleMatched
+    };
+  },
+
+  getRecordType(content, scanResult = {}) {
+    const matchedRule = scanResult.matchedRule || {};
+    return matchedRule.codeType || matchedRule.type || this.detectCodeType(content);
   },
 
   // 检测码类型
@@ -283,7 +348,7 @@ Page({
   },
 
   onInputConfirm() {
-    if (this.data.inputRules.enterSubmit) {
+    if (!this.data.inputRules.allowNewline && this.data.inputRules.enterSubmit) {
       this.onManualInput();
     }
   },

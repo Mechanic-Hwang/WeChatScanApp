@@ -6,6 +6,10 @@ function parseXML(xmlString) {
 
   // 提取标签内容的辅助函数
   function getValue(xml, tagName) {
+    const attrRegex = new RegExp(`<${tagName}[^>]*\\sdesc=["']([^"']*)["'][^>]*>`, 'i');
+    const attrMatch = xml.match(attrRegex);
+    if (attrMatch && attrMatch[1]) return attrMatch[1].trim();
+
     const regex = new RegExp(`<${tagName}[^>]*>([^<]*)</${tagName}>`, 'i');
     const match = xml.match(regex);
     return match ? match[1].trim() : '';
@@ -85,8 +89,7 @@ const DEFAULT_API_CONFIG = {
   queryParams: [
     { key: 'item_barcode', value: '{{scanValue}}' }
   ],
-  jsonBodyTemplate: '{\n  "barcode": "{{scanValue}}"\n}',
-  responseType: 'json',
+  jsonBodyTemplate: '{\n  "item_barcode": "{{scanValue}}"\n}',
   showRawResponse: false,
   emptyValueMode: 'placeholder', // placeholder 或 hide
   fieldMappings: [
@@ -229,9 +232,24 @@ function saveApiConfig(config) {
 }
 
 // 模板变量替换
-function replaceVariables(template, scanValue) {
+function replaceVariables(template, scanValue, matchContext = {}) {
   if (!template) return template;
-  return template.replace(/\{\{scanValue\}\}/g, scanValue);
+  const captureGroups = matchContext.captureGroups || [];
+  const namedGroups = matchContext.namedGroups || {};
+  return template
+    .replace(/\{\{scanValue\}\}/g, scanValue)
+    .replace(/\{\{group(\d+)\}\}/g, (_, index) => captureGroups[Number(index) - 1] || '')
+    .replace(/\{\{groups\.(\d+)\}\}/g, (_, index) => captureGroups[Number(index)] || '')
+    .replace(/\{\{named\.([A-Za-z_$][\w$]*)\}\}/g, (_, name) => namedGroups[name] || '');
+}
+
+function normalizeRuleMatch(rule, match) {
+  return {
+    ...rule,
+    matchedText: match[0],
+    captureGroups: match.slice(1),
+    namedGroups: match.groups || {}
+  };
 }
 
 function validateRule(rule) {
@@ -257,8 +275,9 @@ function matchScanRule(scanValue, rules = loadScanRules()) {
     const validation = validateRule(rule);
     if (!validation.valid) continue;
 
-    if (new RegExp(rule.pattern).test(scanValue)) {
-      return rule;
+    const match = String(scanValue).match(new RegExp(rule.pattern));
+    if (match) {
+      return normalizeRuleMatch(rule, match);
     }
   }
 
@@ -284,24 +303,28 @@ function resolveApiConfigForScan(scanValue, options = {}) {
     return {
       rule: matchedRule,
       matchedRule,
-      apiConfig: getApiConfigById(matchedRule.apiConfigId, configs)
+      apiConfig: getApiConfigById(matchedRule.apiConfigId, configs),
+      captureGroups: matchedRule.captureGroups || [],
+      namedGroups: matchedRule.namedGroups || {}
     };
   }
 
   return {
     rule: null,
     matchedRule: null,
-    apiConfig: getDefaultApiConfig(configs)
+    apiConfig: getDefaultApiConfig(configs),
+    captureGroups: [],
+    namedGroups: {}
   };
 }
 
 // 构建请求配置
-function buildRequest(apiConfig, scanValue) {
+function buildRequest(apiConfig, scanValue, matchContext = {}) {
   const normalizedConfig = normalizeApiConfig(apiConfig);
   const { url, method, requestType, timeout, headers, queryParams, jsonBodyTemplate } = normalizedConfig;
   
   // 替换URL中的变量
-  const finalUrl = replaceVariables(url, scanValue);
+  const finalUrl = replaceVariables(url, scanValue, matchContext);
   
   let requestData = {
     url: finalUrl,
@@ -315,14 +338,14 @@ function buildRequest(apiConfig, scanValue) {
     const params = {};
     (Array.isArray(queryParams) ? queryParams : []).forEach(param => {
       if (param.key) {
-        params[param.key] = replaceVariables(param.value, scanValue);
+        params[param.key] = replaceVariables(param.value, scanValue, matchContext);
       }
     });
     requestData.data = params;
   } else if (method === 'POST' && requestType === 'json') {
     // 构建JSON Body
     try {
-      let bodyStr = replaceVariables(jsonBodyTemplate, scanValue);
+      let bodyStr = replaceVariables(jsonBodyTemplate, scanValue, matchContext);
       requestData.data = JSON.parse(bodyStr);
     } catch (e) {
       console.error('[ApiConfig] JSON模板解析失败:', e);
@@ -334,8 +357,8 @@ function buildRequest(apiConfig, scanValue) {
 }
 
 // 执行API请求
-async function executeRequest(apiConfig, scanValue) {
-  const requestData = buildRequest(apiConfig, scanValue);
+async function executeRequest(apiConfig, scanValue, matchContext = {}) {
+  const requestData = buildRequest(apiConfig, scanValue, matchContext);
   
   return new Promise((resolve, reject) => {
     wx.request({
@@ -501,6 +524,8 @@ async function executeScanRequest(scanValue, options = {}) {
   if (!resolved.apiConfig || !resolved.apiConfig.url) {
     return {
       matchedRule: resolved.rule,
+      captureGroups: resolved.captureGroups,
+      namedGroups: resolved.namedGroups,
       apiConfig: null,
       rawResponse: null,
       parsedResult: { content: scanValue },
@@ -512,7 +537,10 @@ async function executeScanRequest(scanValue, options = {}) {
     };
   }
 
-  const rawResponse = await executeRequest(resolved.apiConfig, scanValue);
+  const rawResponse = await executeRequest(resolved.apiConfig, scanValue, {
+    captureGroups: resolved.captureGroups,
+    namedGroups: resolved.namedGroups
+  });
   let responseType = resolved.apiConfig.responseType;
   if (responseType === 'auto' && typeof rawResponse === 'string' && rawResponse.trim().startsWith('<')) {
     responseType = 'xml';
@@ -526,6 +554,8 @@ async function executeScanRequest(scanValue, options = {}) {
 
   return {
     matchedRule: resolved.rule,
+    captureGroups: resolved.captureGroups,
+    namedGroups: resolved.namedGroups,
     apiConfig: resolved.apiConfig,
     rawResponse: shouldKeepRawResponse ? rawResponse : undefined,
     rawResponseText,
@@ -541,6 +571,29 @@ async function executeScanRequest(scanValue, options = {}) {
 function validateConfig(config) {
   const errors = [];
   const normalizedConfig = normalizeApiConfig(config);
+  const validMethods = ['GET', 'POST'];
+  const validRequestTypes = ['query', 'json'];
+  const validResponseTypes = ['json', 'xml', 'auto'];
+  const validEmptyValueModes = ['placeholder', 'hide'];
+
+  if (!normalizedConfig.apiConfigId) {
+    errors.push('接口ID不能为空');
+  }
+  if (!normalizedConfig.name) {
+    errors.push('接口名称不能为空');
+  }
+  if (!validMethods.includes(normalizedConfig.method)) {
+    errors.push('请求方法只能是 GET 或 POST');
+  }
+  if (!validRequestTypes.includes(normalizedConfig.requestType)) {
+    errors.push('请求格式只能是 query 或 json');
+  }
+  if (!validResponseTypes.includes(normalizedConfig.responseType)) {
+    errors.push('返回格式只能是 json、xml 或 auto');
+  }
+  if (!validEmptyValueModes.includes(normalizedConfig.emptyValueMode)) {
+    errors.push('空值处理方式只能是 placeholder 或 hide');
+  }
   
   if (!normalizedConfig.url) {
     errors.push('API地址不能为空');
