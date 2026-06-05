@@ -174,10 +174,16 @@ Page({
       wx.showLoading({ title: t.matchingRules });
       wx.showLoading({ title: t.querying });
 
-      const scanResult = await app.queryCustomScan(content);
+      let scanResult;
+      try {
+        scanResult = await app.queryCustomScan(content);
+      } catch (error) {
+        scanResult = this.buildLocalScanFallback(content, error);
+      } finally {
+        wx.hideLoading();
+        this.setData({ isLoading: false });
+      }
       const bookInfo = this.buildBookInfo(content, scanResult);
-      wx.hideLoading();
-      this.setData({ isLoading: false });
 
       const saveResult = app.addScanRecord({
         mode: 'book',
@@ -210,6 +216,8 @@ Page({
       this.loadRecentBatches();
     } else {
       // 普通模式
+      if (this.data.isLoading) return;
+      this.setData({ isLoading: true });
       if (options.fromCamera) wx.showLoading({ title: t.recognizing });
       wx.showLoading({ title: t.matchingRules });
       const record = {
@@ -219,8 +227,15 @@ Page({
       };
 
       wx.showLoading({ title: t.querying });
-      const customResult = await app.queryCustomScan(content);
-      wx.hideLoading();
+      let customResult;
+      try {
+        customResult = await app.queryCustomScan(content);
+      } catch (error) {
+        customResult = this.buildLocalScanFallback(content, error);
+      } finally {
+        wx.hideLoading();
+        this.setData({ isLoading: false });
+      }
       record.type = this.getRecordType(content, customResult);
       if (customResult && customResult.parsedResult) {
         record.customResult = customResult.parsedResult;
@@ -242,6 +257,23 @@ Page({
       this.syncCurrentBatchState();
       this.loadRecentBatches();
     }
+  },
+
+  buildLocalScanFallback(content, error = {}) {
+    const t = this.data.t;
+    const message = String(error.errMsg || error.message || '').toLowerCase();
+    const errorMessage = message.includes('timeout') || message.includes('超时')
+      ? t.networkTimeout
+      : t.apiException;
+    return {
+      parsedResult: { content },
+      standardResult: { content },
+      displayFields: [{ label: 'content', value: content }],
+      parsedFields: [{ label: 'content', value: content }],
+      fallbackToRaw: true,
+      queryFailed: true,
+      errorMessage
+    };
   },
 
   showScanSaveToast(saveResult = {}, scanResult = {}) {

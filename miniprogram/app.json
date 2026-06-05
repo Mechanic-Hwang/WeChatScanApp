@@ -38,10 +38,5 @@
       }
     ]
   },
-  "permission": {
-    "scope.camera": {
-      "desc": "用于扫描二维码和条形码"
-    }
-  },
   "requiredBackgroundModes": []
 }

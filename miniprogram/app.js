@@ -50,9 +50,9 @@ App({
 
   getWechatLanguage() {
     try {
+      // getSystemInfoSync 已被基础库标记为废弃，语言优先从应用基础信息读取。
       const appBaseInfo = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
-      const systemInfo = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {};
-      return appBaseInfo.language || systemInfo.language || 'zh-CN';
+      return appBaseInfo.language || 'zh-CN';
     } catch (e) {
       console.error('Failed to read WeChat language:', e);
       return 'zh-CN';
@@ -145,14 +145,8 @@ App({
       if (language) {
         this.globalData.language = language;
       } else {
-        // 默认使用系统语言或简体中文
-        const systemInfo = wx.getSystemInfoSync();
-        const systemLang = systemInfo.language;
-        if (systemLang.startsWith('zh')) {
-          this.globalData.language = systemLang.includes('TW') || systemLang.includes('HK') ? 'zh-TW' : 'zh-CN';
-        } else {
-          this.globalData.language = 'en';
-        }
+        // 默认跟随微信语言，避免使用已废弃的 getSystemInfoSync。
+        this.globalData.language = this.normalizeWechatLanguage(this.getWechatLanguage());
       }
 
       const savedLanguage = wx.getStorageSync('language');
