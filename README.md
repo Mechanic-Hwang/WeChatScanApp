@@ -142,6 +142,12 @@ miniprogram/
 
 ## 版本历史
 
+### v1.2.1
+- Restore the latest active batch after app restart when it is still within the 1-hour batch window.
+- Keep disabled API configs out of scan rule routing so disabled endpoints are not requested.
+- Show both key messages when auto batch creation and query fallback happen together.
+- Remove legacy direct API test code from Settings; tests now use queryCustomScan / resolveApiConfigForScan.
+
 ### v1.2.0
 - 统一普通模式、图书模式、设置页测试的接口路由主流程。
 - 增强扫码失败提示、查询失败状态、规则捕获组、XML 解析和配置校验。

@@ -260,7 +260,7 @@ Page({
       icon = 'none';
     }
     if (saveResult.autoCreatedByGap && title !== t.batchGapAutoCreated) {
-      title = `${t.batchGapAutoCreated}；${title}`;
+      title = `${t.batchGapAutoCreated} / ${title}`;
     }
     wx.showToast({ title, icon, duration: 2500 });
   },

@@ -6,9 +6,6 @@ const copyRulesUtil = require('../../utils/copy-rules.js');
 
 Page({
   data: {
-    apiUrl: '',
-    apiKey: '',
-    showKey: false,
     currentLang: 'zh-CN',
     languageMode: 'system',
     t: i18n.locales['zh-CN'],
@@ -60,7 +57,7 @@ Page({
 
   // 加载设置
   loadSettings() {
-    const { apiConfig: appApiConfig, language, languageMode } = app.globalData;
+    const { language, languageMode } = app.globalData;
     const inputRules = {
       ...this.data.inputRules,
       ...(wx.getStorageSync('inputRules') || {})
@@ -72,8 +69,6 @@ Page({
     const copyRules = copyRulesUtil.loadCopyRules();
     
     this.setData({
-      apiUrl: appApiConfig.url || '',
-      apiKey: appApiConfig.key || '',
       currentLang: language || 'zh-CN',
       languageMode: languageMode || 'system',
       inputRules,
@@ -95,94 +90,9 @@ Page({
     this.setData({ scanRules: apiConfigUtil.loadScanRules() });
   },
 
-  // URL输入
-  onUrlInput(e) {
-    this.setData({ apiUrl: e.detail.value });
-  },
-
-  // Key输入
-  onKeyInput(e) {
-    this.setData({ apiKey: e.detail.value });
-  },
-
-  // 切换显示Key
-  toggleShowKey() {
-    this.setData({ showKey: !this.data.showKey });
-  },
-
-  // 保存API配置
-  saveApiConfig() {
-    const { apiUrl, apiKey } = this.data;
-    
-    // 验证URL格式
-    if (apiUrl && !this.isValidUrl(apiUrl)) {
-      wx.showToast({ title: this.text('invalidUrl'), icon: 'none' });
-      return;
-    }
-
-    app.saveApiConfig(apiUrl, apiKey);
-    
-    wx.showToast({
-      title: this.text('saveSuccess'),
-      icon: 'success'
-    });
-  },
-
-  // 验证URL
   isValidUrl(url) {
     return url.startsWith('http://') || url.startsWith('https://');
   },
-
-  // 测试连接
-  async testConnection() {
-    const { apiUrl, apiKey } = this.data;
-    
-    if (!apiUrl) {
-      wx.showToast({ title: this.text('inputApiUrl'), icon: 'none' });
-      return;
-    }
-
-    wx.showLoading({ title: this.text('testing') });
-
-    try {
-      // 使用测试条码
-      const testBarcode = '9787115428028';
-      
-      const response = await new Promise((resolve, reject) => {
-        wx.request({
-          url: apiUrl,
-          method: 'GET',
-          data: {
-            item_barcode: testBarcode,
-            apikey: apiKey
-          },
-          timeout: 10000,
-          success: resolve,
-          fail: reject
-        });
-      });
-
-      wx.hideLoading();
-
-      if (response.statusCode === 200) {
-        wx.showModal({
-          title: this.text('connectionSuccess'),
-          content: this.text('apiConnectionOk'),
-          showCancel: false
-        });
-      } else {
-        throw new Error(this.text('statusCode', { code: response.statusCode }));
-      }
-    } catch (error) {
-      wx.hideLoading();
-      wx.showModal({
-        title: this.text('connectionFailed'),
-        content: this.text('cannotConnectApi', { message: error.errMsg || error.message }),
-        showCancel: false
-      });
-    }
-  },
-
   // 切换语言
   switchLanguage(e) {
     const lang = e.currentTarget.dataset.lang;

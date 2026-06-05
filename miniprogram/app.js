@@ -109,6 +109,19 @@ App({
       .map(batch => this.normalizeBatch(batch));
   },
 
+  restoreCurrentBatchFromHistory() {
+    const currentMode = this.globalData.currentMode;
+    const now = Date.now();
+    const latestBatch = this.safeArray(this.globalData.scanBatches).find(batch => {
+      if (!batch || batch.batchType !== currentMode) return false;
+      if (!batch.items || batch.items.length === 0) return false;
+      if (!this.isValidDate(batch.updatedAt)) return false;
+      return now - new Date(batch.updatedAt).getTime() <= BATCH_GAP_MS;
+    });
+
+    this.globalData.currentBatch = latestBatch || null;
+  },
+
   // 加载配置
   loadConfig() {
     try {
@@ -126,6 +139,7 @@ App({
       if (currentMode) {
         this.globalData.currentMode = currentMode;
       }
+      this.restoreCurrentBatchFromHistory();
       
       const language = wx.getStorageSync('language');
       if (language) {
@@ -533,12 +547,6 @@ App({
   // 获取批次详情
   getBatchDetail(batchId) {
     return this.globalData.scanBatches.find(b => b.batchId === batchId);
-  },
-
-  // 保存API配置
-  saveApiConfig(url, key) {
-    this.globalData.apiConfig = { url, key };
-    wx.setStorageSync('apiConfig', { url, key });
   },
 
   // 保存当前模式
