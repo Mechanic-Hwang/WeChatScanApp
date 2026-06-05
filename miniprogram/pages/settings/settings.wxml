@@ -231,9 +231,15 @@
     </view>
   </view>
 
-  <view class="card">
-    <view class="card-title">{{t.routeRules}}</view>
+  <view class="card dropdown-card">
+    <view class="card-header" bindtap="toggleRouteRulesConfig">
+      <view class="card-title">{{t.routeRules}}</view>
+      <view class="toggle-control {{showRouteRules ? 'expanded' : ''}}">
+        <text class="toggle-icon"></text>
+      </view>
+    </view>
     <view class="card-desc">{{t.routeRulesDesc}}</view>
+    <view class="advanced-content {{showRouteRules ? 'expanded' : 'collapsed'}}" wx:if="{{routeRulesVisible}}">
 
     <view class="rule-card" wx:for="{{scanRules}}" wx:key="ruleId">
       <view class="switch-item">
@@ -268,43 +274,19 @@
       <view class="btn btn-secondary" bindtap="addScanRule">{{t.addRule}}</view>
       <view class="btn btn-primary" bindtap="saveScanRules">{{t.saveRules}}</view>
     </view>
-  </view>
-
-  <!-- 语言设置 -->
-  <view class="card">
-    <view class="card-title">{{t.languageSetting}}</view>
-    <view class="language-list">
-      <view class="language-item {{languageMode === 'system' ? 'active' : ''}}"
-            bindtap="switchLanguage"
-            data-lang="system">
-        <text class="lang-name">{{t.langSystem}}</text>
-        <text class="lang-check" wx:if="{{languageMode === 'system'}}">✓</text>
-      </view>
-      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-CN' ? 'active' : ''}}" 
-            bindtap="switchLanguage" 
-            data-lang="zh-CN">
-        <text class="lang-name">{{t.langZhCN}}</text>
-        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-CN'}}">✓</text>
-      </view>
-      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-TW' ? 'active' : ''}}" 
-            bindtap="switchLanguage" 
-            data-lang="zh-TW">
-        <text class="lang-name">{{t.langZhTW}}</text>
-        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-TW'}}">✓</text>
-      </view>
-      <view class="language-item {{languageMode === 'manual' && currentLang === 'en' ? 'active' : ''}}" 
-            bindtap="switchLanguage" 
-            data-lang="en">
-        <text class="lang-name">{{t.langEn}}</text>
-        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'en'}}">✓</text>
-      </view>
     </view>
   </view>
 
   <!-- 输入规则配置 -->
-  <view class="card">
-    <view class="card-title">{{t.inputRules}}</view>
+  <view class="card dropdown-card">
+    <view class="card-header" bindtap="toggleInputRulesConfig">
+      <view class="card-title">{{t.inputRules}}</view>
+      <view class="toggle-control {{showInputRules ? 'expanded' : ''}}">
+        <text class="toggle-icon"></text>
+      </view>
+    </view>
     <view class="card-desc">{{t.inputRulesDesc}}</view>
+    <view class="advanced-content {{showInputRules ? 'expanded' : 'collapsed'}}" wx:if="{{inputRulesVisible}}">
 
     <view class="switch-item">
       <text class="switch-label">{{t.trimSpace}}</text>
@@ -346,12 +328,19 @@
       </view>
       <text class="input-tip">{{t.maxInputLengthTip}}</text>
     </view>
+    </view>
   </view>
 
   <!-- 复制规则配置 -->
-  <view class="card">
-    <view class="card-title">{{t.copyRules}}</view>
+  <view class="card dropdown-card">
+    <view class="card-header" bindtap="toggleCopyRulesConfig">
+      <view class="card-title">{{t.copyRules}}</view>
+      <view class="toggle-control {{showCopyRules ? 'expanded' : ''}}">
+        <text class="toggle-icon"></text>
+      </view>
+    </view>
     <view class="card-desc">{{t.copyRulesDesc}}</view>
+    <view class="advanced-content {{showCopyRules ? 'expanded' : 'collapsed'}}" wx:if="{{copyRulesVisible}}">
 
     <view class="input-group">
       <text class="input-label">{{t.copyRange}}</text>
@@ -400,6 +389,7 @@
         </view>
       </view>
       <text class="input-tip">{{t.bookCopyFieldsTip}}</text>
+    </view>
     </view>
   </view>
 
@@ -490,6 +480,37 @@
       <text class="app-name">{{t.appName}}</text>
       <text class="app-version">{{t.version}}</text>
       <text class="app-desc">{{t.appDesc}}</text>
+    </view>
+  </view>
+
+  <!-- 语言设置 -->
+  <view class="card">
+    <view class="card-title">{{t.languageSetting}}</view>
+    <view class="language-list">
+      <view class="language-item {{languageMode === 'system' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="system">
+        <text class="lang-name">{{t.langSystem}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'system'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-CN' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="zh-CN">
+        <text class="lang-name">{{t.langZhCN}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-CN'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'zh-TW' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="zh-TW">
+        <text class="lang-name">{{t.langZhTW}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'zh-TW'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'en' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="en">
+        <text class="lang-name">{{t.langEn}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'en'}}">✓</text>
+      </view>
     </view>
   </view>
 </view>

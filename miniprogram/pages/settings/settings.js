@@ -36,7 +36,13 @@ Page({
     testValue: '',
     testResult: null,
     advancedConfigVisible: false,
-    showAdvancedConfig: false
+    showAdvancedConfig: false,
+    routeRulesVisible: false,
+    showRouteRules: false,
+    inputRulesVisible: false,
+    showInputRules: false,
+    copyRulesVisible: false,
+    showCopyRules: false
   },
 
   onLoad() {
@@ -224,19 +230,35 @@ Page({
 
   // 切换高级配置显示
   toggleAdvancedConfig() {
-    if (this.data.showAdvancedConfig) {
-      this.setData({ showAdvancedConfig: false });
+    this.toggleDropdownSection('advancedConfigVisible', 'showAdvancedConfig');
+  },
+
+  toggleRouteRulesConfig() {
+    this.toggleDropdownSection('routeRulesVisible', 'showRouteRules');
+  },
+
+  toggleInputRulesConfig() {
+    this.toggleDropdownSection('inputRulesVisible', 'showInputRules');
+  },
+
+  toggleCopyRulesConfig() {
+    this.toggleDropdownSection('copyRulesVisible', 'showCopyRules');
+  },
+
+  toggleDropdownSection(visibleKey, showKey) {
+    if (this.data[showKey]) {
+      this.setData({ [showKey]: false });
       setTimeout(() => {
-        if (!this.data.showAdvancedConfig) {
-          this.setData({ advancedConfigVisible: false });
+        if (!this.data[showKey]) {
+          this.setData({ [visibleKey]: false });
         }
       }, 260);
       return;
     }
 
-    this.setData({ advancedConfigVisible: true });
+    this.setData({ [visibleKey]: true });
     setTimeout(() => {
-      this.setData({ showAdvancedConfig: true });
+      this.setData({ [showKey]: true });
     }, 20);
   },
 
