@@ -2,6 +2,7 @@
 const app = getApp();
 const i18n = require('../../utils/i18n.js');
 const copyRulesUtil = require('../../utils/copy-rules.js');
+const MIN_DETAIL_LOADING_MS = 300;
 
 Page({
   data: {
@@ -17,7 +18,12 @@ Page({
 
   onLoad(options) {
     const batchId = options.batchId;
-    this.loadBatchDetail(batchId);
+    this.setData({ isLoading: true });
+    wx.showLoading({ title: this.text('loading') });
+    // 先让详情页的 loading 态完成首屏渲染，再读取本地批次数据。
+    setTimeout(() => {
+      this.loadBatchDetail(batchId);
+    }, 80);
   },
 
   onShow() {
@@ -37,6 +43,7 @@ Page({
 
   // 加载批次详情
   loadBatchDetail(batchId) {
+    const loadingStartedAt = Date.now();
     this.setData({ isLoading: true });
     const batch = app.getBatchDetail(batchId);
     
@@ -64,8 +71,16 @@ Page({
 
     this.setData({ batch: formattedBatch, pageIndex: 1 });
     this.applyPagination();
-    this.setData({ isLoading: false });
-    wx.hideLoading();
+    this.finishLoadingAfterMinimumDelay(loadingStartedAt);
+  },
+
+  finishLoadingAfterMinimumDelay(startedAt) {
+    const elapsed = Date.now() - startedAt;
+    const delay = Math.max(0, MIN_DETAIL_LOADING_MS - elapsed);
+    setTimeout(() => {
+      this.setData({ isLoading: false });
+      wx.hideLoading();
+    }, delay);
   },
 
   formatDetailItem(item) {
