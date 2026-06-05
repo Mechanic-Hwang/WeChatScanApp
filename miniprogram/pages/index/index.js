@@ -279,14 +279,15 @@ Page({
   showScanSaveToast(saveResult = {}, scanResult = {}) {
     if (!saveResult.added) return;
     const t = this.data.t;
-    let title = t.addSuccess;
+    let title = t.scanSuccess || t.addSuccess;
     let icon = 'success';
     if (scanResult.queryFailed) {
       title = t.queryFailedRawSaved || scanResult.errorMessage || t.queryFailed;
       icon = 'none';
     } else if (scanResult.fallbackToRaw || scanResult.noRuleMatched) {
-      title = t.noRuleMatchedRaw;
-      icon = 'none';
+      // 未匹配到接口规则时仍然代表本次扫码和本地保存成功，只给用户简单成功反馈。
+      title = t.scanSuccess || t.addSuccess;
+      icon = 'success';
     } else if (saveResult.autoCreatedByGap) {
       title = t.batchGapAutoCreated;
       icon = 'none';
