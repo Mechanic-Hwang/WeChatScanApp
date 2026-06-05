@@ -356,6 +356,18 @@
   font-size: 32rpx;
 }
 
+.recent-actions {
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+  padding-top: 18rpx;
+}
+
+.recent-action {
+  font-size: 26rpx;
+  color: #576B95;
+}
+
 .empty-state {
   padding: 40rpx 0 72rpx;
 }

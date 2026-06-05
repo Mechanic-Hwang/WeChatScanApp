@@ -16,6 +16,9 @@ Page({
       enterSubmit: true
     },
     recentBatches: [],
+    recentBatchDisplayCount: 5,
+    recentBatchStep: 5,
+    hasMoreRecentBatches: false,
     currentBatchHasRecords: false,
     t: i18n.locales[app.globalData.language || 'zh-CN']
   },
@@ -61,7 +64,8 @@ Page({
 
   // 加载最近批次
   loadRecentBatches() {
-    const batches = app.globalData.scanBatches.slice(0, 3).map(batch => {
+    const displayCount = this.data.recentBatchDisplayCount || 5;
+    const batches = app.globalData.scanBatches.slice(0, displayCount).map(batch => {
       return {
         batchId: batch.batchId,
         batchType: batch.batchType,
@@ -73,7 +77,10 @@ Page({
       };
     });
     
-    this.setData({ recentBatches: batches });
+    this.setData({
+      recentBatches: batches,
+      hasMoreRecentBatches: app.globalData.scanBatches.length > displayCount
+    });
   },
 
   // 格式化时间
@@ -127,7 +134,7 @@ Page({
     wx.scanCode({
       scanType: ['qrCode', 'barCode'],
       success: (res) => {
-        this.handleScanResult(res.result);
+        this.handleScanResult(res.result, { fromCamera: true });
       },
       fail: (err) => {
         const message = this.getScanFailMessage(err);
@@ -141,12 +148,12 @@ Page({
   getScanFailMessage(err = {}) {
     const errMsg = String(err.errMsg || '').toLowerCase();
     const t = this.data.t;
-    if (errMsg.includes('cancel')) return '';
+    if (errMsg.includes('cancel')) return t.scanCancelled || t.cancel;
     if (errMsg.includes('auth') || errMsg.includes('permission') || errMsg.includes('authorize')) {
-      return t.scanPermissionDenied || t.scanFailed;
+      return t.noCameraPermissionManualInput || t.scanPermissionDenied || t.scanFailed;
     }
     if (errMsg.includes('recognize') || errMsg.includes('decode') || errMsg.includes('no code')) {
-      return t.scanRecognizeFailed || t.scanFailed;
+      return t.cannotRecognizeBarcode || t.scanRecognizeFailed || t.scanFailed;
     }
     if (errMsg.includes('system') || errMsg.includes('camera')) {
       return t.scanSystemError || t.scanFailed;
@@ -155,17 +162,16 @@ Page({
   },
 
   // 处理扫码结果
-  async handleScanResult(content) {
+  async handleScanResult(content, options = {}) {
     content = content === undefined || content === null ? '' : String(content);
     const { currentMode } = this.data;
-    
-    // 确保有活跃批次
-    const batch = app.getOrCreateBatch(currentMode);
-    
+
     const t = this.data.t;
     if (currentMode === 'book') {
       if (this.data.isLoading) return;
       this.setData({ isLoading: true });
+      if (options.fromCamera) wx.showLoading({ title: t.recognizing });
+      wx.showLoading({ title: t.matchingRules });
       wx.showLoading({ title: t.querying });
 
       const scanResult = await app.queryCustomScan(content);
@@ -173,7 +179,7 @@ Page({
       wx.hideLoading();
       this.setData({ isLoading: false });
 
-      const added = app.addScanRecordToBatch({
+      const saveResult = app.addScanRecord({
         mode: 'book',
         content: content,
         barcode: bookInfo.barcode || content,
@@ -199,23 +205,22 @@ Page({
           showCancel: false
         });
       }
-      if (added) {
-        wx.showToast({
-          title: scanResult.queryFailed ? t.queryFailed : t.addSuccess,
-          icon: scanResult.queryFailed ? 'none' : 'success'
-        });
-      }
+      this.showScanSaveToast(saveResult, scanResult);
       this.syncCurrentBatchState();
       this.loadRecentBatches();
     } else {
       // 普通模式
+      if (options.fromCamera) wx.showLoading({ title: t.recognizing });
+      wx.showLoading({ title: t.matchingRules });
       const record = {
         mode: 'normal',
         content: content,
         title: content.length > 20 ? content.substring(0, 20) + '...' : content
       };
 
+      wx.showLoading({ title: t.querying });
       const customResult = await app.queryCustomScan(content);
+      wx.hideLoading();
       record.type = this.getRecordType(content, customResult);
       if (customResult && customResult.parsedResult) {
         record.customResult = customResult.parsedResult;
@@ -232,25 +237,29 @@ Page({
         record.queryFailed = customResult.queryFailed;
         record.errorMessage = customResult.errorMessage;
       }
-      if (record.queryFailed) {
-        wx.showToast({
-          title: record.errorMessage || t.queryFailed,
-          icon: 'none',
-          duration: 2000
-        });
-      }
-
-      const added = app.addScanRecordToBatch(record);
-
-      if (added) {
-        wx.showToast({
-          title: record.fallbackToRaw ? t.noRuleMatchedRaw : t.addSuccess,
-          icon: record.fallbackToRaw ? 'none' : 'success'
-        });
-      }
+      const saveResult = app.addScanRecord(record);
+      this.showScanSaveToast(saveResult, customResult);
       this.syncCurrentBatchState();
       this.loadRecentBatches();
     }
+  },
+
+  showScanSaveToast(saveResult = {}, scanResult = {}) {
+    if (!saveResult.added) return;
+    const t = this.data.t;
+    let title = t.addSuccess;
+    let icon = 'success';
+    if (saveResult.autoCreatedByGap) {
+      title = t.batchGapAutoCreated;
+      icon = 'none';
+    } else if (scanResult.queryFailed) {
+      title = t.queryFailedRawSaved || scanResult.errorMessage || t.queryFailed;
+      icon = 'none';
+    } else if (scanResult.fallbackToRaw || scanResult.noRuleMatched) {
+      title = t.noRuleMatchedRaw;
+      icon = 'none';
+    }
+    wx.showToast({ title, icon, duration: 2500 });
   },
 
   buildBookInfo(content, scanResult = {}) {
@@ -370,6 +379,13 @@ Page({
     wx.switchTab({
       url: '/pages/history/history'
     });
+  },
+
+  expandRecentBatches() {
+    this.setData({
+      recentBatchDisplayCount: this.data.recentBatchDisplayCount + this.data.recentBatchStep
+    });
+    this.loadRecentBatches();
   },
 
   // 查看批次详情

@@ -100,6 +100,10 @@
         <text class="record-arrow">></text>
       </view>
     </view>
+    <view class="recent-actions">
+      <text class="recent-action" wx:if="{{hasMoreRecentBatches}}" bindtap="expandRecentBatches">{{t.expandMore}}</text>
+      <text class="recent-action" bindtap="viewAllHistory">{{t.moreHistory}}</text>
+    </view>
   </view>
 
   <!-- 空状态 -->

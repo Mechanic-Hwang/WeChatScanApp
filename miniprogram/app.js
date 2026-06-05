@@ -3,6 +3,7 @@ const apiConfigUtil = require('./utils/api-config.js');
 const i18n = require('./utils/i18n.js');
 const MAX_RECORD_STORAGE_BYTES = 200 * 1024;
 const MAX_BATCH_STORAGE_BYTES = 2 * 1024 * 1024;
+const BATCH_GAP_MS = 60 * 60 * 1000;
 const STORAGE_LIMITS = {
   maxBatches: 500,
   maxStorageMB: 10,
@@ -21,6 +22,7 @@ App({
     currentMode: 'normal',
     // API配置
     apiConfig: { url: '', key: '' },
+    batchGapMs: BATCH_GAP_MS,
     storageLimits: STORAGE_LIMITS,
     // 语言设置
     // Language mode is "system" by default so the UI follows WeChat language.
@@ -176,14 +178,36 @@ App({
 
   // 获取或创建当前批次
   getOrCreateBatch(mode) {
+    this.globalData.lastBatchAutoCreatedByGap = false;
+    const currentBatch = this.globalData.currentBatch;
+    const now = Date.now();
+
     // 如果有当前批次且是同一种模式，继续使用
-    if (this.globalData.currentBatch && 
-        this.globalData.currentBatch.batchType === mode) {
-      return this.globalData.currentBatch;
+    if (currentBatch && currentBatch.batchType === mode) {
+      const updatedAt = this.isValidDate(currentBatch.updatedAt)
+        ? new Date(currentBatch.updatedAt).getTime()
+        : now;
+      if (now - updatedAt <= BATCH_GAP_MS) {
+        return currentBatch;
+      }
+      this.globalData.lastBatchAutoCreatedByGap = true;
     }
     
     // 否则创建新批次
     return this.createNewBatch(mode);
+  },
+
+  addScanRecord(record) {
+    const mode = record && record.mode === 'book' ? 'book' : 'normal';
+    const batch = this.getOrCreateBatch(mode);
+    const autoCreatedByGap = !!this.globalData.lastBatchAutoCreatedByGap;
+    const added = this.addScanRecordToBatch(record);
+    return {
+      added,
+      batch,
+      autoCreatedByGap,
+      currentBatchHasRecords: !!(this.globalData.currentBatch && this.globalData.currentBatch.items && this.globalData.currentBatch.items.length > 0)
+    };
   },
 
   // 添加扫描记录到当前批次
@@ -566,9 +590,19 @@ App({
         noRuleMatched: !resolved.matchedRule,
         fallbackToRaw: true,
         queryFailed: true,
-        errorMessage: error.message || '查询失败'
+        errorMessage: this.getQueryErrorMessage(error),
+        rawErrorMessage: error.message || ''
       };
     }
+  },
+
+  getQueryErrorMessage(error = {}) {
+    const t = i18n.locales[this.globalData.language] || i18n.locales['zh-CN'];
+    const message = String(error.errMsg || error.message || '').toLowerCase();
+    if (message.includes('timeout') || message.includes('timed out') || message.includes('超时')) {
+      return t.networkTimeout;
+    }
+    return t.apiException;
   },
 
   // 图书模式在首页基于 queryCustomScan 的标准字段组装展示数据。
