@@ -606,17 +606,31 @@ Page({
     }
 
     wx.showLoading({ title: this.text('testing') });
-    
-    const result = await app.queryCustomScan(testValue, {
-      configs: synced.apiConfigs,
-      rules: this.data.scanRules
-    });
+
+    let result;
+    try {
+      result = await app.queryCustomScan(testValue, {
+        configs: synced.apiConfigs,
+        rules: this.data.scanRules
+      });
+    } catch (error) {
+      // API 测试失败时仍然收起 loading，并把错误作为测试结果展示。
+      result = {
+        success: false,
+        queryFailed: true,
+        errorMessage: app.getQueryErrorMessage(error),
+        parsedResult: { content: testValue },
+        displayFields: [{ label: 'content', value: testValue }]
+      };
+    } finally {
+      wx.hideLoading();
+    }
+
     result.success = !result.queryFailed;
     result.error = result.errorMessage;
     result.apiConfigName = result.apiConfig && (result.apiConfig.name || result.apiConfig.apiConfigId);
     result.detectedType = result.apiConfig && result.apiConfig.responseType;
-    
-    wx.hideLoading();
+
     this.setData({ testResult: result });
   },
 
