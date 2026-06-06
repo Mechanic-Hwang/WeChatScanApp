@@ -45,6 +45,10 @@ App({
     if (value.startsWith('zh')) {
       return value.includes('tw') || value.includes('hk') || value.includes('hant') ? 'zh-TW' : 'zh-CN';
     }
+    if (value.startsWith('es')) return 'es';
+    if (value.startsWith('fr')) return 'fr';
+    if (value.startsWith('de')) return 'de';
+    if (value.startsWith('ja')) return 'ja';
     return 'en';
   },
 

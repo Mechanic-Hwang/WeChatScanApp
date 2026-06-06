@@ -469,6 +469,30 @@
         <text class="lang-name">{{t.langEn}}</text>
         <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'en'}}">✓</text>
       </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'es' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="es">
+        <text class="lang-name">{{t.langEs}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'es'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'fr' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="fr">
+        <text class="lang-name">{{t.langFr}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'fr'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'de' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="de">
+        <text class="lang-name">{{t.langDe}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'de'}}">✓</text>
+      </view>
+      <view class="language-item {{languageMode === 'manual' && currentLang === 'ja' ? 'active' : ''}}"
+            bindtap="switchLanguage"
+            data-lang="ja">
+        <text class="lang-name">{{t.langJa}}</text>
+        <text class="lang-check" wx:if="{{languageMode === 'manual' && currentLang === 'ja'}}">✓</text>
+      </view>
     </view>
     </view>
   </view>
