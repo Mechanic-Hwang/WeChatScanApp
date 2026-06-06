@@ -8,7 +8,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#07C160",
-    "navigationBarTitleText": "扫码简录",
+    "navigationBarTitleText": "Scan Archive",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#F7F8FA"
   },

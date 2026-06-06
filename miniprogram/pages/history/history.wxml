@@ -1,7 +1,7 @@
 <!-- pages/history/history.wxml -->
 <view class="container">
   <!-- 搜索栏 -->
-  <view class="search-bar" wx:if="{{batches.length > 0}}">
+  <view class="search-bar" wx:if="{{allBatches.length > 0}}">
     <view class="search-icon"></view>
     <input class="search-input"
            type="text"

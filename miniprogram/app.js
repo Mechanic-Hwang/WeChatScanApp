@@ -32,7 +32,7 @@ App({
 
   onLaunch() {
     this.loadConfig();
-    console.log('扫码助手小程序启动');
+    console.log('Scan Archive 小程序启动');
   },
 
   // Keep system language mode fresh when the Mini Program returns to foreground.

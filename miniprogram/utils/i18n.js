@@ -5,7 +5,7 @@ const app = getApp();
 const locales = {
   'zh-CN': {
     // 通用
-    appName: '扫码助手',
+    appName: '扫码存档',
     confirm: '确定',
     cancel: '取消',
     save: '保存',
@@ -80,7 +80,7 @@ const locales = {
     feedbackOpenBrowserManually: '请复制以下链接并在浏览器中打开：',
     about: '关于',
     version: '版本 1.0.0',
-    appDesc: '一个简单实用的二维码/条形码/图书扫码工具',
+    appDesc: '一个简单实用的二维码/条形码/图书扫码存档工具',
     
     // 高级API配置
     advancedApiConfig: '高级接口配置',
@@ -352,7 +352,7 @@ const locales = {
   
   'zh-TW': {
     // 通用
-    appName: '掃碼助手',
+    appName: '掃碼存檔',
     confirm: '確定',
     cancel: '取消',
     save: '儲存',
@@ -427,7 +427,7 @@ const locales = {
     feedbackOpenBrowserManually: '請複製以下連結並在瀏覽器中開啟：',
     about: '關於',
     version: '版本 1.0.0',
-    appDesc: '一個簡單實用的二維碼/條形碼/圖書掃碼工具',
+    appDesc: '一個簡單實用的二維碼/條形碼/圖書掃碼存檔工具',
     
     // 高级API配置
     advancedApiConfig: '高級介面設定',
@@ -699,7 +699,7 @@ const locales = {
   
   'en': {
     // General
-    appName: 'Scan Helper',
+    appName: 'Scan Archive',
     confirm: 'Confirm',
     cancel: 'Cancel',
     save: 'Save',
@@ -774,7 +774,7 @@ const locales = {
     feedbackOpenBrowserManually: 'Copy the link below and open it in your browser:',
     about: 'About',
     version: 'Version 1.0.0',
-    appDesc: 'A simple and practical QR/barcode/book scanning tool',
+    appDesc: 'A simple QR/barcode/book scan archiving tool',
     
     // Advanced API Config
     advancedApiConfig: 'Advanced API Config',
